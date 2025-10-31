@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:layout_margin="24dp"
+        android:padding="32dp"
+        android:gravity="center_horizontal">
+
+        <!-- Welcome Back Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome Back"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:textStyle="normal"
+            android:fontFamily="@font/poppinsregular"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Log In Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log In"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppinsbold"
+            android:layout_marginBottom="40dp" />
+
+        <!-- Email Input -->
+        <EditText
+            android:id="@+id/input_email"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Enter your email"
+            android:textColorHint="#999999"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppinsregular"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/input_border"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Password Input -->
+        <EditText
+            android:id="@+id/input_password"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Enter your password"
+            android:textColorHint="#999999"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/input_border"
+            android:inputType="textPassword"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Log In Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Log In"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:background="@drawable/button_bg"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Forgot Password Text -->
+        <TextView
+            android:id="@+id/forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot Password?"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+</ScrollView>
