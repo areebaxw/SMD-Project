@@ -83,7 +83,7 @@
 
         <!-- ===== BODY CONTENT ===== -->
         <LinearLayout
-            android:id="@+id/announcement_list"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -167,7 +167,7 @@
 
         <!-- ===== BODY CONTENT ===== -->
         <LinearLayout
-            android:id="@+id/announcement_list"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
