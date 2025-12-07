@@ -9,7 +9,7 @@ data class Course(
     val credit_hours: Int,
     val semester: Int?,
     val is_required: Boolean,
-    val is_active: Boolean,
+    val is_active: Int,
     val instructors: String?,
     val schedule: String?,
     val enrolled_students: Int?,

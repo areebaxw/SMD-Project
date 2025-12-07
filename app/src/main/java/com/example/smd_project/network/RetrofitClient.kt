@@ -1,6 +1,8 @@
 package com.example.smd_project.network
 
 import com.example.smd_project.utils.SessionManager
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -37,10 +39,15 @@ object RetrofitClient {
     }
     
     fun getApiService(sessionManager: SessionManager): ApiService {
+        // Configure GSON to be lenient with malformed JSON
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(getOkHttpClient(sessionManager))
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         
         return retrofit.create(ApiService::class.java)

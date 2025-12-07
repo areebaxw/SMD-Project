@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.smd_project.models.SignupRequest
+import com.example.smd_project.models.SignupResponse
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
@@ -209,6 +210,7 @@ class SignupActivity : AppCompatActivity() {
                 if (selectedImageUri != null) {
                     Toast.makeText(this@SignupActivity, "Uploading image...", Toast.LENGTH_SHORT).show()
                     imageUrl = uploadImageToCloudinary(selectedImageUri!!)
+                    android.util.Log.d("SignupActivity", "Image URL from upload: $imageUrl")
                 }
                 
                 // Create signup request
@@ -219,19 +221,58 @@ class SignupActivity : AppCompatActivity() {
                     role = selectedRole,
                     profileImage = imageUrl
                 )
+                android.util.Log.d("SignupActivity", "Sending signup request with profileImage: ${signupRequest.profileImage}")
                 
                 // Call signup API
                 val response = RetrofitClient.getApiService(sessionManager).signup(signupRequest)
                 
-                if (response.success) {
-                    Toast.makeText(
-                        this@SignupActivity,
-                        "Account created!\nYour Roll Number: ${response.data?.rollNumber}\nPlease login.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    finish()
+                if (response.isSuccessful) {
+                    val responseBody = response.body()?.string() ?: ""
+                    android.util.Log.d("SignupActivity", "Response: $responseBody")
+                    
+                    // Check if response is valid JSON
+                    if (responseBody.trim().startsWith("{") && responseBody.trim().endsWith("}")) {
+                        try {
+                            val gson = com.google.gson.Gson()
+                            val signupResponse = gson.fromJson(responseBody, SignupResponse::class.java)
+                            
+                            if (signupResponse != null && signupResponse.success) {
+                                Toast.makeText(
+                                    this@SignupActivity,
+                                    "Account created!\nYour Roll Number: ${signupResponse.data?.rollNumber}\nPlease login.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                finish()
+                            } else {
+                                Toast.makeText(this@SignupActivity, signupResponse?.message ?: "Signup failed", Toast.LENGTH_SHORT).show()
+                                btnSignup.isEnabled = true
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("SignupActivity", "JSON parsing error: ${e.message}", e)
+                            Toast.makeText(this@SignupActivity, "Failed to parse response: ${e.message}", Toast.LENGTH_SHORT).show()
+                            btnSignup.isEnabled = true
+                        }
+                    } else {
+                        // Response is plain text (error message from server)
+                        android.util.Log.e("SignupActivity", "Server returned plain text: $responseBody")
+                        Toast.makeText(
+                            this@SignupActivity,
+                            "Server error: $responseBody",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        btnSignup.isEnabled = true
+                    }
                 } else {
-                    Toast.makeText(this@SignupActivity, response.message, Toast.LENGTH_SHORT).show()
+                    // Handle error response
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = when {
+                        errorBody?.isNotEmpty() == true -> errorBody
+                        response.code() == 409 -> "Email already registered"
+                        response.code() == 400 -> "Invalid input data"
+                        response.code() == 500 -> "Server error. Please try again later."
+                        else -> "Signup failed: ${response.message()}"
+                    }
+                    Toast.makeText(this@SignupActivity, errorMessage, Toast.LENGTH_SHORT).show()
                     btnSignup.isEnabled = true
                 }
             } catch (e: Exception) {
@@ -240,9 +281,16 @@ class SignupActivity : AppCompatActivity() {
                 android.util.Log.e("SignupActivity", "Error cause: ${e.cause}")
                 e.printStackTrace()
                 
+                val errorMsg = when (e) {
+                    is com.google.gson.JsonSyntaxException -> "Server returned invalid response format"
+                    is com.google.gson.stream.MalformedJsonException -> "Server returned malformed JSON"
+                    is java.io.IOException -> "Network error. Please check your connection."
+                    else -> e.message ?: "Unknown error"
+                }
+                
                 Toast.makeText(
                     this@SignupActivity,
-                    "Signup failed: ${e.message ?: "Unknown error"}",
+                    "Signup failed: $errorMsg",
                     Toast.LENGTH_LONG
                 ).show()
                 btnSignup.isEnabled = true
@@ -252,6 +300,7 @@ class SignupActivity : AppCompatActivity() {
     
     private suspend fun uploadImageToCloudinary(uri: Uri): String {
         return try {
+            android.util.Log.d("SignupActivity", "Starting image upload...")
             val inputStream = contentResolver.openInputStream(uri)
             val file = java.io.File(cacheDir, "upload_${System.currentTimeMillis()}.jpg")
             file.outputStream().use { inputStream?.copyTo(it) }
@@ -259,16 +308,27 @@ class SignupActivity : AppCompatActivity() {
             val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
             val body = okhttp3.MultipartBody.Part.createFormData("image", file.name, requestFile)
             
-            val uploadResponse = RetrofitClient.getApiService(sessionManager).uploadImage(body)
+            // Use PUBLIC endpoint (no auth required)
+            android.util.Log.d("SignupActivity", "Calling uploadImagePublic endpoint...")
+            val uploadResponse = RetrofitClient.getApiService(sessionManager).uploadImagePublic(body)
             file.delete()
             
-            if (uploadResponse.success && uploadResponse.imageUrl != null) {
-                uploadResponse.imageUrl
+            android.util.Log.d("SignupActivity", "Upload response success: ${uploadResponse.success}")
+            android.util.Log.d("SignupActivity", "Upload response data: ${uploadResponse.data}")
+            android.util.Log.d("SignupActivity", "Upload response URL: ${uploadResponse.data?.url}")
+            android.util.Log.d("SignupActivity", "Upload response message: ${uploadResponse.message}")
+            
+            if (uploadResponse.success && uploadResponse.data?.url != null) {
+                android.util.Log.d("SignupActivity", "Returning URL: ${uploadResponse.data.url}")
+                uploadResponse.data.url ?: ""
             } else {
+                android.util.Log.e("SignupActivity", "Upload failed or no URL returned")
                 ""
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            android.util.Log.e("SignupActivity", "Image upload exception: ${e.message}")
+            android.util.Log.e("SignupActivity", "Exception: ", e)
             ""
         }
     }

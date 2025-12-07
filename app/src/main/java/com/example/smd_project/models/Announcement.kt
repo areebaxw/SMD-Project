@@ -7,7 +7,7 @@ data class Announcement(
     val title: String,
     val content: String,
     val announcement_type: String,
-    val is_active: Boolean,
+    val is_active: Int,
     val created_at: String,
     val teacher_name: String,
     val course_name: String?,

@@ -51,10 +51,12 @@ class TeacherDashboard : AppCompatActivity() {
             
             tvTeacherName.text = sessionManager.getUserName()
             
-            sessionManager.getProfilePic()?.let { url ->
+            val profileUrl = sessionManager.getProfilePic()
+            if (!profileUrl.isNullOrEmpty()) {
                 Picasso.get()
-                    .load(url)
+                    .load(profileUrl)
                     .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground)
                     .into(ivProfilePic)
             }
         } catch (e: Exception) {

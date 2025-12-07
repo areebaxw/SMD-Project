@@ -14,7 +14,7 @@ data class Student(
     val semester: Int,
     val cgpa: Double,
     val total_credits: Int,
-    val is_active: Boolean,
+    val is_active: Int,
     val created_at: String
 )
 

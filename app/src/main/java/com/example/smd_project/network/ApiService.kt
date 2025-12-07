@@ -2,6 +2,7 @@ package com.example.smd_project.network
 
 import com.example.smd_project.models.*
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -9,7 +10,7 @@ interface ApiService {
     
     // Authentication
     @POST("auth/signup")
-    suspend fun signup(@Body request: SignupRequest): SignupResponse
+    suspend fun signup(@Body request: SignupRequest): Response<ResponseBody>
     
     @GET("auth/last-roll-number")
     suspend fun getLastRollNumber(@Query("type") type: String): RollNumberResponse
@@ -17,6 +18,10 @@ interface ApiService {
     @Multipart
     @POST("upload/image")
     suspend fun uploadImage(@Part image: MultipartBody.Part): ImageUploadResponse
+    
+    @Multipart
+    @POST("upload/image/public")
+    suspend fun uploadImagePublic(@Part image: MultipartBody.Part): ImageUploadResponse
     
     @POST("auth/student/signup")
     suspend fun studentSignup(@Body request: SignupRequest): Response<ApiResponse<LoginResponse>>

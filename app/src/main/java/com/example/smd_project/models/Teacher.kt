@@ -10,7 +10,7 @@ data class Teacher(
     val department: String?,
     val designation: String?,
     val specialization: String?,
-    val is_active: Boolean,
+    val is_active: Int,
     val created_at: String
 )
 
