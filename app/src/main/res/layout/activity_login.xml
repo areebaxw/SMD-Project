@@ -89,5 +89,33 @@
             android:textSize="14sp"
             android:layout_marginTop="8dp" />
 
+        <!-- Signup Text -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Not a user? "
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinsregular" />
+
+            <TextView
+                android:id="@+id/txt_signup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sign Up"
+                android:textColor="#8B2E8B"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/poppinsbold"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
