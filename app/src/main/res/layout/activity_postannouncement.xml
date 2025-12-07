@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/header_bg"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp"
+            android:gravity="center_vertical">
+
+            <!-- Back Arrow -->
+            <ImageView
+                android:id="@+id/backArrow"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/backarrow"
+                android:contentDescription="Back" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/headerTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="20dp"
+                android:text="Post Announcement"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Content Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Icon and Dropdowns Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/lightgrey_card"
+                android:padding="20dp"
+                android:gravity="center_vertical">
+
+                <!-- Announcement Icon -->
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/annoucement_rec"
+                    android:contentDescription="Announcement"
+                    android:layout_marginEnd="16dp" />
+
+                <!-- Dropdowns -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- Course Dropdown -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/save_button_bg"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:id="@+id/courseText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Data Structures"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/down_arrow"
+                            android:contentDescription="Dropdown"
+                            android:tint="@color/white" />
+                    </LinearLayout>
+
+                    <!-- Type Dropdown -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/save_button_bg"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/typeText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Type"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/down_arrow"
+                            android:contentDescription="Dropdown"
+                            android:tint="@color/white" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Announcement Title Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Announcement Title"
+                android:textColor="#8B2E8B"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Title . . ."
+                android:textColorHint="#999999"
+                android:textSize="15sp"
+                android:textColor="#333333"
+                android:background="@drawable/lightgrey_card"
+                android:padding="16dp"
+                android:maxLines="1"
+                android:inputType="text" />
+
+            <!-- Announcement Content Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Announcement Content"
+                android:textColor="#8B2E8B"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <EditText
+                android:id="@+id/contentEditText"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:hint="Content . . ."
+                android:textColorHint="#999999"
+                android:textSize="15sp"
+                android:textColor="#333333"
+                android:background="@drawable/lightgrey_card"
+                android:padding="16dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine|textCapSentences"
+                android:maxLines="10"
+                android:scrollbars="vertical" />
+
+            <!-- Spacer to push button to bottom -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="24dp" />
+
+            <!-- Announce Button -->
+            <TextView
+                android:id="@+id/announceButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Announce"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/save_button_bg"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:layout_marginTop="24dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
