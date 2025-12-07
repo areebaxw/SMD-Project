@@ -15,6 +15,20 @@
         android:padding="32dp"
         android:gravity="center_horizontal">
 
+        <!-- Create Account Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Account"
+            android:textColor="#000000"
+            android:textSize="30sp"
+            android:textStyle="normal"
+            android:fontFamily="@font/poppinsregular"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="8dp"
+
+            />
+
         <!-- Sign Up Title -->
         <TextView
             android:layout_width="wrap_content"
@@ -24,12 +38,85 @@
             android:textSize="36sp"
             android:textStyle="bold"
             android:fontFamily="@font/poppinsbold"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="40dp" />
+            android:layout_marginBottom="24dp" />
+
+        <!-- Profile Picture Section -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:id="@+id/iv_profile_picture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_foreground"
+                android:background="@drawable/input_border" />
+
+            <ImageView
+                android:id="@+id/btn_select_image"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/button_bg"
+                android:padding="8dp"
+                android:src="@android:drawable/ic_menu_camera"
+                android:tint="#FFFFFF"
+                android:elevation="4dp" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upload Profile Picture"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:fontFamily="@font/poppinsregular"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Role Toggle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:background="@drawable/input_border"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/btn_student"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Student"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/poppinsbold"
+                android:gravity="center"
+                android:background="@drawable/button_bg"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btn_teacher"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Teacher"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/poppinsregular"
+                android:gravity="center"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
 
         <!-- Full Name Input -->
         <EditText
-            android:id="@+id/input_full_name"
+            android:id="@+id/input_fullname"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:hint="Enter your full name"
@@ -89,7 +176,7 @@
 
         <!-- Sign Up Button -->
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_sign_up"
+            android:id="@+id/btn_signup"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Sign Up"
@@ -100,6 +187,34 @@
             android:textAllCaps="false"
             android:background="@drawable/button_bg"
             android:layout_marginBottom="16dp" />
+
+        <!-- Login Text -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account? "
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinsregular" />
+
+            <TextView
+                android:id="@+id/txt_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log In"
+                android:textColor="#8B2E8B"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/poppinsbold"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

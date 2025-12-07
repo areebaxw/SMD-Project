@@ -74,15 +74,11 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/courseText"
+                <Spinner
+                    android:id="@+id/spinnerCourse"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Data Structures"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content" />
 
                 <ImageView
                     android:id="@+id/courseDropdownArrow"
@@ -101,15 +97,11 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="12dp">
 
-                <TextView
-                    android:id="@+id/assignmentText"
+                <Spinner
+                    android:id="@+id/spinnerEvaluationType"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Assignments"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content" />
 
                 <ImageView
                     android:id="@+id/assignmentDropdownArrow"
@@ -169,15 +161,16 @@
                         android:textSize="13sp"
                         android:layout_marginBottom="4dp" />
 
-                    <TextView
-                        android:id="@+id/evaluationNoValue"
+                    <EditText
+                        android:id="@+id/etEvaluationNumber"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="01"
+                        android:hint="01"
                         android:textColor="#333333"
                         android:textSize="14sp"
                         android:background="@drawable/input_border"
-                        android:padding="8dp" />
+                        android:padding="8dp"
+                        android:inputType="number" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -195,15 +188,16 @@
                         android:textSize="13sp"
                         android:layout_marginBottom="4dp" />
 
-                    <TextView
-                        android:id="@+id/totalMarksValue"
+                    <EditText
+                        android:id="@+id/etTotalMarks"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="50"
+                        android:hint="50"
                         android:textColor="#333333"
                         android:textSize="14sp"
                         android:background="@drawable/input_border"
-                        android:padding="8dp" />
+                        android:padding="8dp"
+                        android:inputType="number" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -254,11 +248,11 @@
                         android:textSize="13sp"
                         android:layout_marginBottom="4dp" />
 
-                    <TextView
-                        android:id="@+id/topicValue"
+                    <EditText
+                        android:id="@+id/etTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Pointers"
+                        android:hint="Pointers"
                         android:textColor="#333333"
                         android:textSize="14sp"
                         android:background="@drawable/input_border"
@@ -296,8 +290,7 @@
             android:hint="Search Students . . ."
             android:textColorHint="#999999"
             android:textSize="14sp"
-            android:background="@android:color/transparent"
-            android:border="none" />
+            android:background="@android:color/transparent" />
     </LinearLayout>
 
     <!-- Stats Cards -->
@@ -397,7 +390,7 @@
         android:background="@color/white">
 
         <TextView
-            android:id="@+id/submitButton"
+            android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Submit Marks"

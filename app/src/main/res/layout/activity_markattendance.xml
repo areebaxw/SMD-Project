@@ -74,15 +74,11 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/courseText"
+                <Spinner
+                    android:id="@+id/spinnerCourse"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Data Structures"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content" />
 
                 <ImageView
                     android:id="@+id/dropdownArrow"
@@ -99,13 +95,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp">
 
-                <TextView
-                    android:id="@+id/dateText"
+                <EditText
+                    android:id="@+id/etDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Wednesday, October 8th 2025"
+                    android:hint="Wednesday, October 8th 2025"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:background="@android:color/transparent" />
 
                 <ImageView
                     android:id="@+id/calendarIcon"
@@ -127,7 +124,7 @@
                 android:gravity="end">
 
                 <TextView
-                    android:id="@+id/allPresentButton"
+                    android:id="@+id/btnAllPresent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="All Present"
@@ -184,8 +181,7 @@
             android:hint="Search Students . . ."
             android:textColorHint="#999999"
             android:textSize="14sp"
-            android:background="@android:color/transparent"
-            android:border="none" />
+            android:background="@android:color/transparent" />
     </LinearLayout>
 
     <!-- Attendance Stats -->
@@ -297,7 +293,7 @@
 
     <!-- Students RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/studentsRecyclerView"
+        android:id="@+id/rvStudents"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -313,7 +309,7 @@
         android:background="@color/white">
 
         <TextView
-            android:id="@+id/submitButton"
+            android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Submit Attendance"

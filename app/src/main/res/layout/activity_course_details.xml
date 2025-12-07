@@ -125,7 +125,7 @@
                     android:text="An elective course on developing Android applications using Kotlin, focusing on app design, coding, and deployment with modern software development practices."
                     android:textColor="@color/black"
                     android:textSize="13sp"
-                    android:lineSpacing="4dp" />
+                    android:lineSpacingExtra="4dp" />
 
             </LinearLayout>
 

@@ -22,24 +22,32 @@
             <ImageView
                 android:id="@+id/back_icon"
                 android:layout_width="24dp"
-                android:layout_marginTop="10dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ep_back"
-         />
+                android:src="@drawable/ic_back"     <!-- Replace with your icon -->
+            android:tint="#FFFFFF"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="10dp" />
 
             <!-- Notification Icon -->
             <ImageView
                 android:id="@+id/notification_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/notifybutton"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="10dp"
-
-            />
-
+                android:src="@drawable/ic_bell"      <!-- Replace with your icon -->
+            android:tint="#FFFFFF"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp" />
 
 
+            <ImageView
+                android:id="@+id/filter_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ep_back"/>
+            android:tint="#FFFFFF"
+            android:layout_below="@id/notification_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="12dp" />
 
             <!-- Title -->
             <TextView
@@ -79,10 +87,10 @@
 
                 <ImageView
                     android:id="@+id/search_icon"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/search"
-                />
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_search"   <!-- Replace with your icon -->
+                android:tint="#949494" />
             </LinearLayout>
         </RelativeLayout>
 

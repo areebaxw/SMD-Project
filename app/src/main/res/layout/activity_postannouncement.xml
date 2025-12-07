@@ -88,15 +88,11 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="12dp">
 
-                        <TextView
-                            android:id="@+id/courseText"
+                        <Spinner
+                            android:id="@+id/spinnerCourse"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Data Structures"
-                            android:textColor="@color/white"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:layout_weight="1" />
 
                         <ImageView
                             android:layout_width="20dp"
@@ -118,15 +114,11 @@
                         android:paddingBottom="12dp"
                         android:gravity="center_vertical">
 
-                        <TextView
-                            android:id="@+id/typeText"
+                        <Spinner
+                            android:id="@+id/spinnerType"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Type"
-                            android:textColor="@color/white"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:layout_weight="1" />
 
                         <ImageView
                             android:layout_width="20dp"
@@ -150,7 +142,7 @@
                 android:layout_marginBottom="12dp" />
 
             <EditText
-                android:id="@+id/titleEditText"
+                android:id="@+id/etTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Title . . ."
@@ -174,7 +166,7 @@
                 android:layout_marginBottom="12dp" />
 
             <EditText
-                android:id="@+id/contentEditText"
+                android:id="@+id/etContent"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:hint="Content . . ."
@@ -197,7 +189,7 @@
 
             <!-- Announce Button -->
             <TextView
-                android:id="@+id/announceButton"
+                android:id="@+id/btnPublish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Announce"
