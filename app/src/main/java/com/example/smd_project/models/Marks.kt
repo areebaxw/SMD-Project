@@ -48,8 +48,7 @@ data class MarkStudentAssessmentResponse(
 data class CourseMarks(
     val evaluation_id: Int,
     val student_id: Int,
-    val first_name: String,
-    val last_name: String,
+    val full_name: String,
     val obtained_marks: Int,
     val evaluation_number: Int,
     val title: String,

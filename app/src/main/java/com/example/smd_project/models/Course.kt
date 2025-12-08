@@ -5,7 +5,6 @@ data class Course(
     val course_code: String,
     val course_name: String,
     val description: String?,
-    val credits: Int,
     val credit_hours: Int,
     val semester: Int?,
     val is_required: Boolean,
@@ -26,5 +25,6 @@ data class TodayClass(
     val end_time: String,
     val room_number: String?,
     val course_name: String,
-    val course_code: String
+    val course_code: String,
+    val student_count: Int? = null
 )

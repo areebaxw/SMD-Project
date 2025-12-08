@@ -1,9 +1,10 @@
 package com.example.smd_project.models
 
+import com.google.gson.annotations.SerializedName
+
 data class AttendanceSummary(
     val student_id: Int,
-    val first_name: String,
-    val last_name: String,
+    val full_name: String,
     val present_count: Int,
     val absent_count: Int,
     val late_count: Int,
@@ -18,12 +19,22 @@ data class AttendanceRecord(
 )
 
 data class MarkAttendanceRequest(
+    @SerializedName("courseId")
     val courseId: Int,
-    val attendance: List<AttendanceItem>
+    @SerializedName("attendanceRecords")
+    val attendanceRecords: List<AttendanceItem>
 )
 
 data class AttendanceItem(
+    @SerializedName("studentId")
     val studentId: Int,
+    @SerializedName("status")
+    val status: String
+)
+
+// Response model for today's attendance (uses snake_case from backend)
+data class TodayAttendanceItem(
+    val student_id: Int,
     val status: String
 )
 

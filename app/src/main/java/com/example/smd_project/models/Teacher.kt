@@ -1,5 +1,7 @@
 package com.example.smd_project.models
 
+import com.google.gson.annotations.SerializedName
+
 data class Teacher(
     val teacher_id: Int,
     val employee_id: String,
@@ -18,7 +20,8 @@ data class TeacherDashboard(
     val teacher: TeacherInfo,
     val courses: List<Course>?,
     val todaySchedule: List<TodayClass>?,
-    val unreadNotifications: Int
+    val unreadNotifications: Int,
+    val stats: DashboardStats? = null
 )
 
 data class TeacherInfo(
@@ -26,5 +29,6 @@ data class TeacherInfo(
     val full_name: String,
     val email: String,
     val phone: String?,
-    val profile_image: String?
+    @SerializedName("profile_image")
+    val profile_picture_url: String?
 )

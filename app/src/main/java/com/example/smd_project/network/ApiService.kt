@@ -124,6 +124,9 @@ interface ApiService {
     @GET("teacher/course/{courseId}/attendance-summary")
     suspend fun getCourseAttendanceSummary(@Path("courseId") courseId: Int): Response<ApiResponse<List<AttendanceSummary>>>
 
+    @GET("teacher/course/{courseId}/attendance-today")
+    suspend fun getTodayAttendance(@Path("courseId") courseId: Int): Response<ApiResponse<List<TodayAttendanceItem>>>
+
     @GET("teacher/course/{courseId}/marks")
     suspend fun getCourseMarks(@Path("courseId") courseId: Int): Response<ApiResponse<List<CourseMarks>>>
     // Course Registration Endpoints

@@ -30,7 +30,9 @@ class TeacherDashboard : AppCompatActivity() {
     private lateinit var tvEmployeeId: TextView
     private lateinit var tvCourseCount: TextView
     private lateinit var tvStudentCount: TextView
+    private lateinit var tvPendingTasksCount: TextView
     private lateinit var rvTodayClasses: RecyclerView
+    private lateinit var rvRecentActivity: RecyclerView
     
     private var rvCourses: RecyclerView? = null
     private var rvAnnouncements: RecyclerView? = null
@@ -61,7 +63,9 @@ class TeacherDashboard : AppCompatActivity() {
             tvEmployeeId = findViewById(R.id.tvEmployeeId)
             tvCourseCount = findViewById(R.id.tvCourseCount)
             tvStudentCount = findViewById(R.id.tvStudentCount)
+            tvPendingTasksCount = findViewById(R.id.tvPendingTasksCount)
             rvTodayClasses = findViewById(R.id.rvTodayClasses)
+            rvRecentActivity = findViewById(R.id.rvRecentActivity)
             
             // Try to find additional RecyclerViews if they exist
             try {
@@ -92,6 +96,13 @@ class TeacherDashboard : AppCompatActivity() {
         rvTodayClasses.apply {
             layoutManager = LinearLayoutManager(this@TeacherDashboard)
             adapter = todayClassAdapter
+        }
+        
+        // Setup recent activity (announcements)
+        announcementAdapter = AnnouncementAdapter(emptyList())
+        rvRecentActivity.apply {
+            layoutManager = LinearLayoutManager(this@TeacherDashboard)
+            adapter = announcementAdapter
         }
         
         // Setup other adapters if RecyclerViews exist
@@ -172,7 +183,7 @@ class TeacherDashboard : AppCompatActivity() {
                                 tvTeacherName.text = it.teacher.full_name
                                 tvEmployeeId.text = it.teacher.email
                                 
-                                it.teacher.profile_image?.let { url ->
+                                it.teacher.profile_picture_url?.let { url ->
                                     if (url.isNotEmpty()) {
                                         Picasso.get()
                                             .load(url)
@@ -200,6 +211,19 @@ class TeacherDashboard : AppCompatActivity() {
                             // Update course count
                             val courseCount = it.courses?.size ?: 0
                             tvCourseCount.text = courseCount.toString()
+                            
+                            // Update stats from API if available
+                            it.stats?.let { stats ->
+                                android.util.Log.d("TeacherDashboard", "Stats: students=${stats.total_students}, courses=${stats.total_courses}, pending=${stats.pending_tasks}")
+                                tvStudentCount.text = stats.total_students.toString()
+                                tvCourseCount.text = stats.total_courses.toString()
+                                tvPendingTasksCount.text = stats.pending_tasks.toString()
+                            } ?: run {
+                                // Fallback: Calculate total students from courses data
+                                android.util.Log.d("TeacherDashboard", "Stats not available in API response, using fallback")
+                                tvCourseCount.text = courseCount.toString()
+                                // This will be updated when courses data loads below
+                            }
                             
                             // Update today's schedule if available
                             it.todaySchedule?.let { schedule ->
@@ -252,23 +276,32 @@ class TeacherDashboard : AppCompatActivity() {
                         if (courses.isNotEmpty()) {
                             tvCourseCount.text = courses.size.toString()
                             courseAdapter?.updateCourses(courses)
+                            
+                            // Calculate total enrolled students from courses
+                            val totalStudents = courses.sumOf { it.enrolled_students ?: 0 }
+                            android.util.Log.d("TeacherDashboard", "Total enrolled students: $totalStudents")
+                            tvStudentCount.text = totalStudents.toString()
                         } else {
                             android.util.Log.d("TeacherDashboard", "No courses returned from backend")
                             tvCourseCount.text = "0"
+                            tvStudentCount.text = "0"
                         }
                     } else {
                         android.util.Log.e("TeacherDashboard", "Courses API success is false: ${body?.message}")
                         tvCourseCount.text = "0"
+                        tvStudentCount.text = "0"
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     android.util.Log.e("TeacherDashboard", "Courses API error: ${response.code()} - $errorBody")
                     // Show error but don't crash
                     Toast.makeText(this@TeacherDashboard, "Could not load courses", Toast.LENGTH_SHORT).show()
+                    tvStudentCount.text = "0"
                 }
             } catch (e: Exception) {
                 android.util.Log.e("TeacherDashboard", "Courses load error: ${e.message}", e)
                 tvCourseCount.text = "0"
+                tvStudentCount.text = "0"
             }
         }
     }

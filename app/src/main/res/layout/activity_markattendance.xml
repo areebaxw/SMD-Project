@@ -15,7 +15,7 @@
         android:paddingTop="16dp"
         android:paddingBottom="24dp">
 
-        <!-- Top Bar with Back, Title and Save -->
+        <!-- Top Bar with Title and Save -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,10 +29,11 @@
             <!-- Back Arrow -->
             <ImageView
                 android:id="@+id/backArrow"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/backarrow"
-                android:contentDescription="Back" />
+                android:contentDescription="Back"
+                android:tint="@color/white" />
 
             <!-- Title -->
             <TextView
@@ -44,7 +45,8 @@
                 android:text="Mark Attendance"
                 android:textColor="@color/white"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:gravity="center" />
 
             <!-- Save Button -->
             <TextView
@@ -67,18 +69,22 @@
             android:layout_marginEnd="16dp"
             android:padding="16dp">
 
-            <!-- Course Section with Dropdown -->
+            <!-- Course Section with Label and Dropdown -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
 
                 <Spinner
                     android:id="@+id/spinnerCourse"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:background="@android:color/transparent" />
 
                 <ImageView
                     android:id="@+id/dropdownArrow"
@@ -86,42 +92,47 @@
                     android:layout_height="24dp"
                     android:src="@drawable/down_arrow"
                     android:contentDescription="Dropdown"
+                    android:layout_marginStart="8dp"
                     android:tint="@color/white" />
             </LinearLayout>
 
             <!-- Date Section -->
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
 
                 <EditText
                     android:id="@+id/etDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:hint="Wednesday, October 8th 2025"
                     android:textColor="@color/white"
-                    android:textSize="15sp"
-                    android:background="@android:color/transparent" />
+                    android:textColorHint="#CCCCCC"
+                    android:textSize="14sp"
+                    android:background="@android:color/transparent"
+                    android:inputType="none"
+                    android:focusable="false" />
 
                 <ImageView
                     android:id="@+id/calendarIcon"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/down_arrow"
                     android:contentDescription="Calendar"
+                    android:layout_marginStart="8dp"
                     android:tint="@color/white" />
-            </RelativeLayout>
+            </LinearLayout>
 
             <!-- All Present and All Absent Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:gravity="end">
+                android:gravity="center">
 
                 <TextView
                     android:id="@+id/btnAllPresent"
@@ -129,14 +140,14 @@
                     android:layout_height="wrap_content"
                     android:text="All Present"
                     android:textColor="@color/white"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:background="#4CAF50"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:layout_marginEnd="10dp" />
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:layout_marginEnd="8dp" />
 
                 <TextView
                     android:id="@+id/allAbsentButton"
@@ -144,13 +155,13 @@
                     android:layout_height="wrap_content"
                     android:text="All Absent"
                     android:textColor="@color/white"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:background="#F44336"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp" />
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -179,6 +190,7 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:hint="Search Students . . ."
+            android:textColor="#333333"
             android:textColorHint="#999999"
             android:textSize="14sp"
             android:background="@android:color/transparent" />
@@ -191,7 +203,8 @@
         android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal">
 
         <!-- Present Card -->
         <LinearLayout
@@ -200,8 +213,8 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/square_white"
-            android:padding="16dp"
-            android:layout_marginEnd="8dp"
+            android:padding="12dp"
+            android:layout_marginEnd="6dp"
             android:gravity="center">
 
             <TextView
@@ -209,16 +222,16 @@
                 android:layout_height="wrap_content"
                 android:text="Present"
                 android:textColor="#666666"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:layout_marginBottom="4dp" />
 
             <TextView
                 android:id="@+id/presentCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="42"
+                android:text="0"
                 android:textColor="#4CAF50"
-                android:textSize="32sp"
+                android:textSize="28sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -229,8 +242,9 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/square_white"
-            android:padding="16dp"
-            android:layout_marginEnd="8dp"
+            android:padding="12dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
             android:gravity="center">
 
             <TextView
@@ -238,16 +252,16 @@
                 android:layout_height="wrap_content"
                 android:text="Absent"
                 android:textColor="#666666"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:layout_marginBottom="4dp" />
 
             <TextView
                 android:id="@+id/absentCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="03"
+                android:text="0"
                 android:textColor="#F44336"
-                android:textSize="32sp"
+                android:textSize="28sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -258,7 +272,8 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/square_white"
-            android:padding="16dp"
+            android:padding="12dp"
+            android:layout_marginStart="6dp"
             android:gravity="center">
 
             <TextView
@@ -266,30 +281,32 @@
                 android:layout_height="wrap_content"
                 android:text="Late"
                 android:textColor="#666666"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:layout_marginBottom="4dp" />
 
             <TextView
                 android:id="@+id/lateCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="12"
+                android:text="0"
                 android:textColor="#2196F3"
-                android:textSize="32sp"
+                android:textSize="28sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 
     <!-- Students List Header -->
     <TextView
+        android:id="@+id/tvStudentsHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Students (45)"
+        android:text="Students (0)"
         android:textColor="#333333"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="8dp" />
 
     <!-- Students RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView

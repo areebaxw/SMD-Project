@@ -31,7 +31,7 @@ class AttendanceAdapter(
         val attendance = attendanceList[position]
         
         holder.tvCourseCode.text = "Student #${attendance.student_id}"
-        holder.tvCourseName.text = "${attendance.first_name} ${attendance.last_name}"
+        holder.tvCourseName.text = attendance.full_name
         holder.tvAttendanceStats.text = 
             "Present: ${attendance.present_count} | Absent: ${attendance.absent_count} | Late: ${attendance.late_count}"
         holder.tvPercentage.text = "${attendance.attendance_percentage}%"

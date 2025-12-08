@@ -18,7 +18,8 @@ data class Announcement(
 data class PostAnnouncementRequest(
     val courseId: Int?,
     val title: String,
-    val content: String
+    val content: String,
+    val announcement_type: String = "General"
 )
 
 data class PostAnnouncementResponse(

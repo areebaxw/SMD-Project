@@ -83,7 +83,8 @@ class PostAnnouncement : AppCompatActivity() {
         val request = PostAnnouncementRequest(
             courseId = selectedCourseId,
             title = title,
-            content = content
+            content = content,
+            announcement_type = announcementType
         )
         
         val apiService = RetrofitClient.getApiService(sessionManager)

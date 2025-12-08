@@ -32,7 +32,7 @@ class CourseAdapter(
         holder.tvCourseCode.text = course.course_code
         holder.tvCourseName.text = course.course_name
         
-        val details = "Credits: ${course.credits}" + 
+        val details = "Credit Hours: ${course.credit_hours}" + 
             if (course.instructors != null) " | Instructor: ${course.instructors}" else ""
         holder.tvCourseDetails.text = details
         
