@@ -40,6 +40,30 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+        <activity
+            android:name=".CourseListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CourseDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AnnouncementListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ScheduleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EvaluationListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateEvaluationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MarkStudentsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

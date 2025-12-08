@@ -92,5 +92,35 @@ interface ApiService {
     suspend fun getTeacherAnnouncements(): Response<ApiResponse<List<Announcement>>>
     
     @GET("teacher/schedule")
-    suspend fun getTeacherSchedule(): Response<ApiResponse<List<TodayClass>>>
+    suspend fun getTeacherSchedule(): Response<ApiResponse<List<Schedule>>>
+    
+    @GET("teacher/schedule/today")
+    suspend fun getTodaySchedule(): Response<ApiResponse<List<Schedule>>>
+    
+    @GET("teacher/announcements/all")
+    suspend fun getTeacherAllAnnouncements(): Response<ApiResponse<List<Announcement>>>
+    
+    @GET("teacher/notifications")
+    suspend fun getTeacherNotifications(): Response<ApiResponse<NotificationResponse>>
+    
+    @GET("teacher/notifications/unread")
+    suspend fun getUnreadNotifications(): Response<ApiResponse<List<Notification>>>
+    
+    @POST("teacher/notifications/{notificationId}/read")
+    suspend fun markNotificationAsRead(@Path("notificationId") notificationId: Int): Response<ApiResponse<Any>>
+    
+    @GET("teacher/course/{courseId}/evaluations")
+    suspend fun getCourseEvaluations(@Path("courseId") courseId: Int): Response<ApiResponse<List<Evaluation>>>
+    
+    @GET("teacher/evaluation-types")
+    suspend fun getEvaluationTypes(): Response<ApiResponse<List<EvaluationType>>>
+    
+    @POST("teacher/create-evaluation")
+    suspend fun createEvaluation(@Body request: CreateEvaluationRequest): Response<ApiResponse<Evaluation>>
+    
+    @POST("teacher/mark-student-assessment")
+    suspend fun markStudentAssessment(@Body request: EnterMarksRequest): Response<ApiResponse<Any>>
+    
+    @GET("teacher/course/{courseId}/attendance-summary")
+    suspend fun getCourseAttendanceSummary(@Path("courseId") courseId: Int): Response<ApiResponse<List<AttendanceSummary>>>
 }
