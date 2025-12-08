@@ -2,6 +2,7 @@ package com.example.smd_project
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -100,7 +101,7 @@ class CreateEvaluationActivity : AppCompatActivity() {
     }
     
     private fun setupEvaluationTypeSpinner() {
-        val typeNames = evaluationTypes.map { it.type_name }
+        val typeNames = evaluationTypes.map { it.evaluation_type_name }
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
@@ -109,10 +110,14 @@ class CreateEvaluationActivity : AppCompatActivity() {
         spnEvaluationType.adapter = adapter
         spnEvaluationType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedEvaluationTypeId = evaluationTypes[position].evaluation_type_id
+                if (position >= 0 && position < evaluationTypes.size) {
+                    selectedEvaluationTypeId = evaluationTypes[position].evaluation_type_id
+                }
             }
             
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                selectedEvaluationTypeId = 0
+            }
         }
     }
     
@@ -169,15 +174,13 @@ class CreateEvaluationActivity : AppCompatActivity() {
         }
         
         val request = CreateEvaluationRequest(
-            course_id = courseId,
-            evaluation_type_id = selectedEvaluationTypeId,
-            evaluation_number = evaluationNumber,
+            courseId = courseId,
+            evaluationTypeId = selectedEvaluationTypeId,
+            evaluationNumber = evaluationNumber,
             title = title,
-            description = if (description.isEmpty()) null else description,
-            total_marks = totalMarks,
-            due_date = selectedDueDate,
-            academic_year = getCurrentAcademicYear(),
-            semester = getCurrentSemester()
+            totalMarks = totalMarks,
+            semester = getCurrentSemester(),
+            academicYear = getCurrentAcademicYear()
         )
         
         submitCreateEvaluation(request)

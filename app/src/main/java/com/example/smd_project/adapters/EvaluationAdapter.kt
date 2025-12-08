@@ -32,20 +32,16 @@ class EvaluationAdapter(
         val evaluation = evaluations[position]
         
         holder.tvTitle.text = evaluation.title
-        holder.tvType.text = evaluation.evaluation_type
+        holder.tvType.text = "Evaluation #${evaluation.evaluation_number}"
         holder.tvTotalMarks.text = "Total Marks: ${evaluation.total_marks}"
         
-        if (evaluation.due_date != null) {
-            try {
-                val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                val date = inputFormat.parse(evaluation.due_date)
-                holder.tvDueDate.text = "Due: ${date?.let { outputFormat.format(it) }}"
-            } catch (e: Exception) {
-                holder.tvDueDate.text = "Due: ${evaluation.due_date}"
-            }
-        } else {
-            holder.tvDueDate.text = "No due date"
+        try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val date = inputFormat.parse(evaluation.created_at)
+            holder.tvDueDate.text = "Created: ${date?.let { outputFormat.format(it) }}"
+        } catch (e: Exception) {
+            holder.tvDueDate.text = "Created: ${evaluation.created_at}"
         }
         
         holder.itemView.setOnClickListener {

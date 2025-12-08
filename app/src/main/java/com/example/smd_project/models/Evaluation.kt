@@ -3,38 +3,32 @@ package com.example.smd_project.models
 data class Evaluation(
     val evaluation_id: Int,
     val course_id: Int,
-    val course_name: String,
-    val course_code: String,
-    val teacher_id: Int,
     val evaluation_type_id: Int,
-    val evaluation_type: String,
     val evaluation_number: Int,
     val title: String,
-    val description: String?,
     val total_marks: Int,
-    val due_date: String?,
-    val academic_year: String,
-    val semester: String,
-    val created_at: String,
-    val updated_at: String
+    val created_at: String
 )
 
 data class CreateEvaluationRequest(
-    val course_id: Int,
-    val evaluation_type_id: Int,
-    val evaluation_number: Int,
+    val courseId: Int,
+    val evaluationTypeId: Int,
+    val evaluationNumber: Int,
     val title: String,
-    val description: String?,
-    val total_marks: Int,
-    val due_date: String?,
-    val academic_year: String,
-    val semester: String
+    val totalMarks: Int,
+    val semester: String,
+    val academicYear: String
+)
+
+data class CreateEvaluationResponse(
+    val evaluationId: Int,
+    val notificationsCreated: Int
 )
 
 data class EvaluationType(
     val evaluation_type_id: Int,
-    val type_name: String,
-    val weightage_percentage: Double
+    val evaluation_type_name: String,
+    val is_active: Int
 )
 
 data class StudentMark(

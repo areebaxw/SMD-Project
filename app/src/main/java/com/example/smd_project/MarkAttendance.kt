@@ -1,16 +1,17 @@
 package com.example.smd_project
 
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.StudentAdapter
-import com.example.smd_project.models.AttendanceRecordItem
+import com.example.smd_project.models.AttendanceItem
 import com.example.smd_project.models.MarkAttendanceRequest
 import com.example.smd_project.models.Student
 import com.example.smd_project.network.RetrofitClient
@@ -25,8 +26,8 @@ class MarkAttendance : AppCompatActivity() {
     private lateinit var etDate: EditText
     private lateinit var spinnerCourse: Spinner
     private lateinit var rvStudents: RecyclerView
-    private lateinit var btnSubmit: Button
-    private lateinit var btnAllPresent: Button
+    private lateinit var btnSubmit: TextView
+    private lateinit var btnAllPresent: TextView
     
     private lateinit var studentAdapter: StudentAdapter
     private val attendanceMap = mutableMapOf<Int, String>() // student_id to status
@@ -58,7 +59,7 @@ class MarkAttendance : AppCompatActivity() {
     
     private fun setupRecyclerView() {
         studentAdapter = StudentAdapter(emptyList(), showCheckbox = true) { student, isChecked ->
-            attendanceMap[student.student_id] = if (isChecked) "Present" else "Absent"
+            attendanceMap[student.student_id] = if (isChecked) "present" else "absent"
         }
         
         rvStudents.apply {
@@ -76,7 +77,7 @@ class MarkAttendance : AppCompatActivity() {
                     val response = apiService.getCourseStudents(selectedCourseId)
                     if (response.isSuccessful && response.body()?.success == true) {
                         response.body()?.data?.forEach { student ->
-                            attendanceMap[student.student_id] = "Present"
+                            attendanceMap[student.student_id] = "present"
                         }
                         Toast.makeText(this@MarkAttendance, "All marked as present", Toast.LENGTH_SHORT).show()
                     }
@@ -128,7 +129,7 @@ class MarkAttendance : AppCompatActivity() {
                     
                     // Initialize attendance map with all absent
                     students.forEach { student ->
-                        attendanceMap[student.student_id] = "Absent"
+                        attendanceMap[student.student_id] = "absent"
                     }
                 } else {
                     Toast.makeText(this@MarkAttendance,
@@ -143,21 +144,21 @@ class MarkAttendance : AppCompatActivity() {
     }
     
     private fun submitAttendance() {
-        val date = etDate.text.toString()
-        
         if (selectedCourseId == 0) {
             Toast.makeText(this, "Please select a course", Toast.LENGTH_SHORT).show()
             return
         }
         
         val records = attendanceMap.map { (studentId, status) ->
-            AttendanceRecordItem(studentId, status)
+            AttendanceItem(
+                studentId = studentId,
+                status = status.lowercase()
+            )
         }
         
         val request = MarkAttendanceRequest(
-            course_id = selectedCourseId,
-            attendance_date = date,
-            attendance_records = records
+            courseId = selectedCourseId,
+            attendance = records
         )
         
         val apiService = RetrofitClient.getApiService(sessionManager)

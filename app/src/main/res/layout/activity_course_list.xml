@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/purple_700"
+        android:background="@drawable/header_bg2"
         android:elevation="4dp"
         app:navigationIcon="@drawable/ic_back"
         app:title="My Courses"

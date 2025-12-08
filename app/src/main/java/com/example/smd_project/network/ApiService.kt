@@ -80,13 +80,13 @@ interface ApiService {
     suspend fun getCourseStudents(@Path("courseId") courseId: Int): Response<ApiResponse<List<Student>>>
     
     @POST("teacher/mark-attendance")
-    suspend fun markAttendance(@Body request: MarkAttendanceRequest): Response<ApiResponse<Any>>
+    suspend fun markAttendance(@Body request: MarkAttendanceRequest): Response<ApiResponse<MarkAttendanceResponse>>
     
     @POST("teacher/enter-marks")
     suspend fun enterMarks(@Body request: EnterMarksRequest): Response<ApiResponse<Any>>
     
     @POST("teacher/post-announcement")
-    suspend fun postAnnouncement(@Body request: PostAnnouncementRequest): Response<ApiResponse<Map<String, Int>>>
+    suspend fun postAnnouncement(@Body request: PostAnnouncementRequest): Response<ApiResponse<PostAnnouncementResponse>>
     
     @GET("teacher/announcements")
     suspend fun getTeacherAnnouncements(): Response<ApiResponse<List<Announcement>>>
@@ -101,10 +101,10 @@ interface ApiService {
     suspend fun getTeacherAllAnnouncements(): Response<ApiResponse<List<Announcement>>>
     
     @GET("teacher/notifications")
-    suspend fun getTeacherNotifications(): Response<ApiResponse<NotificationResponse>>
+    suspend fun getTeacherNotifications(@Query("limit") limit: Int = 50): Response<ApiResponse<List<Notification>>>
     
     @GET("teacher/notifications/unread")
-    suspend fun getUnreadNotifications(): Response<ApiResponse<List<Notification>>>
+    suspend fun getUnreadNotifications(): Response<ApiResponse<UnreadCountResponse>>
     
     @POST("teacher/notifications/{notificationId}/read")
     suspend fun markNotificationAsRead(@Path("notificationId") notificationId: Int): Response<ApiResponse<Any>>
@@ -116,11 +116,14 @@ interface ApiService {
     suspend fun getEvaluationTypes(): Response<ApiResponse<List<EvaluationType>>>
     
     @POST("teacher/create-evaluation")
-    suspend fun createEvaluation(@Body request: CreateEvaluationRequest): Response<ApiResponse<Evaluation>>
+    suspend fun createEvaluation(@Body request: CreateEvaluationRequest): Response<ApiResponse<CreateEvaluationResponse>>
     
     @POST("teacher/mark-student-assessment")
-    suspend fun markStudentAssessment(@Body request: EnterMarksRequest): Response<ApiResponse<Any>>
+    suspend fun markStudentAssessment(@Body request: MarkStudentAssessmentRequest): Response<ApiResponse<MarkStudentAssessmentResponse>>
     
     @GET("teacher/course/{courseId}/attendance-summary")
     suspend fun getCourseAttendanceSummary(@Path("courseId") courseId: Int): Response<ApiResponse<List<AttendanceSummary>>>
+    
+    @GET("teacher/course/{courseId}/marks")
+    suspend fun getCourseMarks(@Path("courseId") courseId: Int): Response<ApiResponse<List<CourseMarks>>>
 }

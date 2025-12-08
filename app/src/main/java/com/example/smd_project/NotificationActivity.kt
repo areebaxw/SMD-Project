@@ -56,11 +56,10 @@ class NotificationActivity : AppCompatActivity() {
                 val response = apiService.getTeacherNotifications()
                 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    val notificationResponse = response.body()?.data
-                    notificationResponse?.let {
-                        notificationAdapter.updateNotifications(it.notifications)
-                        title = "Notifications (${it.unread} unread)"
-                    }
+                    val notificationList = response.body()?.data ?: emptyList()
+                    notificationAdapter.updateNotifications(notificationList)
+                    val unreadCount = notificationList.count { it.is_read == 0 }
+                    title = "Notifications ($unreadCount unread)"
                 } else {
                     Toast.makeText(
                         this@NotificationActivity,
@@ -79,7 +78,7 @@ class NotificationActivity : AppCompatActivity() {
     }
     
     private fun onNotificationClicked(notification: Notification) {
-        if (!notification.is_read) {
+        if (notification.is_read == 0) {
             markNotificationAsRead(notification.notification_id)
         }
     }

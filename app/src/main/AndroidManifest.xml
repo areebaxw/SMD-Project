@@ -64,6 +64,15 @@
         <activity
             android:name=".MarkStudentsActivity"
             android:exported="false" />
+        <activity
+            android:name=".MarkAttendance"
+            android:exported="false" />
+        <activity
+            android:name=".PostAnnouncement"
+            android:exported="false" />
+        <activity
+            android:name=".EnterMarks"
+            android:exported="false" />
     </application>
 
 </manifest>

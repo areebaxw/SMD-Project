@@ -1,13 +1,14 @@
 package com.example.smd_project.models
 
 data class AttendanceSummary(
-    val course_name: String,
-    val course_code: String,
+    val student_id: Int,
+    val first_name: String,
+    val last_name: String,
+    val present_count: Int,
+    val absent_count: Int,
+    val late_count: Int,
     val total_classes: Int,
-    val present: Int,
-    val absent: Int,
-    val late: Int,
-    val percentage: Double
+    val attendance_percentage: Double
 )
 
 data class AttendanceRecord(
@@ -17,12 +18,16 @@ data class AttendanceRecord(
 )
 
 data class MarkAttendanceRequest(
-    val course_id: Int,
-    val attendance_date: String,
-    val attendance_records: List<AttendanceRecordItem>
+    val courseId: Int,
+    val attendance: List<AttendanceItem>
 )
 
-data class AttendanceRecordItem(
-    val student_id: Int,
+data class AttendanceItem(
+    val studentId: Int,
     val status: String
+)
+
+data class MarkAttendanceResponse(
+    val marked: Int,
+    val notified: Int
 )

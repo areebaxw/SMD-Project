@@ -47,10 +47,10 @@ class NotificationAdapter(
         }
         
         // Show unread indicator
-        holder.tvUnreadIndicator.visibility = if (!notification.is_read) View.VISIBLE else View.GONE
+        holder.tvUnreadIndicator.visibility = if (notification.is_read == 0) View.VISIBLE else View.GONE
         
         // Set background color based on read status
-        holder.itemView.alpha = if (notification.is_read) 0.6f else 1.0f
+        holder.itemView.alpha = if (notification.is_read == 0) 1.0f else 0.6f
         
         holder.itemView.setOnClickListener {
             onNotificationClick?.invoke(notification)

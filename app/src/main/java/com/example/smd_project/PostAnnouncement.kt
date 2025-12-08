@@ -1,9 +1,9 @@
 package com.example.smd_project
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +19,7 @@ class PostAnnouncement : AppCompatActivity() {
     private lateinit var spinnerType: Spinner
     private lateinit var etTitle: EditText
     private lateinit var etContent: EditText
-    private lateinit var btnPublish: Button
+    private lateinit var btnPublish: TextView
     
     private var selectedCourseId: Int? = null
     
@@ -81,10 +81,9 @@ class PostAnnouncement : AppCompatActivity() {
         val announcementType = "General" // Get from spinner
         
         val request = PostAnnouncementRequest(
-            course_id = selectedCourseId,
+            courseId = selectedCourseId,
             title = title,
-            content = content,
-            announcement_type = announcementType
+            content = content
         )
         
         val apiService = RetrofitClient.getApiService(sessionManager)

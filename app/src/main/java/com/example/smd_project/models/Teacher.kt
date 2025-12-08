@@ -16,16 +16,15 @@ data class Teacher(
 
 data class TeacherDashboard(
     val teacher: TeacherInfo,
-    val course_count: Int,
-    val student_count: Int,
-    val today_classes: List<TodayClass>,
-    val recent_activity: List<Announcement>,
-    val pending_tasks: Int
+    val courses: List<Course>?,
+    val todaySchedule: List<TodayClass>?,
+    val unreadNotifications: Int
 )
 
 data class TeacherInfo(
+    val teacher_id: Int,
     val full_name: String,
-    val employee_id: String,
-    val department: String?,
-    val profile_picture_url: String?
+    val email: String,
+    val phone: String?,
+    val profile_image: String?
 )

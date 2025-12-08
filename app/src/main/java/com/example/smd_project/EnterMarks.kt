@@ -1,9 +1,9 @@
 package com.example.smd_project
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +21,7 @@ class EnterMarks : AppCompatActivity() {
     private lateinit var etEvaluationNumber: EditText
     private lateinit var etTitle: EditText
     private lateinit var etTotalMarks: EditText
-    private lateinit var btnSubmit: Button
+    private lateinit var btnSubmit: TextView
     
     private var selectedCourseId: Int = 0
     private var selectedEvaluationTypeId: Int = 1 // Default to Assignment

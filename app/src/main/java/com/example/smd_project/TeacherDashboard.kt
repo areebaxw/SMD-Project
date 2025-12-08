@@ -31,14 +31,15 @@ class TeacherDashboard : AppCompatActivity() {
     private lateinit var tvCourseCount: TextView
     private lateinit var tvStudentCount: TextView
     private lateinit var rvTodayClasses: RecyclerView
-    private lateinit var rvCourses: RecyclerView
-    private lateinit var rvAnnouncements: RecyclerView
-    private lateinit var rvNotifications: RecyclerView
+    
+    private var rvCourses: RecyclerView? = null
+    private var rvAnnouncements: RecyclerView? = null
+    private var rvNotifications: RecyclerView? = null
     
     private lateinit var todayClassAdapter: TodayClassAdapter
-    private lateinit var courseAdapter: CourseAdapter
-    private lateinit var announcementAdapter: AnnouncementAdapter
-    private lateinit var notificationAdapter: NotificationAdapter
+    private var courseAdapter: CourseAdapter? = null
+    private var announcementAdapter: AnnouncementAdapter? = null
+    private var notificationAdapter: NotificationAdapter? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,36 +95,30 @@ class TeacherDashboard : AppCompatActivity() {
         }
         
         // Setup other adapters if RecyclerViews exist
-        try {
+        rvCourses?.let {
             courseAdapter = CourseAdapter(emptyList()) { course ->
                 onCourseClicked(course)
             }
-            rvCourses.apply {
+            it.apply {
                 layoutManager = LinearLayoutManager(this@TeacherDashboard, LinearLayoutManager.HORIZONTAL, false)
                 adapter = courseAdapter
             }
-        } catch (e: Exception) {
-            // RecyclerView not found
         }
         
-        try {
+        rvAnnouncements?.let {
             announcementAdapter = AnnouncementAdapter(emptyList())
-            rvAnnouncements.apply {
+            it.apply {
                 layoutManager = LinearLayoutManager(this@TeacherDashboard)
                 adapter = announcementAdapter
             }
-        } catch (e: Exception) {
-            // RecyclerView not found
         }
         
-        try {
+        rvNotifications?.let {
             notificationAdapter = NotificationAdapter(emptyList())
-            rvNotifications.apply {
+            it.apply {
                 layoutManager = LinearLayoutManager(this@TeacherDashboard)
                 adapter = notificationAdapter
             }
-        } catch (e: Exception) {
-            // RecyclerView not found
         }
     }
     
@@ -140,45 +135,21 @@ class TeacherDashboard : AppCompatActivity() {
             findViewById<View>(R.id.btnPostAnnouncement)?.setOnClickListener {
                 startActivity(Intent(this, PostAnnouncement::class.java))
             }
-            
-            // View all courses button
-            findViewById<View>(R.id.tvCoursesViewAll)?.setOnClickListener {
-                startActivity(Intent(this, CourseListActivity::class.java))
-            }
-            
-            // View all announcements button
-            findViewById<View>(R.id.tvAnnouncementsViewAll)?.setOnClickListener {
-                startActivity(Intent(this, AnnouncementListActivity::class.java))
-            }
-            
-            // View all notifications button
-            findViewById<View>(R.id.tvNotificationsViewAll)?.setOnClickListener {
-                startActivity(Intent(this, NotificationActivity::class.java))
-            }
-            
-            // View schedule button
-            findViewById<View>(R.id.tvScheduleViewAll)?.setOnClickListener {
-                startActivity(Intent(this, ScheduleActivity::class.java))
-            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
     
     private fun setupSwipeRefresh() {
-        try {
-            val swipeRefresh = findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefresh)
-            swipeRefresh?.setOnRefreshListener {
-                loadDashboardData()
-                swipeRefresh.isRefreshing = false
-            }
-        } catch (e: Exception) {
-            // SwipeRefresh not found
-        }
+        // SwipeRefreshLayout not available in current layout
+        // Pull-to-refresh can be added later by including SwipeRefreshLayout in activity_teacherdashboard.xml
     }
     
     private fun loadDashboardData() {
         val apiService = RetrofitClient.getApiService(sessionManager)
+        
+        // Set initial data from session while loading
+        tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
         
         lifecycleScope.launch {
             try {
@@ -189,35 +160,36 @@ class TeacherDashboard : AppCompatActivity() {
                     
                     dashboard?.let {
                         tvTeacherName.text = it.teacher.full_name
-                        tvEmployeeId.text = it.teacher.employee_id
-                        tvCourseCount.text = it.course_count.toString()
-                        tvStudentCount.text = it.student_count.toString()
+                        tvEmployeeId.text = it.teacher.email
                         
-                        it.teacher.profile_picture_url?.let { url ->
+                        it.teacher.profile_image?.let { url ->
                             Picasso.get()
                                 .load(url)
                                 .placeholder(R.drawable.ic_launcher_foreground)
                                 .into(ivProfilePic)
                         }
                         
-                        todayClassAdapter.updateClasses(it.today_classes)
+                        // Update today's schedule if available
+                        it.todaySchedule?.let { schedule ->
+                            if (schedule.isNotEmpty()) {
+                                todayClassAdapter.updateClasses(schedule)
+                            }
+                        }
                     }
-                    
-                    // Load additional data
-                    loadCoursesData()
-                    loadAnnouncementsData()
-                    loadNotificationsData()
                 } else {
-                    Toast.makeText(this@TeacherDashboard,
-                        response.body()?.message ?: "Failed to load dashboard",
-                        Toast.LENGTH_SHORT).show()
+                    // API error - log it but don't show error to user if UI is working
+                    val errorCode = response.code()
+                    android.util.Log.e("TeacherDashboard", "Dashboard API error: $errorCode")
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@TeacherDashboard,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_SHORT).show()
+                android.util.Log.e("TeacherDashboard", "Dashboard load error: ${e.message}")
                 e.printStackTrace()
             }
+            
+            // Always try to load additional data regardless of dashboard API result
+            loadCoursesData()
+            loadAnnouncementsData()
+            loadNotificationsData()
         }
     }
     
@@ -230,11 +202,7 @@ class TeacherDashboard : AppCompatActivity() {
                 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val courses = response.body()?.data ?: emptyList()
-                    try {
-                        courseAdapter.updateCourses(courses)
-                    } catch (e: Exception) {
-                        // Adapter not initialized
-                    }
+                    courseAdapter?.updateCourses(courses)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -253,11 +221,7 @@ class TeacherDashboard : AppCompatActivity() {
                     val announcements = response.body()?.data ?: emptyList()
                     // Show only recent 5
                     val recentAnnouncements = announcements.take(5)
-                    try {
-                        announcementAdapter.updateAnnouncements(recentAnnouncements)
-                    } catch (e: Exception) {
-                        // Adapter not initialized
-                    }
+                    announcementAdapter?.updateAnnouncements(recentAnnouncements)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -273,16 +237,10 @@ class TeacherDashboard : AppCompatActivity() {
                 val response = apiService.getTeacherNotifications()
                 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    val notificationResponse = response.body()?.data
-                    notificationResponse?.let {
-                        // Show only recent 5 unread
-                        val unreadNotifications = it.notifications.filter { !it.is_read }.take(5)
-                        try {
-                            notificationAdapter.updateNotifications(unreadNotifications)
-                        } catch (e: Exception) {
-                            // Adapter not initialized
-                        }
-                    }
+                    val notificationList = response.body()?.data ?: emptyList()
+                    // Show only recent 5 unread
+                    val unreadNotifications = notificationList.filter { it.is_read == 0 }.take(5)
+                    notificationAdapter?.updateNotifications(unreadNotifications)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

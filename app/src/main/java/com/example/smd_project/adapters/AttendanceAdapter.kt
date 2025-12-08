@@ -30,16 +30,16 @@ class AttendanceAdapter(
     override fun onBindViewHolder(holder: AttendanceViewHolder, position: Int) {
         val attendance = attendanceList[position]
         
-        holder.tvCourseCode.text = attendance.course_code
-        holder.tvCourseName.text = attendance.course_name
+        holder.tvCourseCode.text = "Student #${attendance.student_id}"
+        holder.tvCourseName.text = "${attendance.first_name} ${attendance.last_name}"
         holder.tvAttendanceStats.text = 
-            "Present: ${attendance.present} | Absent: ${attendance.absent} | Late: ${attendance.late}"
-        holder.tvPercentage.text = "${attendance.percentage}%"
+            "Present: ${attendance.present_count} | Absent: ${attendance.absent_count} | Late: ${attendance.late_count}"
+        holder.tvPercentage.text = "${attendance.attendance_percentage}%"
         
         // Color code percentage
         when {
-            attendance.percentage >= 75.0 -> holder.tvPercentage.setTextColor(Color.parseColor("#4CAF50"))
-            attendance.percentage >= 60.0 -> holder.tvPercentage.setTextColor(Color.parseColor("#FF9800"))
+            attendance.attendance_percentage >= 75.0 -> holder.tvPercentage.setTextColor(Color.parseColor("#4CAF50"))
+            attendance.attendance_percentage >= 60.0 -> holder.tvPercentage.setTextColor(Color.parseColor("#FF9800"))
             else -> holder.tvPercentage.setTextColor(Color.parseColor("#F44336"))
         }
         

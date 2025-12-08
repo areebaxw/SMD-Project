@@ -7,8 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.StudentMarkAdapter
-import com.example.smd_project.models.EnterMarksRequest
-import com.example.smd_project.models.MarksRecordItem
+import com.example.smd_project.models.MarkStudentAssessmentRequest
 import com.example.smd_project.models.StudentMark
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
@@ -125,51 +124,38 @@ class MarkStudentsActivity : AppCompatActivity() {
             return
         }
         
-        val request = EnterMarksRequest(
-            course_id = courseId,
-            evaluation_type_id = 1, // Will be updated by backend if needed
-            evaluation_number = 1,
-            title = evaluationTitle,
-            total_marks = totalMarks,
-            academic_year = getCurrentAcademicYear(),
-            semester = getCurrentSemester(),
-            marks_records = marksData
-        )
-        
-        submitMarksToServer(request)
-    }
-    
-    private fun submitMarksToServer(request: EnterMarksRequest) {
+        // For each student, send individual mark requests
         val apiService = RetrofitClient.getApiService(sessionManager)
         
         lifecycleScope.launch {
-            try {
-                btnSubmitMarks.isEnabled = false
-                val response = apiService.markStudentAssessment(request)
-                
-                if (response.isSuccessful && response.body()?.success == true) {
-                    Toast.makeText(
-                        this@MarkStudentsActivity,
-                        "Marks submitted successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    setResult(RESULT_OK)
-                    finish()
-                } else {
-                    Toast.makeText(
-                        this@MarkStudentsActivity,
-                        response.body()?.message ?: "Failed to submit marks",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    btnSubmitMarks.isEnabled = true
+            var successCount = 0
+            for (marksRecord in marksData) {
+                try {
+                    val request = MarkStudentAssessmentRequest(
+                        evaluationId = evaluationId,
+                        studentId = marksRecord.student_id,
+                        obtainedMarks = marksRecord.obtained_marks.toInt()
+                    )
+                    
+                    val response = apiService.markStudentAssessment(request)
+                    
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        successCount++
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@MarkStudentsActivity,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                btnSubmitMarks.isEnabled = true
+            }
+            
+            Toast.makeText(
+                this@MarkStudentsActivity,
+                "Marks submitted: $successCount/${marksData.size}",
+                Toast.LENGTH_SHORT
+            ).show()
+            
+            if (successCount == marksData.size) {
+                setResult(RESULT_OK)
+                finish()
             }
         }
     }

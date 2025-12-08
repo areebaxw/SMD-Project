@@ -31,3 +31,27 @@ data class MarksRecordItem(
     val student_id: Int,
     val obtained_marks: Double
 )
+
+data class MarkStudentAssessmentRequest(
+    val evaluationId: Int,
+    val studentId: Int,
+    val obtainedMarks: Int
+)
+
+data class MarkStudentAssessmentResponse(
+    val marksId: Int,
+    val studentId: Int,
+    val obtainedMarks: Int,
+    val totalMarks: Int
+)
+
+data class CourseMarks(
+    val evaluation_id: Int,
+    val student_id: Int,
+    val first_name: String,
+    val last_name: String,
+    val obtained_marks: Int,
+    val evaluation_number: Int,
+    val title: String,
+    val total_marks: Int
+)
