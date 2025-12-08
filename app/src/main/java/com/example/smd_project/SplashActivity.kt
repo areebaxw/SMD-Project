@@ -18,6 +18,9 @@ class SplashActivity : AppCompatActivity() {
         
         sessionManager = SessionManager(this)
         
+        // Clear session on app restart (force logout)
+        sessionManager.clearSession()
+        
         // Navigate after delay
         Handler(Looper.getMainLooper()).postDelayed({
             navigateToNextScreen()
@@ -25,18 +28,8 @@ class SplashActivity : AppCompatActivity() {
     }
     
     private fun navigateToNextScreen() {
-        val intent = if (sessionManager.isLoggedIn()) {
-            // User is logged in, go to appropriate dashboard
-            when (sessionManager.getUserType()) {
-                "student" -> Intent(this, StudentDashboard::class.java)
-                "teacher" -> Intent(this, TeacherDashboard::class.java)
-                else -> Intent(this, MainActivity::class.java)
-            }
-        } else {
-            // User not logged in, go to login page
-            Intent(this, MainActivity::class.java)
-        }
-        
+        // Always go to login screen after splash
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish() // Close splash screen
     }

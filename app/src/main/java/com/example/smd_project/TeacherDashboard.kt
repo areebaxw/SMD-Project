@@ -155,35 +155,75 @@ class TeacherDashboard : AppCompatActivity() {
             try {
                 val response = apiService.getTeacherDashboard()
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val dashboard = response.body()?.data
+                android.util.Log.d("TeacherDashboard", "Dashboard response code: ${response.code()}")
+                
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    android.util.Log.d("TeacherDashboard", "Dashboard body: $body")
                     
-                    dashboard?.let {
-                        tvTeacherName.text = it.teacher.full_name
-                        tvEmployeeId.text = it.teacher.email
+                    if (body?.success == true) {
+                        val dashboard = body.data
                         
-                        it.teacher.profile_image?.let { url ->
-                            Picasso.get()
-                                .load(url)
-                                .placeholder(R.drawable.ic_launcher_foreground)
-                                .into(ivProfilePic)
-                        }
-                        
-                        // Update today's schedule if available
-                        it.todaySchedule?.let { schedule ->
-                            if (schedule.isNotEmpty()) {
-                                todayClassAdapter.updateClasses(schedule)
+                        dashboard?.let {
+                            // Check if teacher data is null - use SessionManager as fallback
+                            if (it.teacher != null) {
+                                android.util.Log.d("TeacherDashboard", "Teacher: ${it.teacher.full_name}")
+                                
+                                tvTeacherName.text = it.teacher.full_name
+                                tvEmployeeId.text = it.teacher.email
+                                
+                                it.teacher.profile_image?.let { url ->
+                                    if (url.isNotEmpty()) {
+                                        Picasso.get()
+                                            .load(url)
+                                            .placeholder(R.drawable.ic_launcher_foreground)
+                                            .error(R.drawable.ic_launcher_foreground)
+                                            .into(ivProfilePic)
+                                    }
+                                }
+                            } else {
+                                // Backend didn't return teacher info, use SessionManager
+                                android.util.Log.d("TeacherDashboard", "Backend teacher=null, using SessionManager")
+                                tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
+                                tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
+                                
+                                val profileUrl = sessionManager.getProfilePic()
+                                if (!profileUrl.isNullOrEmpty()) {
+                                    Picasso.get()
+                                        .load(profileUrl)
+                                        .placeholder(R.drawable.ic_launcher_foreground)
+                                        .error(R.drawable.ic_launcher_foreground)
+                                        .into(ivProfilePic)
+                                }
+                            }
+                            
+                            // Update course count
+                            val courseCount = it.courses?.size ?: 0
+                            tvCourseCount.text = courseCount.toString()
+                            
+                            // Update today's schedule if available
+                            it.todaySchedule?.let { schedule ->
+                                android.util.Log.d("TeacherDashboard", "Today's classes: ${schedule.size}")
+                                if (schedule.isNotEmpty()) {
+                                    todayClassAdapter.updateClasses(schedule)
+                                }
                             }
                         }
+                    } else {
+                        android.util.Log.e("TeacherDashboard", "API success is false: ${body?.message}")
+                        // Fallback to SessionManager data
+                        tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
+                        tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
                     }
                 } else {
-                    // API error - log it but don't show error to user if UI is working
-                    val errorCode = response.code()
-                    android.util.Log.e("TeacherDashboard", "Dashboard API error: $errorCode")
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("TeacherDashboard", "Dashboard API error: ${response.code()} - $errorBody")
+                    Toast.makeText(this@TeacherDashboard, "Failed to load dashboard", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                android.util.Log.e("TeacherDashboard", "Dashboard load error: ${e.message}")
+                android.util.Log.e("TeacherDashboard", "Dashboard load error: ${e.message}", e)
                 e.printStackTrace()
+                Toast.makeText(this@TeacherDashboard, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
             
             // Always try to load additional data regardless of dashboard API result
@@ -200,12 +240,35 @@ class TeacherDashboard : AppCompatActivity() {
             try {
                 val response = apiService.getTeacherCourses()
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val courses = response.body()?.data ?: emptyList()
-                    courseAdapter?.updateCourses(courses)
+                android.util.Log.d("TeacherDashboard", "Courses response code: ${response.code()}")
+                
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    
+                    if (body?.success == true) {
+                        val courses = body.data ?: emptyList()
+                        android.util.Log.d("TeacherDashboard", "Loaded ${courses.size} courses")
+                        
+                        if (courses.isNotEmpty()) {
+                            tvCourseCount.text = courses.size.toString()
+                            courseAdapter?.updateCourses(courses)
+                        } else {
+                            android.util.Log.d("TeacherDashboard", "No courses returned from backend")
+                            tvCourseCount.text = "0"
+                        }
+                    } else {
+                        android.util.Log.e("TeacherDashboard", "Courses API success is false: ${body?.message}")
+                        tvCourseCount.text = "0"
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("TeacherDashboard", "Courses API error: ${response.code()} - $errorBody")
+                    // Show error but don't crash
+                    Toast.makeText(this@TeacherDashboard, "Could not load courses", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("TeacherDashboard", "Courses load error: ${e.message}", e)
+                tvCourseCount.text = "0"
             }
         }
     }
@@ -217,14 +280,31 @@ class TeacherDashboard : AppCompatActivity() {
             try {
                 val response = apiService.getTeacherAnnouncements()
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val announcements = response.body()?.data ?: emptyList()
-                    // Show only recent 5
-                    val recentAnnouncements = announcements.take(5)
-                    announcementAdapter?.updateAnnouncements(recentAnnouncements)
+                android.util.Log.d("TeacherDashboard", "Announcements response code: ${response.code()}")
+                
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    
+                    if (body?.success == true) {
+                        val announcements = body.data ?: emptyList()
+                        android.util.Log.d("TeacherDashboard", "Loaded ${announcements.size} announcements")
+                        
+                        if (announcements.isNotEmpty()) {
+                            // Show only recent 5
+                            val recentAnnouncements = announcements.take(5)
+                            announcementAdapter?.updateAnnouncements(recentAnnouncements)
+                        } else {
+                            android.util.Log.d("TeacherDashboard", "No announcements returned from backend")
+                        }
+                    } else {
+                        android.util.Log.e("TeacherDashboard", "Announcements API success is false: ${body?.message}")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("TeacherDashboard", "Announcements API error: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("TeacherDashboard", "Announcements load error: ${e.message}", e)
             }
         }
     }
@@ -236,14 +316,32 @@ class TeacherDashboard : AppCompatActivity() {
             try {
                 val response = apiService.getTeacherNotifications()
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val notificationList = response.body()?.data ?: emptyList()
-                    // Show only recent 5 unread
-                    val unreadNotifications = notificationList.filter { it.is_read == 0 }.take(5)
-                    notificationAdapter?.updateNotifications(unreadNotifications)
+                android.util.Log.d("TeacherDashboard", "Notifications response code: ${response.code()}")
+                
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    
+                    if (body?.success == true) {
+                        val notificationList = body.data ?: emptyList()
+                        android.util.Log.d("TeacherDashboard", "Loaded ${notificationList.size} notifications")
+                        
+                        if (notificationList.isNotEmpty()) {
+                            // Show only recent 5 unread
+                            val unreadNotifications = notificationList.filter { it.is_read == 0 }.take(5)
+                            notificationAdapter?.updateNotifications(unreadNotifications)
+                        } else {
+                            android.util.Log.d("TeacherDashboard", "No notifications returned from backend")
+                        }
+                    } else {
+                        android.util.Log.e("TeacherDashboard", "Notifications API success is false: ${body?.message}")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("TeacherDashboard", "Notifications API error: ${response.code()} - $errorBody")
+                    // Don't show toast for notifications - less critical
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("TeacherDashboard", "Notifications load error: ${e.message}", e)
             }
         }
     }

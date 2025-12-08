@@ -172,7 +172,203 @@
             android:paddingHorizontal="16dp"
             android:background="@drawable/input_border"
             android:inputType="textPassword"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="16dp" />
+
+        <!-- Gender Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gender"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppinssemibold"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:background="@drawable/input_border"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/btn_gender_male"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Male"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/poppinsbold"
+                android:gravity="center"
+                android:background="@drawable/button_bg"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btn_gender_female"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Female"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/poppinsregular"
+                android:gravity="center"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <!-- Student-specific fields container -->
+        <LinearLayout
+            android:id="@+id/student_fields_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Program Selection -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Program"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinssemibold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinner_program"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/input_border"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Date of Birth -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Date of Birth"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinssemibold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/input_date_of_birth"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Select date of birth"
+                android:textColorHint="#999999"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinsregular"
+                android:paddingHorizontal="16dp"
+                android:background="@drawable/input_border"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+
+        <!-- Teacher-specific fields container -->
+        <LinearLayout
+            android:id="@+id/teacher_fields_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Phone Number -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phone Number"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinssemibold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/input_phone"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Enter phone number"
+                android:textColorHint="#999999"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinsregular"
+                android:paddingHorizontal="16dp"
+                android:background="@drawable/input_border"
+                android:inputType="phone"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Department Selection -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Department"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinssemibold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinner_department"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/input_border"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Designation Selection -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Designation"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinssemibold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinner_designation"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/input_border"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Specialization (Optional) -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Specialization (Optional)"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinssemibold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/input_specialization"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="e.g., Machine Learning, Database Systems"
+                android:textColorHint="#999999"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppinsregular"
+                android:paddingHorizontal="16dp"
+                android:background="@drawable/input_border"
+                android:inputType="text"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
 
         <!-- Sign Up Button -->
         <androidx.appcompat.widget.AppCompatButton

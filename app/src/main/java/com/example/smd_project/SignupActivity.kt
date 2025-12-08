@@ -2,23 +2,34 @@ package com.example.smd_project
 
 import android.Manifest
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.util.Calendar
 import com.example.smd_project.models.SignupRequest
 import com.example.smd_project.models.SignupResponse
 import com.example.smd_project.network.RetrofitClient
@@ -40,9 +51,26 @@ class SignupActivity : AppCompatActivity() {
     private lateinit var btnSelectImage: ImageView
     private lateinit var btnStudent: TextView
     private lateinit var btnTeacher: TextView
+    private lateinit var btnGenderMale: TextView
+    private lateinit var btnGenderFemale: TextView
+    private lateinit var studentFieldsContainer: LinearLayout
+    private lateinit var spinnerProgram: Spinner
+    private lateinit var etDateOfBirth: EditText
+    private lateinit var teacherFieldsContainer: LinearLayout
+    private lateinit var etPhone: EditText
+    private lateinit var spinnerDepartment: Spinner
+    private lateinit var spinnerDesignation: Spinner
+    private lateinit var etSpecialization: EditText
     
     private var selectedImageUri: Uri? = null
     private var selectedRole: String = "Student" // Default to Student
+    private var selectedGender: String = "Male" // Default to Male
+    private var selectedProgram: String = ""
+    private var selectedDateOfBirth: String = ""
+    private var selectedPhone: String = ""
+    private var selectedDepartment: String = ""
+    private var selectedDesignation: String = ""
+    private var selectedSpecialization: String = ""
     
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -50,7 +78,8 @@ class SignupActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 selectedImageUri = uri
-                ivProfilePicture.setImageURI(uri)
+                // Compress and display image to avoid "bitmap too large" crash
+                loadCompressedImage(uri)
             }
         }
     }
@@ -86,9 +115,61 @@ class SignupActivity : AppCompatActivity() {
         btnSelectImage = findViewById(R.id.btn_select_image)
         btnStudent = findViewById(R.id.btn_student)
         btnTeacher = findViewById(R.id.btn_teacher)
+        btnGenderMale = findViewById(R.id.btn_gender_male)
+        btnGenderFemale = findViewById(R.id.btn_gender_female)
+        studentFieldsContainer = findViewById(R.id.student_fields_container)
+        spinnerProgram = findViewById(R.id.spinner_program)
+        etDateOfBirth = findViewById(R.id.input_date_of_birth)
+        teacherFieldsContainer = findViewById(R.id.teacher_fields_container)
+        etPhone = findViewById(R.id.input_phone)
+        spinnerDepartment = findViewById(R.id.spinner_department)
+        spinnerDesignation = findViewById(R.id.spinner_designation)
+        etSpecialization = findViewById(R.id.input_specialization)
+        
+        // Setup program spinner
+        val programs = arrayOf("Select Program", "BSCS", "BSAI", "BSCY", "BSDS", "BSSE")
+        val programAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, programs)
+        programAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerProgram.adapter = programAdapter
+        
+        // Setup department spinner
+        val departments = arrayOf(
+            "Select Department",
+            "Computer Science",
+            "Software Engineering",
+            "Artificial Intelligence",
+            "Cyber Security",
+            "Data Science",
+            "Information Technology",
+            "Mathematics",
+            "Physics",
+            "English",
+            "Management Sciences"
+        )
+        val departmentAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, departments)
+        departmentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerDepartment.adapter = departmentAdapter
+        
+        // Setup designation spinner
+        val designations = arrayOf(
+            "Select Designation",
+            "Professor",
+            "Associate Professor",
+            "Assistant Professor",
+            "Lecturer",
+            "Senior Lecturer",
+            "Visiting Faculty",
+            "Lab Instructor",
+            "Teaching Assistant"
+        )
+        val designationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, designations)
+        designationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerDesignation.adapter = designationAdapter
         
         // Set default role to Student
         updateRoleSelection("Student")
+        // Set default gender to Male
+        updateGenderSelection("Male")
     }
     
     private fun setupClickListeners() {
@@ -104,6 +185,20 @@ class SignupActivity : AppCompatActivity() {
         
         btnTeacher.setOnClickListener {
             updateRoleSelection("Teacher")
+        }
+        
+        // Gender toggle
+        btnGenderMale.setOnClickListener {
+            updateGenderSelection("Male")
+        }
+        
+        btnGenderFemale.setOnClickListener {
+            updateGenderSelection("Female")
+        }
+        
+        // Date picker
+        etDateOfBirth.setOnClickListener {
+            showDatePicker()
         }
         
         btnSignup.setOnClickListener {
@@ -157,6 +252,10 @@ class SignupActivity : AppCompatActivity() {
             btnTeacher.background = ColorDrawable(Color.TRANSPARENT)
             btnTeacher.setTextColor(Color.parseColor("#666666"))
             btnTeacher.setTypeface(null, android.graphics.Typeface.NORMAL)
+            
+            // Show student-specific fields
+            studentFieldsContainer.visibility = View.VISIBLE
+            teacherFieldsContainer.visibility = View.GONE
         } else {
             // Teacher button active
             btnTeacher.setBackgroundResource(R.drawable.button_bg)
@@ -167,6 +266,99 @@ class SignupActivity : AppCompatActivity() {
             btnStudent.background = ColorDrawable(Color.TRANSPARENT)
             btnStudent.setTextColor(Color.parseColor("#666666"))
             btnStudent.setTypeface(null, android.graphics.Typeface.NORMAL)
+            
+            // Hide student fields, show teacher fields
+            studentFieldsContainer.visibility = View.GONE
+            teacherFieldsContainer.visibility = View.VISIBLE
+        }
+    }
+    
+    private fun updateGenderSelection(gender: String) {
+        selectedGender = gender
+        
+        if (gender == "Male") {
+            // Male button active
+            btnGenderMale.setBackgroundResource(R.drawable.button_bg)
+            btnGenderMale.setTextColor(Color.WHITE)
+            btnGenderMale.setTypeface(null, android.graphics.Typeface.BOLD)
+            
+            // Female button inactive
+            btnGenderFemale.background = ColorDrawable(Color.TRANSPARENT)
+            btnGenderFemale.setTextColor(Color.parseColor("#666666"))
+            btnGenderFemale.setTypeface(null, android.graphics.Typeface.NORMAL)
+        } else {
+            // Female button active
+            btnGenderFemale.setBackgroundResource(R.drawable.button_bg)
+            btnGenderFemale.setTextColor(Color.WHITE)
+            btnGenderFemale.setTypeface(null, android.graphics.Typeface.BOLD)
+            
+            // Male button inactive
+            btnGenderMale.background = ColorDrawable(Color.TRANSPARENT)
+            btnGenderMale.setTextColor(Color.parseColor("#666666"))
+            btnGenderMale.setTypeface(null, android.graphics.Typeface.NORMAL)
+        }
+    }
+    
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                // Format: YYYY-MM-DD
+                selectedDateOfBirth = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                etDateOfBirth.setText(selectedDateOfBirth)
+            },
+            year,
+            month,
+            day
+        )
+        
+        // Set max date to today (user must be born before today)
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+        
+        datePickerDialog.show()
+    }
+    
+    private fun loadCompressedImage(uri: Uri) {
+        try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val originalBitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+            
+            if (originalBitmap != null) {
+                // Calculate new dimensions (max 800x800 to keep quality but reduce size)
+                val maxSize = 800
+                val ratio = Math.min(
+                    maxSize.toFloat() / originalBitmap.width,
+                    maxSize.toFloat() / originalBitmap.height
+                )
+                
+                val newWidth = (originalBitmap.width * ratio).toInt()
+                val newHeight = (originalBitmap.height * ratio).toInt()
+                
+                // Resize bitmap
+                val resizedBitmap = Bitmap.createScaledBitmap(
+                    originalBitmap,
+                    newWidth,
+                    newHeight,
+                    true
+                )
+                
+                // Display resized bitmap
+                ivProfilePicture.setImageBitmap(resizedBitmap)
+                
+                // Clean up original bitmap if different from resized
+                if (resizedBitmap != originalBitmap) {
+                    originalBitmap.recycle()
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SignupActivity", "Error loading image: ${e.message}", e)
+            Toast.makeText(this, "Failed to load image. Please try another.", Toast.LENGTH_SHORT).show()
         }
     }
     
@@ -196,6 +388,44 @@ class SignupActivity : AppCompatActivity() {
             return false
         }
         
+        // Validate student-specific fields
+        if (selectedRole == "Student") {
+            selectedProgram = spinnerProgram.selectedItem.toString()
+            
+            if (selectedProgram == "Select Program") {
+                Toast.makeText(this, "Please select a program", Toast.LENGTH_SHORT).show()
+                return false
+            }
+            
+            if (selectedDateOfBirth.isEmpty()) {
+                Toast.makeText(this, "Please select your date of birth", Toast.LENGTH_SHORT).show()
+                return false
+            }
+        }
+        
+        // Validate teacher-specific fields
+        if (selectedRole == "Teacher") {
+            selectedPhone = etPhone.text.toString().trim()
+            selectedDepartment = spinnerDepartment.selectedItem.toString()
+            selectedDesignation = spinnerDesignation.selectedItem.toString()
+            selectedSpecialization = etSpecialization.text.toString().trim()
+            
+            if (selectedPhone.isEmpty()) {
+                Toast.makeText(this, "Please enter your phone number", Toast.LENGTH_SHORT).show()
+                return false
+            }
+            
+            if (selectedDepartment == "Select Department") {
+                Toast.makeText(this, "Please select a department", Toast.LENGTH_SHORT).show()
+                return false
+            }
+            
+            if (selectedDesignation == "Select Designation") {
+                Toast.makeText(this, "Please select a designation", Toast.LENGTH_SHORT).show()
+                return false
+            }
+        }
+        
         return true
     }
     
@@ -219,7 +449,14 @@ class SignupActivity : AppCompatActivity() {
                     email = email,
                     password = password,
                     role = selectedRole,
-                    profileImage = imageUrl
+                    profileImage = imageUrl,
+                    gender = selectedGender,
+                    program = if (selectedRole == "Student") selectedProgram else null,
+                    dateOfBirth = if (selectedRole == "Student") selectedDateOfBirth else null,
+                    phone = if (selectedRole == "Teacher") selectedPhone else null,
+                    department = if (selectedRole == "Teacher") selectedDepartment else null,
+                    designation = if (selectedRole == "Teacher") selectedDesignation else null,
+                    specialization = if (selectedRole == "Teacher") selectedSpecialization.ifEmpty { null } else selectedSpecialization
                 )
                 android.util.Log.d("SignupActivity", "Sending signup request with profileImage: ${signupRequest.profileImage}")
                 
@@ -301,11 +538,54 @@ class SignupActivity : AppCompatActivity() {
     private suspend fun uploadImageToCloudinary(uri: Uri): String {
         return try {
             android.util.Log.d("SignupActivity", "Starting image upload...")
-            val inputStream = contentResolver.openInputStream(uri)
-            val file = java.io.File(cacheDir, "upload_${System.currentTimeMillis()}.jpg")
-            file.outputStream().use { inputStream?.copyTo(it) }
             
-            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+            // Load and compress the image before uploading
+            val inputStream = contentResolver.openInputStream(uri)
+            val originalBitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+            
+            if (originalBitmap == null) {
+                android.util.Log.e("SignupActivity", "Failed to decode image")
+                return ""
+            }
+            
+            // Resize image to max 1200x1200 for upload (better quality than display)
+            val maxSize = 1200
+            val ratio = Math.min(
+                maxSize.toFloat() / originalBitmap.width,
+                maxSize.toFloat() / originalBitmap.height
+            )
+            
+            val newWidth = (originalBitmap.width * ratio).toInt()
+            val newHeight = (originalBitmap.height * ratio).toInt()
+            
+            val resizedBitmap = Bitmap.createScaledBitmap(
+                originalBitmap,
+                newWidth,
+                newHeight,
+                true
+            )
+            
+            // Compress to JPEG with 85% quality
+            val outputStream = ByteArrayOutputStream()
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+            val byteArray = outputStream.toByteArray()
+            
+            // Clean up bitmaps
+            if (resizedBitmap != originalBitmap) {
+                originalBitmap.recycle()
+            }
+            resizedBitmap.recycle()
+            
+            // Save compressed image to temporary file
+            val file = File(cacheDir, "upload_${System.currentTimeMillis()}.jpg")
+            val fos = FileOutputStream(file)
+            fos.write(byteArray)
+            fos.close()
+            
+            android.util.Log.d("SignupActivity", "Compressed image size: ${file.length() / 1024}KB")
+            
+            val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
             val body = okhttp3.MultipartBody.Part.createFormData("image", file.name, requestFile)
             
             // Use PUBLIC endpoint (no auth required)
