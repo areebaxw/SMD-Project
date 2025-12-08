@@ -38,6 +38,9 @@
             android:name=".StudentDashboard"
             android:exported="false" />
         <activity
+            android:name=".courseRegistration"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity

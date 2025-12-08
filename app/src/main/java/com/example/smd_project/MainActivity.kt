@@ -2,6 +2,7 @@ package com.example.smd_project
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
@@ -82,6 +83,8 @@ class MainActivity : AppCompatActivity() {
                     if (loginResponse != null) {
                         // Save session data
                         sessionManager.saveAuthToken(loginResponse.token)
+                        Log.d("DEBUG_TOKEN", "Token saved: ${sessionManager.getToken()}")
+
                         sessionManager.saveUserType("Student")
                         
                         loginResponse.student?.let { student ->
@@ -103,6 +106,8 @@ class MainActivity : AppCompatActivity() {
                         
                         if (loginResponse != null) {
                             sessionManager.saveAuthToken(loginResponse.token)
+                            Log.d("DEBUG_TOKEN", "Token saved: ${sessionManager.getToken()}")
+
                             sessionManager.saveUserType("Teacher")
                             
                             loginResponse.teacher?.let { teacher ->

@@ -40,6 +40,7 @@
                 android:layout_marginStart="56dp"
                 android:layout_marginTop="8dp" />
 
+            <!-- Bell -->
             <ImageView
                 android:id="@+id/bell_icon"
                 android:src="@drawable/notifybutton"
@@ -51,7 +52,7 @@
 
         </RelativeLayout>
 
-        <!-- Search Bar -->
+        <!-- ===== SEARCH BAR ===== -->
         <LinearLayout
             android:id="@+id/search_container"
             android:layout_width="250dp"
@@ -76,10 +77,10 @@
                 android:textSize="14sp" />
 
             <ImageView
+                android:id="@+id/filter_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/filter"
-                android:id="@+id/filter_icon"
                 android:layout_marginStart="70dp" />
 
         </LinearLayout>
@@ -91,202 +92,25 @@
             android:background="#EEEEEE"
             android:layout_marginTop="16dp" />
 
-        <!-- Courses Container -->
+        <!-- ===== PROGRESS BAR ===== -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="10dp" />
+
+        <!-- ===== COURSE CARDS (DYNAMIC) ===== -->
         <LinearLayout
+            android:id="@+id/courses_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
-
-            <!-- Course 1: Computer Networks -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/curved_background">
-
-                <TextView
-                    android:id="@+id/course1_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CS-3004"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp" />
-
-                <TextView
-                    android:id="@+id/course1_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Theory of Automata"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_below="@id/course1_code"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Credits: 3"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:layout_below="@id/course1_name"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/required"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/enroll"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/curved_background">
-
-                <TextView
-                    android:id="@+id/course2_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CS-3001"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp" />
-
-                <TextView
-                    android:id="@+id/course2_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Computer Networks"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_below="@id/course2_code"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Credits: 3+1"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:layout_below="@id/course2_name"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/required"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/enroll"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/curved_background">
-
-                <TextView
-                    android:id="@+id/course3_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CS-2009"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp" />
-
-                <TextView
-                    android:id="@+id/course3_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Algorithms"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_below="@id/course3_code"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Credits: 3"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
-                    android:layout_below="@id/course3_name"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/required"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/enroll"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp" />
-
-            </RelativeLayout>
-
         </LinearLayout>
-        <!-- Bottom Bar -->
+
+        <!-- ===== BOTTOM BAR ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -297,13 +121,11 @@
             android:layout_marginTop="12dp"
             android:background="#FFFFFF">
 
-            <!-- Save Button (Left) -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:text="Save"
-                android:layout_marginLeft="10dp"
+                android:text="Register"
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
                 android:paddingHorizontal="32dp"
@@ -313,26 +135,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_marginStart="16dp"
                 android:gravity="end">
 
                 <TextView
-                    android:id="@+id/tvTotalCredits"
+                    android:id="@+id/selected_courses_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="140dp"
-                    android:text="Total credits: 3/16"
-                    android:textColor="#000000"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="Selected: 0 courses"
+                    android:textSize="12sp"
+                    android:textColor="#666666" />
 
                 <TextView
-                    android:id="@+id/tvTotalCourses"
+                    android:id="@+id/total_credits_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="140dp"
-                    android:text="Total courses: 1/5"
-                    android:textColor="#000000"
-                    android:textSize="14sp" />
+                    android:text="Total Credits: 0"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
             </LinearLayout>
         </LinearLayout>
 

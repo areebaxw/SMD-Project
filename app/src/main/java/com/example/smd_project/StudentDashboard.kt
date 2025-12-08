@@ -19,6 +19,9 @@ class StudentDashboard : AppCompatActivity() {
     
     private lateinit var sessionManager: SessionManager
     private lateinit var ivProfilePic: ImageView
+
+    private lateinit var menuIcon: ImageView
+
     private lateinit var tvStudentName: TextView
     private lateinit var tvRollNo: TextView
     private lateinit var tvSGPA: TextView
@@ -44,6 +47,7 @@ class StudentDashboard : AppCompatActivity() {
     private fun initViews() {
         ivProfilePic = findViewById(R.id.ivProfilePic)
         tvStudentName = findViewById(R.id.tvStudentName)
+        menuIcon=findViewById<ImageView>(R.id.menuIcon)
         tvRollNo = findViewById(R.id.tvRollNo)
         tvSGPA = findViewById(R.id.tvSGPA)
         tvCGPA = findViewById(R.id.tvCGPA)
