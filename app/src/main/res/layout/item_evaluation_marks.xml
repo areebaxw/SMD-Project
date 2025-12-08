@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp"
+    android:layout_margin="8dp">
+
+    <!-- Evaluation Number -->
+    <TextView
+        android:id="@+id/tvEvaluationNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Evaluation #1"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#8B2072"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Topic Name -->
+    <TextView
+        android:id="@+id/tvTopicName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Topic: Assignment 1"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Total Marks -->
+    <TextView
+        android:id="@+id/tvTotalMarks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Marks: 20"
+        android:textSize="13sp"
+        android:textColor="#555555"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Marked Count -->
+    <TextView
+        android:id="@+id/tvMarkedCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Marked: 5/30"
+        android:textSize="13sp"
+        android:textColor="#555555"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#DDDDDD"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Marks List -->
+    <TextView
+        android:id="@+id/tvMarksList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ali Raza: 20/20\nFatima Khan: 15/20"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:lineSpacingExtra="4dp" />
+
+</LinearLayout>

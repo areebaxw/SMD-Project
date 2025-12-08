@@ -129,6 +129,16 @@ interface ApiService {
 
     @GET("teacher/course/{courseId}/marks")
     suspend fun getCourseMarks(@Path("courseId") courseId: Int): Response<ApiResponse<List<CourseMarks>>>
+
+    @GET("teacher/course/{courseId}/evaluation-type/{evaluationTypeId}/marks")
+    suspend fun getEvaluationMarks(
+        @Path("courseId") courseId: Int,
+        @Path("evaluationTypeId") evaluationTypeId: Int
+    ): Response<ApiResponse<EvaluationMarksResponse>>
+
+    @DELETE("teacher/evaluation/{evaluationId}")
+    suspend fun deleteEvaluation(@Path("evaluationId") evaluationId: Int): Response<ApiResponse<Any>>
+
     // Course Registration Endpoints
     @GET("student/courses/available")
     suspend fun getAvailableCourses(): Response<ApiResponse<List<Course>>>

@@ -92,9 +92,10 @@ class MarkStudentsActivity : AppCompatActivity() {
                     val studentMarks = students.map { student ->
                         StudentMark(
                             student_id = student.student_id,
+                            obtained_marks = null,
+                            marked_at = null,
                             roll_no = student.roll_no,
                             full_name = student.full_name,
-                            obtained_marks = null,
                             remarks = null
                         )
                     }

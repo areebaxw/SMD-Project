@@ -1,5 +1,7 @@
 package com.example.smd_project.models
 
+import com.google.gson.annotations.SerializedName
+
 data class Evaluation(
     val evaluation_id: Int,
     val course_id: Int,
@@ -17,7 +19,8 @@ data class CreateEvaluationRequest(
     val title: String,
     val totalMarks: Int,
     val semester: String,
-    val academicYear: String
+    val academicYear: String,
+    val weightage: String? = null
 )
 
 data class CreateEvaluationResponse(
@@ -27,14 +30,9 @@ data class CreateEvaluationResponse(
 
 data class EvaluationType(
     val evaluation_type_id: Int,
+    @SerializedName("type_name")
     val evaluation_type_name: String,
-    val is_active: Int
-)
-
-data class StudentMark(
-    val student_id: Int,
-    val roll_no: String,
-    val full_name: String,
-    val obtained_marks: Double?,
-    val remarks: String?
+    val evaluation_type: String = "",
+    val is_active: Int = 1,
+    val weightage_percentage: Int = 0
 )

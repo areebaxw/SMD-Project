@@ -4,16 +4,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#F2F2F7">
 
-    <!-- Header Section -->
-    <LinearLayout
+    <!-- Scrollable Content -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/header_bg"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#F2F2F7">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/header_bg"
+                android:paddingTop="16dp"
+                android:paddingBottom="20dp">
 
         <!-- Top Bar with Back, Title and Save -->
         <LinearLayout
@@ -23,7 +35,7 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingTop="12dp"
-            android:paddingBottom="20dp"
+            android:paddingBottom="16dp"
             android:gravity="center_vertical">
 
             <!-- Back Arrow -->
@@ -36,14 +48,13 @@
 
             <!-- Title -->
             <TextView
-                android:id="@+id/headerTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="20dp"
                 android:text="Enter Marks"
                 android:textColor="@color/white"
-                android:textSize="24sp"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
             <!-- Save Button -->
@@ -53,340 +64,419 @@
                 android:layout_height="wrap_content"
                 android:text="Save"
                 android:textColor="@color/white"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Content Box with Course and Assignment Dropdowns -->
+        <!-- Content Box with Dropdowns -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#99FFFFFF"
+            android:background="#8B2072"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:padding="16dp">
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
 
             <!-- Course Section with Dropdown -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:background="#9E3B82"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:layout_marginBottom="8dp">
 
-                <Spinner
-                    android:id="@+id/spinnerCourse"
+                <TextView
+                    android:id="@+id/tvCourseName"
                     android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content" />
+                    android:text="Data Structures"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/courseDropdownArrow"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/down_arrow"
                     android:contentDescription="Dropdown"
                     android:tint="@color/white" />
             </LinearLayout>
 
-            <!-- Assignment Section with Dropdown -->
+            <!-- Evaluation Type Section with Add Evaluation Button -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="12dp">
+                android:background="#9E3B82"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp">
 
-                <Spinner
-                    android:id="@+id/spinnerEvaluationType"
+                <LinearLayout
                     android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select Evaluation Type"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
+                    <TextView
+                        android:id="@+id/tvEvaluationType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Choose Type"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/assignmentDropdownArrow"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/down_arrow"
                     android:contentDescription="Dropdown"
                     android:tint="@color/white" />
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
 
-    <!-- Details Card -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/square_white"
-        android:layout_margin="16dp"
-        android:padding="20dp"
-        android:gravity="center_vertical">
-
-        <!-- Icon -->
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/enroll"
-            android:contentDescription="Details"
-            android:layout_marginEnd="16dp" />
-
-        <!-- Details Grid -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <!-- Row 1: Evaluation No and Total Marks -->
+            <!-- Evaluation Number Dropdown -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:gravity="center_vertical"
+                android:background="#9E3B82"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:layout_marginTop="8dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="8dp">
-
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Evaluation No"
-                        android:textColor="#666666"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <EditText
-                        android:id="@+id/etEvaluationNumber"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="01"
-                        android:textColor="#333333"
-                        android:textSize="14sp"
-                        android:background="@drawable/input_border"
-                        android:padding="8dp"
-                        android:inputType="number" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="8dp">
-
+                        android:text="Select Evaluation"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:alpha="0.7" />
                     <TextView
+                        android:id="@+id/tvEvaluationNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total Marks"
-                        android:textColor="#666666"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <EditText
-                        android:id="@+id/etTotalMarks"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="50"
-                        android:textColor="#333333"
-                        android:textSize="14sp"
-                        android:background="@drawable/input_border"
-                        android:padding="8dp"
-                        android:inputType="number" />
+                        android:text="Choose Evaluation"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/evaluationNumberDropdownArrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/down_arrow"
+                    android:contentDescription="Dropdown"
+                    android:tint="@color/white" />
             </LinearLayout>
 
-            <!-- Row 2: Weightage and Topic -->
-            <LinearLayout
+            <!-- Add Evaluation Button -->
+            <TextView
+                android:id="@+id/btnAddEvaluation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Weightage"
-                        android:textColor="#666666"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/weightageValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="02"
-                        android:textColor="#333333"
-                        android:textSize="14sp"
-                        android:background="@drawable/input_border"
-                        android:padding="8dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Topic"
-                        android:textColor="#666666"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <EditText
-                        android:id="@+id/etTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Pointers"
-                        android:textColor="#333333"
-                        android:textSize="14sp"
-                        android:background="@drawable/input_border"
-                        android:padding="8dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Search Bar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/search_bg"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:padding="12dp"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/down_arrow"
-            android:contentDescription="Search"
-            android:tint="#999999" />
-
-        <EditText
-            android:id="@+id/searchEditText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:hint="Search Students . . ."
-            android:textColorHint="#999999"
-            android:textSize="14sp"
-            android:background="@android:color/transparent" />
-    </LinearLayout>
-
-    <!-- Stats Cards -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp">
-
-        <!-- Average Card -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/square_white"
-            android:padding="16dp"
-            android:layout_marginEnd="8dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Average"
-                android:textColor="#666666"
+                android:text="+ Add Evaluation"
+                android:textColor="@color/white"
                 android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
-
-            <TextView
-                android:id="@+id/averageValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="38.5"
-                android:textColor="#00BCD4"
-                android:textSize="32sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Highest Card -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/square_white"
-            android:padding="16dp"
-            android:layout_marginStart="8dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Highest"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
-
-            <TextView
-                android:id="@+id/highestValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="42"
-                android:textColor="#4CAF50"
-                android:textSize="32sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:gravity="center"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginTop="8dp"
+                android:background="#7A1855" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Students List Header -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Students (45)"
-        android:textColor="#333333"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="12dp" />
-
-    <!-- Students RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/studentsRecyclerView"
+    <!-- Selected Evaluation Details Header -->
+    <LinearLayout
+        android:id="@+id/evaluationDetailsHeader"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/white"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:clipToPadding="false" />
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:visibility="gone">
+
+        <!-- Header with Delete Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Evaluation Details"
+                android:textColor="#1C1C1E"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Delete Icon -->
+            <ImageView
+                android:id="@+id/btnDeleteEvaluation"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="Delete Evaluation"
+                android:tint="#8B2072"
+                android:scaleType="centerInside" />
+        </LinearLayout>
+
+        <!-- Evaluation Number Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Evaluation No"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedEvalNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="01"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="24dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Marks"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedTotalMarks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Topic and Weightage Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Topic"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedTopic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select evaluation to view topic"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="24dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Weightage"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedWeightage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Statistics Row - Highest/Lowest/Average -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Highest"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedHighest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="24dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lowest"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedLowest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="24dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Average"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvSelectedAverage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textColor="#1C1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+    </LinearLayout>
+
+            <!-- Main Content RecyclerView - Shows only students for selected evaluation -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/mainRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#F2F2F7"
+                android:clipToPadding="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+
+            </LinearLayout>
+        </ScrollView>
 
     <!-- Submit Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="20dp"
         android:background="@color/white">
 
         <TextView
@@ -399,8 +489,8 @@
             android:textStyle="bold"
             android:gravity="center"
             android:background="@drawable/save_button_bg"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp" />
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp" />
     </LinearLayout>
 
 </LinearLayout>

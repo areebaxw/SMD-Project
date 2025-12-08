@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp">
+
+    <!-- Evaluation Header Card with Rounded Corners -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/card_rounded"
+        android:padding="18dp">
+
+        <!-- Evaluation Number and Topic -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvEvalNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evaluation #1"
+                android:textColor="#8B2072"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:id="@+id/tvEvalTopic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Topic: Assignment 1"
+                android:textColor="#8E8E93"
+                android:textSize="14sp"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#D1D1D6"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Students List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvStudentsInEval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:nestedScrollingEnabled="false"
+                android:paddingBottom="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

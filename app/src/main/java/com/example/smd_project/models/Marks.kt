@@ -54,3 +54,38 @@ data class CourseMarks(
     val title: String,
     val total_marks: Int
 )
+
+// Models for evaluation marks response
+data class EvaluationMarksResponse(
+    val students: List<Student>,
+    val evaluations: List<EvaluationWithMarks>,
+    val evaluation_type_id: Int
+)
+
+data class EvaluationWithMarks(
+    val evaluation_id: Int,
+    val evaluation_number: Int,
+    val title: String,
+    val total_marks: Int,
+    val academic_year: String,
+    val semester: String,
+    val marks: List<StudentMark>,
+    val weightage: String? = "-",
+    val stats: EvaluationStats? = null
+)
+
+data class EvaluationStats(
+    val highest: Double?,
+    val lowest: Double?,
+    val average: Double?,
+    val total_marked: Int?
+)
+
+data class StudentMark(
+    val student_id: Int,
+    val obtained_marks: Double?,
+    val marked_at: String?,
+    val roll_no: String = "",
+    val full_name: String = "",
+    val remarks: String? = null
+)
