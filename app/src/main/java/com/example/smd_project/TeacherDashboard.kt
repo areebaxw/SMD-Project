@@ -2,18 +2,18 @@ package com.example.smd_project
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.smd_project.adapters.TodayClassAdapter
-import com.example.smd_project.adapters.CourseAdapter
-import com.example.smd_project.adapters.AnnouncementAdapter
-import com.example.smd_project.adapters.NotificationAdapter
+import androidx.lifecycle.lifecycleScope
+import com.example.smd_project.adapters.*
 import com.example.smd_project.models.Course
 import com.example.smd_project.models.Announcement
 import com.example.smd_project.models.Notification
@@ -23,7 +23,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 
 class TeacherDashboard : AppCompatActivity() {
-    
+
     private lateinit var sessionManager: SessionManager
     private lateinit var ivProfilePic: ImageView
     private lateinit var tvTeacherName: TextView
@@ -33,29 +33,34 @@ class TeacherDashboard : AppCompatActivity() {
     private lateinit var tvPendingTasksCount: TextView
     private lateinit var rvTodayClasses: RecyclerView
     private lateinit var rvRecentActivity: RecyclerView
-    
+
     private var rvCourses: RecyclerView? = null
     private var rvAnnouncements: RecyclerView? = null
     private var rvNotifications: RecyclerView? = null
-    
+
     private lateinit var todayClassAdapter: TodayClassAdapter
     private var courseAdapter: CourseAdapter? = null
     private var announcementAdapter: AnnouncementAdapter? = null
     private var notificationAdapter: NotificationAdapter? = null
-    
+
+    // Drawer views
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var drawerRecyclerView: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacherdashboard)
-        
+
         sessionManager = SessionManager(this)
-        
+
         initViews()
         setupRecyclerViews()
+        setupDrawer()
         setupClickListeners()
         loadDashboardData()
         setupSwipeRefresh()
     }
-    
+
     private fun initViews() {
         try {
             ivProfilePic = findViewById(R.id.ivProfilePic)
@@ -66,7 +71,10 @@ class TeacherDashboard : AppCompatActivity() {
             tvPendingTasksCount = findViewById(R.id.tvPendingTasksCount)
             rvTodayClasses = findViewById(R.id.rvTodayClasses)
             rvRecentActivity = findViewById(R.id.rvRecentActivity)
-            
+
+            drawerLayout = findViewById(R.id.drawer_layout)
+            drawerRecyclerView = findViewById(R.id.drawerRecyclerView)
+
             // Try to find additional RecyclerViews if they exist
             try {
                 rvCourses = findViewById(R.id.rvCourses)
@@ -75,9 +83,9 @@ class TeacherDashboard : AppCompatActivity() {
             } catch (e: Exception) {
                 // Views may not be in XML yet
             }
-            
+
             tvTeacherName.text = sessionManager.getUserName()
-            
+
             val profileUrl = sessionManager.getProfilePic()
             if (!profileUrl.isNullOrEmpty()) {
                 Picasso.get()
@@ -90,21 +98,21 @@ class TeacherDashboard : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-    
+
     private fun setupRecyclerViews() {
         todayClassAdapter = TodayClassAdapter(emptyList())
         rvTodayClasses.apply {
             layoutManager = LinearLayoutManager(this@TeacherDashboard)
             adapter = todayClassAdapter
         }
-        
+
         // Setup recent activity (announcements)
         announcementAdapter = AnnouncementAdapter(emptyList())
         rvRecentActivity.apply {
             layoutManager = LinearLayoutManager(this@TeacherDashboard)
             adapter = announcementAdapter
         }
-        
+
         // Setup other adapters if RecyclerViews exist
         rvCourses?.let {
             courseAdapter = CourseAdapter(emptyList()) { course ->
@@ -115,7 +123,7 @@ class TeacherDashboard : AppCompatActivity() {
                 adapter = courseAdapter
             }
         }
-        
+
         rvAnnouncements?.let {
             announcementAdapter = AnnouncementAdapter(emptyList())
             it.apply {
@@ -123,7 +131,7 @@ class TeacherDashboard : AppCompatActivity() {
                 adapter = announcementAdapter
             }
         }
-        
+
         rvNotifications?.let {
             notificationAdapter = NotificationAdapter(emptyList())
             it.apply {
@@ -132,17 +140,51 @@ class TeacherDashboard : AppCompatActivity() {
             }
         }
     }
-    
+
+    private fun setupDrawer() {
+        val drawerItems = listOf(
+            DrawerItem("Announcements", R.drawable.postannouncement_icon),
+            DrawerItem("Marks", R.drawable.entermarks_icon),
+            DrawerItem("Attendance", R.drawable.greentick),
+            DrawerItem("Courses", R.drawable.notifybutton),
+            DrawerItem("Schedule", R.drawable.notifybutton)
+        )
+
+        val drawerAdapter = DrawerAdapter(drawerItems) { item ->
+            when(item.title) {
+                "Announcements" -> {  val intent = Intent(this, AnnouncementListActivity::class.java)
+                    startActivity(intent) }
+                "Marks" -> { val intent = Intent(this, EnterMarks::class.java)
+                    startActivity(intent) }
+                "Attendance" -> {val intent = Intent(this, MarkAttendance::class.java)
+                    startActivity(intent)}
+                "Courses" -> { val intent = Intent(this, CourseListActivity::class.java)
+                    startActivity(intent)}
+                "Schedule" -> { val intent = Intent(this, ScheduleActivity::class.java)
+                    startActivity(intent) }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        drawerRecyclerView.adapter = drawerAdapter
+        drawerRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Menu icon click opens the drawer
+        findViewById<View>(R.id.menu_icon)?.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+    }
+
     private fun setupClickListeners() {
         try {
             findViewById<View>(R.id.btnMarkAttendance)?.setOnClickListener {
                 startActivity(Intent(this, MarkAttendance::class.java))
             }
-            
+
             findViewById<View>(R.id.btnEnterMarks)?.setOnClickListener {
                 startActivity(Intent(this, EnterMarks::class.java))
             }
-            
+
             findViewById<View>(R.id.btnPostAnnouncement)?.setOnClickListener {
                 startActivity(Intent(this, PostAnnouncement::class.java))
             }
@@ -150,39 +192,27 @@ class TeacherDashboard : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-    
+
     private fun setupSwipeRefresh() {
         // SwipeRefreshLayout not available in current layout
-        // Pull-to-refresh can be added later by including SwipeRefreshLayout in activity_teacherdashboard.xml
     }
-    
+
     private fun loadDashboardData() {
         val apiService = RetrofitClient.getApiService(sessionManager)
-        
-        // Set initial data from session while loading
+
         tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
-        
+
         lifecycleScope.launch {
             try {
                 val response = apiService.getTeacherDashboard()
-                
-                android.util.Log.d("TeacherDashboard", "Dashboard response code: ${response.code()}")
-                
                 if (response.isSuccessful) {
                     val body = response.body()
-                    android.util.Log.d("TeacherDashboard", "Dashboard body: $body")
-                    
                     if (body?.success == true) {
                         val dashboard = body.data
-                        
                         dashboard?.let {
-                            // Check if teacher data is null - use SessionManager as fallback
                             if (it.teacher != null) {
-                                android.util.Log.d("TeacherDashboard", "Teacher: ${it.teacher.full_name}")
-                                
                                 tvTeacherName.text = it.teacher.full_name
                                 tvEmployeeId.text = it.teacher.email
-                                
                                 it.teacher.profile_picture_url?.let { url ->
                                     if (url.isNotEmpty()) {
                                         Picasso.get()
@@ -193,11 +223,8 @@ class TeacherDashboard : AppCompatActivity() {
                                     }
                                 }
                             } else {
-                                // Backend didn't return teacher info, use SessionManager
-                                android.util.Log.d("TeacherDashboard", "Backend teacher=null, using SessionManager")
                                 tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
                                 tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
-                                
                                 val profileUrl = sessionManager.getProfilePic()
                                 if (!profileUrl.isNullOrEmpty()) {
                                     Picasso.get()
@@ -207,178 +234,112 @@ class TeacherDashboard : AppCompatActivity() {
                                         .into(ivProfilePic)
                                 }
                             }
-                            
-                            // Update course count
+
                             val courseCount = it.courses?.size ?: 0
                             tvCourseCount.text = courseCount.toString()
-                            
-                            // Update stats from API if available
+
                             it.stats?.let { stats ->
-                                android.util.Log.d("TeacherDashboard", "Stats: students=${stats.total_students}, courses=${stats.total_courses}, pending=${stats.pending_tasks}")
                                 tvStudentCount.text = stats.total_students.toString()
                                 tvCourseCount.text = stats.total_courses.toString()
                                 tvPendingTasksCount.text = stats.pending_tasks.toString()
                             } ?: run {
-                                // Fallback: Calculate total students from courses data
-                                android.util.Log.d("TeacherDashboard", "Stats not available in API response, using fallback")
                                 tvCourseCount.text = courseCount.toString()
-                                // This will be updated when courses data loads below
                             }
-                            
-                            // Update today's schedule if available
+
                             it.todaySchedule?.let { schedule ->
-                                android.util.Log.d("TeacherDashboard", "Today's classes: ${schedule.size}")
                                 if (schedule.isNotEmpty()) {
                                     todayClassAdapter.updateClasses(schedule)
                                 }
                             }
                         }
                     } else {
-                        android.util.Log.e("TeacherDashboard", "API success is false: ${body?.message}")
-                        // Fallback to SessionManager data
                         tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
                         tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
                     }
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    android.util.Log.e("TeacherDashboard", "Dashboard API error: ${response.code()} - $errorBody")
                     Toast.makeText(this@TeacherDashboard, "Failed to load dashboard", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                android.util.Log.e("TeacherDashboard", "Dashboard load error: ${e.message}", e)
                 e.printStackTrace()
                 Toast.makeText(this@TeacherDashboard, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            
-            // Always try to load additional data regardless of dashboard API result
+
             loadCoursesData()
             loadAnnouncementsData()
             loadNotificationsData()
         }
     }
-    
+
     private fun loadCoursesData() {
         val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
                 val response = apiService.getTeacherCourses()
-                
-                android.util.Log.d("TeacherDashboard", "Courses response code: ${response.code()}")
-                
                 if (response.isSuccessful) {
                     val body = response.body()
-                    
                     if (body?.success == true) {
                         val courses = body.data ?: emptyList()
-                        android.util.Log.d("TeacherDashboard", "Loaded ${courses.size} courses")
-                        
                         if (courses.isNotEmpty()) {
                             tvCourseCount.text = courses.size.toString()
                             courseAdapter?.updateCourses(courses)
-                            
-                            // Calculate total enrolled students from courses
                             val totalStudents = courses.sumOf { it.enrolled_students ?: 0 }
-                            android.util.Log.d("TeacherDashboard", "Total enrolled students: $totalStudents")
                             tvStudentCount.text = totalStudents.toString()
                         } else {
-                            android.util.Log.d("TeacherDashboard", "No courses returned from backend")
                             tvCourseCount.text = "0"
                             tvStudentCount.text = "0"
                         }
                     } else {
-                        android.util.Log.e("TeacherDashboard", "Courses API success is false: ${body?.message}")
                         tvCourseCount.text = "0"
                         tvStudentCount.text = "0"
                     }
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    android.util.Log.e("TeacherDashboard", "Courses API error: ${response.code()} - $errorBody")
-                    // Show error but don't crash
-                    Toast.makeText(this@TeacherDashboard, "Could not load courses", Toast.LENGTH_SHORT).show()
                     tvStudentCount.text = "0"
                 }
-            } catch (e: Exception) {
-                android.util.Log.e("TeacherDashboard", "Courses load error: ${e.message}", e)
+            } catch (_: Exception) {
                 tvCourseCount.text = "0"
                 tvStudentCount.text = "0"
             }
         }
     }
-    
+
     private fun loadAnnouncementsData() {
         val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
                 val response = apiService.getTeacherAnnouncements()
-                
-                android.util.Log.d("TeacherDashboard", "Announcements response code: ${response.code()}")
-                
                 if (response.isSuccessful) {
                     val body = response.body()
-                    
                     if (body?.success == true) {
                         val announcements = body.data ?: emptyList()
-                        android.util.Log.d("TeacherDashboard", "Loaded ${announcements.size} announcements")
-                        
                         if (announcements.isNotEmpty()) {
-                            // Show only recent 5
                             val recentAnnouncements = announcements.take(5)
                             announcementAdapter?.updateAnnouncements(recentAnnouncements)
-                        } else {
-                            android.util.Log.d("TeacherDashboard", "No announcements returned from backend")
                         }
-                    } else {
-                        android.util.Log.e("TeacherDashboard", "Announcements API success is false: ${body?.message}")
                     }
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    android.util.Log.e("TeacherDashboard", "Announcements API error: ${response.code()} - $errorBody")
                 }
-            } catch (e: Exception) {
-                android.util.Log.e("TeacherDashboard", "Announcements load error: ${e.message}", e)
-            }
+            } catch (_: Exception) {}
         }
     }
-    
+
     private fun loadNotificationsData() {
         val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
                 val response = apiService.getTeacherNotifications()
-                
-                android.util.Log.d("TeacherDashboard", "Notifications response code: ${response.code()}")
-                
                 if (response.isSuccessful) {
                     val body = response.body()
-                    
                     if (body?.success == true) {
                         val notificationList = body.data ?: emptyList()
-                        android.util.Log.d("TeacherDashboard", "Loaded ${notificationList.size} notifications")
-                        
                         if (notificationList.isNotEmpty()) {
-                            // Show only recent 5 unread
                             val unreadNotifications = notificationList.filter { it.is_read == 0 }.take(5)
                             notificationAdapter?.updateNotifications(unreadNotifications)
-                        } else {
-                            android.util.Log.d("TeacherDashboard", "No notifications returned from backend")
                         }
-                    } else {
-                        android.util.Log.e("TeacherDashboard", "Notifications API success is false: ${body?.message}")
                     }
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    android.util.Log.e("TeacherDashboard", "Notifications API error: ${response.code()} - $errorBody")
-                    // Don't show toast for notifications - less critical
                 }
-            } catch (e: Exception) {
-                android.util.Log.e("TeacherDashboard", "Notifications load error: ${e.message}", e)
-            }
+            } catch (_: Exception) {}
         }
     }
-    
+
     private fun onCourseClicked(course: Course) {
         val intent = Intent(this, CourseDetailActivity::class.java).apply {
             putExtra("course_id", course.course_id)
@@ -387,10 +348,9 @@ class TeacherDashboard : AppCompatActivity() {
         }
         startActivity(intent)
     }
-    
+
     override fun onResume() {
         super.onResume()
-        // Refresh data when returning to dashboard
         loadDashboardData()
     }
 }
