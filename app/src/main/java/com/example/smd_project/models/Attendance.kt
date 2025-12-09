@@ -3,6 +3,18 @@ package com.example.smd_project.models
 import com.google.gson.annotations.SerializedName
 
 data class AttendanceSummary(
+    val course_id: Int,
+    val course_name: String,
+    val course_code: String,
+    val present: Int,
+    val absent: Int,
+    val late: Int,
+    val excused: Int,
+    val total: Int,
+    val percentage: Double
+)
+
+data class TeacherAttendanceSummary(
     val student_id: Int,
     val full_name: String,
     val present_count: Int,

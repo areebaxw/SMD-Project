@@ -5,4 +5,7 @@
     <color name="purple_700">#8B2072</color>
     <color name="purple_500">#9C27B0</color>
     <color name="gray_light">#F5F5F5</color>
+    <color name="primary">#8B2072</color>
+    <color name="primary_dark">#6A1854</color>
+    <color name="accent">#9C27B0</color>
 </resources>

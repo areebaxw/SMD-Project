@@ -19,18 +19,14 @@ data class Student(
 )
 
 data class StudentDashboard(
-    val student: StudentInfo,
+    val student: Student,
     val today_classes: List<TodayClass>,
     val announcements: List<Announcement>,
     val attendance_percentage: Double,
     val sgpa: Double,
-    val cgpa: Double
-)
-
-data class StudentInfo(
-    val full_name: String,
-    val roll_no: String,
     val cgpa: Double,
-    val semester: Int,
-    val profile_picture_url: String?
+    val attendance_by_course: List<AttendanceSummary>,
+    val academic_year: String,
+    val semester: String,
+    val enrolled_count: Int
 )

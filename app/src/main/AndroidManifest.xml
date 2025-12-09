@@ -81,6 +81,18 @@
         <activity
             android:name=".EnterMarks"
             android:exported="false" />
+        <activity
+            android:name=".StudentMarksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentEvaluationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentFeesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentAttendanceActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

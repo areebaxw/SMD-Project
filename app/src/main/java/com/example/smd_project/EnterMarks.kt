@@ -650,12 +650,7 @@ class EnterMarks : AppCompatActivity() {
                             
                             // Load marks from database for this evaluation
                             for (mark in selectedEval.marks) {
-                                val marks = when (mark.obtained_marks) {
-                                    is String -> (mark.obtained_marks as String).toDoubleOrNull() ?: 0.0
-                                    is Double -> mark.obtained_marks as Double
-                                    is Int -> (mark.obtained_marks as Int).toDouble()
-                                    else -> 0.0
-                                }
+                                val marks = mark.obtained_marks ?: 0.0
                                 marksMap[mark.student_id] = marks
                             }
                             

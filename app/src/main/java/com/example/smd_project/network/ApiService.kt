@@ -154,4 +154,23 @@ interface ApiService {
 
     @DELETE("student/courses/drop/{courseId}")
     suspend fun dropCourse(@Path("courseId") courseId: Int): Response<ApiResponse<Any>>
+
+    // New Student Endpoints for Dashboard
+    @GET("student/courses")
+    suspend fun getStudentEnrolledCourses(): Response<ApiResponse<List<StudentCourse>>>
+
+    @GET("student/marks")
+    suspend fun getStudentAllMarks(): Response<ApiResponse<List<CourseMarksDetail>>>
+
+    @GET("student/evaluations")
+    suspend fun getStudentEvaluations(): Response<ApiResponse<List<CourseEvaluation>>>
+
+    @GET("student/fees")
+    suspend fun getStudentFeesInfo(): Response<ApiResponse<List<StudentFee>>>
+
+    @GET("student/attendance")
+    suspend fun getStudentAttendanceSummary(): Response<ApiResponse<List<AttendanceSummary>>>
+
+    @POST("teacher/upload-final-grades")
+    suspend fun uploadFinalGrades(@Body request: UploadFinalGradesRequest): Response<ApiResponse<Any>>
 }

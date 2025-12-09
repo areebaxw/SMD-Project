@@ -236,10 +236,10 @@ class TeacherDashboard : AppCompatActivity() {
                     if (body?.success == true) {
                         val dashboard = body.data
                         dashboard?.let {
-                            if (it.teacher != null) {
-                                tvTeacherName.text = it.teacher.full_name
-                                tvEmployeeId.text = it.teacher.email
-                                it.teacher.profile_picture_url?.let { url ->
+                            it.teacher?.let { teacher ->
+                                tvTeacherName.text = teacher.full_name
+                                tvEmployeeId.text = teacher.email
+                                teacher.profile_picture_url?.let { url ->
                                     if (url.isNotEmpty()) {
                                         Picasso.get()
                                             .load(url)
@@ -248,7 +248,7 @@ class TeacherDashboard : AppCompatActivity() {
                                             .into(ivProfilePic)
                                     }
                                 }
-                            } else {
+                            } ?: run {
                                 tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
                                 tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
                                 val profileUrl = sessionManager.getProfilePic()

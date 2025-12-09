@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/group_main">
+        <item
+            android:id="@+id/menu_dashboard"
+            android:icon="@drawable/dashboard"
+            android:title="Dashboard" />
+        <item
+            android:id="@+id/menu_courses"
+            android:icon="@drawable/courses"
+            android:title="My Courses" />
+        <item
+            android:id="@+id/menu_marks"
+            android:icon="@drawable/test"
+            android:title="Marks" />
+        <item
+            android:id="@+id/menu_evaluations"
+            android:icon="@drawable/test"
+            android:title="Evaluations" />
+        <item
+            android:id="@+id/menu_attendance"
+            android:icon="@drawable/attendance"
+            android:title="Attendance" />
+        <item
+            android:id="@+id/menu_fees"
+            android:icon="@drawable/upload_grades"
+            android:title="Fees" />
+        <item
+            android:id="@+id/menu_announcements"
+            android:icon="@drawable/announcements"
+            android:title="Announcements" />
+    </group>
+
+    <group android:id="@+id/group_account">
+        <item
+            android:id="@+id/menu_profile"
+            android:icon="@drawable/ic_launcher_foreground"
+            android:title="My Profile" />
+        <item
+            android:id="@+id/menu_logout"
+            android:icon="@drawable/profile_circle_bg"
+            android:title="Logout" />
+    </group>
+</menu>

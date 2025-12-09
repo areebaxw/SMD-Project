@@ -92,11 +92,11 @@
             android:layout_width="150dp"
             android:layout_height="48dp"
             android:text="Scale Grades"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:background="@drawable/btn_scale_pink"
+            android:background="@color/primary"
             android:layout_gravity="center"
             android:elevation="2dp"/>
     </LinearLayout>

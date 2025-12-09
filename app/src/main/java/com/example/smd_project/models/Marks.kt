@@ -89,3 +89,18 @@ data class StudentMark(
     val full_name: String = "",
     val remarks: String? = null
 )
+
+// Models for final grade submission
+data class FinalGradeRecord(
+    val studentId: Int,
+    val obtainedMarks: Double,
+    val academicYear: String,
+    val semester: String
+)
+
+data class UploadFinalGradesRequest(
+    val courseId: Int,
+    val academicYear: String,
+    val semester: String,
+    val gradesRecords: List<FinalGradeRecord>
+)

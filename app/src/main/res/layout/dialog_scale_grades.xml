@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scale Grades"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter amount to add/subtract"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/etScaleValue"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Enter number"
+        android:inputType="number|numberSigned"
+        android:padding="12dp"
+        android:background="@drawable/input_rounded"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/btnApplyScale"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Apply"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:background="@drawable/button_bg"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:background="@drawable/lightgrey_card" />
+
+    </LinearLayout>
+
+</LinearLayout>

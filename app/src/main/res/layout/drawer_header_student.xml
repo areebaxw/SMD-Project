@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:background="@drawable/header_bg2"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:padding="16dp">
+
+    <FrameLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/drawer_profile_pic"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/circle_white_51"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/drawer_initials"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="SA"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/drawer_user_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Salar Ahmed"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/drawer_roll_no"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:text="23F-0001"
+        android:textColor="@color/white"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/drawer_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:text="salar@university.edu"
+        android:textColor="@color/white"
+        android:textSize="11sp" />
+</LinearLayout>
