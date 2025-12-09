@@ -54,15 +54,23 @@ class CourseListActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherCourses()
+                val response = apiService.getStudentCourses()
                 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val courses = response.body()?.data ?: emptyList()
-                    courseAdapter.updateCourses(courses)
+                    if (courses.isEmpty()) {
+                        Toast.makeText(
+                            this@CourseListActivity,
+                            "No courses registered yet",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        courseAdapter.updateCourses(courses)
+                    }
                 } else {
                     Toast.makeText(
                         this@CourseListActivity,
-                        "Failed to load courses",
+                        response.body()?.message ?: "Failed to load courses",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -72,6 +80,7 @@ class CourseListActivity : AppCompatActivity() {
                     "Error: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
+                e.printStackTrace()
             }
         }
     }

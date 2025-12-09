@@ -55,7 +55,7 @@ interface ApiService {
     suspend fun getAttendanceDetails(@Path("courseId") courseId: Int): Response<ApiResponse<List<AttendanceRecord>>>
 
     @GET("student/marks")
-    suspend fun getStudentMarks(): Response<ApiResponse<MarksResponse>>
+    suspend fun getStudentMarks(): Response<ApiResponse<List<Mark>>>
 
     @GET("student/announcements")
     suspend fun getStudentAnnouncements(): Response<ApiResponse<List<Announcement>>>
@@ -152,7 +152,13 @@ interface ApiService {
     @POST("student/courses/register")
     suspend fun registerCourses(@Body request: CourseRegistrationRequest): Response<ApiResponse<CourseRegistrationResponse>>
 
-    @DELETE("student/courses/drop/{courseId}")
+    @POST("student/enroll")
+    suspend fun enrollInCourses(@Body request: EnrollCoursesRequest): Response<ApiResponse<Map<String, Any>>>
+
+    @POST("student/enroll/single")
+    suspend fun enrollInCourse(@Body request: EnrollCourseRequest): Response<ApiResponse<Map<String, Any>>>
+
+    @DELETE("student/drop/{courseId}")
     suspend fun dropCourse(@Path("courseId") courseId: Int): Response<ApiResponse<Any>>
 
     // New Student Endpoints for Dashboard

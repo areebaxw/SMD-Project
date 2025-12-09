@@ -57,23 +57,24 @@ class StudentEvaluationsActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(
                                 this@StudentEvaluationsActivity,
-                                "No evaluations available",
-                                Toast.LENGTH_SHORT
+                                "No evaluations available for your courses",
+                                Toast.LENGTH_LONG
                             ).show()
                         }
                     }
                 } else {
+                    val errorMsg = response.body()?.message ?: "Failed to load evaluations"
                     Toast.makeText(
                         this@StudentEvaluationsActivity,
-                        response.body()?.message ?: "Failed to load evaluations",
-                        Toast.LENGTH_SHORT
+                        errorMsg,
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(
                     this@StudentEvaluationsActivity,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_SHORT
+                    "Error loading evaluations: ${e.message}",
+                    Toast.LENGTH_LONG
                 ).show()
                 e.printStackTrace()
             }

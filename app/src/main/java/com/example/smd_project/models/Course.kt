@@ -7,7 +7,7 @@ data class Course(
     val description: String?,
     val credit_hours: Int,
     val semester: Int?,
-    val is_required: Boolean,
+    val is_required: Int,  // Changed from Boolean to Int (0 or 1 from TINYINT)
     val is_active: Int,
     val instructors: String?,
     val schedule: String?,

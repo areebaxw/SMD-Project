@@ -6,6 +6,10 @@
             android:icon="@drawable/dashboard"
             android:title="Dashboard" />
         <item
+            android:id="@+id/menu_registration"
+            android:icon="@drawable/courses"
+            android:title="Register Courses" />
+        <item
             android:id="@+id/menu_courses"
             android:icon="@drawable/courses"
             android:title="My Courses" />

@@ -46,6 +46,9 @@
             android:name=".courseRegistration"
             android:exported="false" />
         <activity
+            android:name=".activities.CourseRegistrationActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity

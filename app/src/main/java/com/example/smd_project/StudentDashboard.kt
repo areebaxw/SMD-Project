@@ -12,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.smd_project.activities.CourseRegistrationActivity
 import com.example.smd_project.adapters.AnnouncementAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
 import com.example.smd_project.network.RetrofitClient
@@ -147,6 +148,11 @@ class StudentDashboard : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.menu_dashboard -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                R.id.menu_registration -> {
+                    startActivity(Intent(this, CourseRegistrationActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
