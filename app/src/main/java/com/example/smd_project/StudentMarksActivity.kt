@@ -12,7 +12,6 @@ import com.example.smd_project.adapters.StudentMarkDisplayAdapter
 import com.example.smd_project.models.Mark
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
-import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
 class StudentMarksActivity : AppCompatActivity() {
@@ -25,17 +24,8 @@ class StudentMarksActivity : AppCompatActivity() {
     private lateinit var rvMarks: RecyclerView
     private lateinit var marksAdapter: StudentMarkDisplayAdapter
     private lateinit var toolbar: Toolbar
-    private lateinit var tabEvaluations: TabLayout
     
     private var allMarks: List<Mark> = emptyList()
-    
-    // Mapping of evaluation types
-    private val evaluationTypeMap = mapOf(
-        "Assignments" to listOf("Assignment", "assignment"),
-        "Quizzes" to listOf("Quiz", "quiz"),
-        "Sessionals" to listOf("Session", "session", "Sessional", "sessional"),
-        "Projects" to listOf("Project", "project")
-    )
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,18 +37,7 @@ class StudentMarksActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "My Marks"
-        
-        // Setup TabLayout
-        tabEvaluations = findViewById(R.id.tabEvaluations)
-        tabEvaluations.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                filterMarksByEvaluationType(tab?.position ?: 0)
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
+        supportActionBar?.title = "Evaluations"
         
         // Setup RecyclerView
         rvMarks = findViewById(R.id.rvMarks)
@@ -94,14 +73,13 @@ class StudentMarksActivity : AppCompatActivity() {
                                 Log.d(TAG, "Number of marks: ${it.size}")
                                 if (it.isNotEmpty()) {
                                     allMarks = it
-                                    Log.d(TAG, "Loaded ${allMarks.size} marks, displaying Assignments tab")
-                                    // Show first tab (Assignments) by default
-                                    filterMarksByEvaluationType(0)
+                                    Log.d(TAG, "Loaded ${allMarks.size} marks")
+                                    marksAdapter.updateMarks(it)
                                 } else {
                                     Log.d(TAG, "No marks available")
                                     Toast.makeText(
                                         this@StudentMarksActivity,
-                                        "No marks available yet",
+                                        "No evaluations available yet",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -110,7 +88,7 @@ class StudentMarksActivity : AppCompatActivity() {
                             Log.e(TAG, "Success flag is false: ${body?.message}")
                             Toast.makeText(
                                 this@StudentMarksActivity,
-                                body?.message ?: "Failed to load marks",
+                                body?.message ?: "Failed to load evaluations",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -141,31 +119,6 @@ class StudentMarksActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-    }
-    
-    private fun filterMarksByEvaluationType(tabPosition: Int) {
-        val evaluationTypes = evaluationTypeMap.keys.toList()
-        if (tabPosition >= evaluationTypes.size) return
-        
-        val selectedType = evaluationTypes[tabPosition]
-        val typeKeywords = evaluationTypeMap[selectedType] ?: emptyList()
-        
-        val filtered = allMarks.filter { mark ->
-            typeKeywords.any { keyword ->
-                mark.evaluation_type.contains(keyword, ignoreCase = true) ||
-                mark.title.contains(keyword, ignoreCase = true)
-            }
-        }
-        
-        if (filtered.isEmpty()) {
-            Toast.makeText(
-                this,
-                "No $selectedType marks available",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        
-        marksAdapter.updateMarks(filtered)
     }
     
     override fun onSupportNavigateUp(): Boolean {

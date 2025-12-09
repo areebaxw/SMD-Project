@@ -43,7 +43,6 @@ class StudentDashboard : AppCompatActivity() {
     
     // Action buttons
     private lateinit var btnCoursesAction: View
-    private lateinit var btnMarksAction: View
     private lateinit var btnEvaluationsAction: View
     private lateinit var btnFeesAction: View
     
@@ -83,7 +82,6 @@ class StudentDashboard : AppCompatActivity() {
         
         // Action buttons
         btnCoursesAction = findViewById(R.id.btnCoursesAction)
-        btnMarksAction = findViewById(R.id.btnMarksAction)
         btnEvaluationsAction = findViewById(R.id.btnEvaluationsAction)
         btnFeesAction = findViewById(R.id.btnFeesAction)
         
@@ -100,6 +98,9 @@ class StudentDashboard : AppCompatActivity() {
                 .error(R.drawable.ic_launcher_foreground)
                 .into(ivProfilePic)
         }
+        
+        // Make profile picture circular
+        ivProfilePic.clipToOutline = true
         
         tvStudentName.text = sessionManager.getUserName()
     }
@@ -130,8 +131,11 @@ class StudentDashboard : AppCompatActivity() {
             val drawerProfilePic = drawerHeaderContainer.findViewById<ImageView>(R.id.drawer_profile_pic)
             
             drawerUserName.text = sessionManager.getUserName()
-            drawerRollNo.text = sessionManager.getUserId().toString()
+            drawerRollNo.text = sessionManager.getRollNo() ?: "N/A"
             drawerEmail.text = sessionManager.getUserEmail()
+            
+            // Make drawer profile picture circular
+            drawerProfilePic.clipToOutline = true
             
             val profileUrl = sessionManager.getProfilePic()
             if (!profileUrl.isNullOrEmpty()) {
@@ -158,11 +162,6 @@ class StudentDashboard : AppCompatActivity() {
                 }
                 R.id.menu_courses -> {
                     startActivity(Intent(this, CourseListActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_marks -> {
-                    startActivity(Intent(this, StudentMarksActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -203,10 +202,6 @@ class StudentDashboard : AppCompatActivity() {
         // Quick action buttons
         btnCoursesAction.setOnClickListener {
             startActivity(Intent(this, CourseListActivity::class.java))
-        }
-        
-        btnMarksAction.setOnClickListener {
-            startActivity(Intent(this, StudentMarksActivity::class.java))
         }
         
         btnEvaluationsAction.setOnClickListener {
