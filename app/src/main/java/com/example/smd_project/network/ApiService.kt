@@ -61,7 +61,9 @@ interface ApiService {
     suspend fun getStudentAnnouncements(): Response<ApiResponse<List<Announcement>>>
 
     @GET("student/fees")
-    suspend fun getStudentFees(): Response<ApiResponse<FeeDetails>>
+    suspend fun getStudentFees(): Response<ApiResponse<List<StudentFeeItem>>>
+
+
 
     @GET("student/transcript")
     suspend fun getStudentTranscript(): Response<ApiResponse<Map<String, Any>>>
@@ -87,6 +89,7 @@ interface ApiService {
 
     @POST("teacher/post-announcement")
     suspend fun postAnnouncement(@Body request: PostAnnouncementRequest): Response<ApiResponse<PostAnnouncementResponse>>
+
 
     @GET("teacher/announcements")
     suspend fun getTeacherAnnouncements(): Response<ApiResponse<List<Announcement>>>
@@ -176,6 +179,16 @@ interface ApiService {
 
     @GET("student/attendance")
     suspend fun getStudentAttendanceSummary(): Response<ApiResponse<List<AttendanceSummary>>>
+
+    @POST("/api/student/fees/update-total")
+    suspend fun updateStudentFeeTotal(@Body request: UpdateTotalFeeRequest): Response<ApiResponse<Any>>
+
+    @POST("student/fees/pay")
+    suspend fun payStudentFee(@Body request: PayFeeRequest): Response<ApiResponse<Any>>
+
+    // Get payment history for a specific fee
+    @GET("student/fees/history/{feeId}")
+    suspend fun getFeePaymentHistory(@Path("feeId") feeId: Int): Response<ApiResponse<List<PaymentHistoryItem>>>
 
     @POST("teacher/upload-final-grades")
     suspend fun uploadFinalGrades(@Body request: UploadFinalGradesRequest): Response<ApiResponse<Any>>
