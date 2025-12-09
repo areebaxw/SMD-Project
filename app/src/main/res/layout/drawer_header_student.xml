@@ -1,63 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
+    android:layout_height="wrap_content"
     android:background="@drawable/header_bg2"
     android:orientation="vertical"
-    android:gravity="center_vertical"
-    android:padding="16dp">
+    android:gravity="center_horizontal"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="40dp"
+    android:paddingBottom="32dp">
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/drawer_profile_pic"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp">
-
-        <ImageView
-            android:id="@+id/drawer_profile_pic"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/circle_white_51"
-            android:scaleType="centerCrop" />
-
-        <TextView
-            android:id="@+id/drawer_initials"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="SA"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-    </FrameLayout>
+        android:src="@drawable/circle_white_51"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/profile_circle"
+        android:clipToOutline="true" />
 
     <TextView
         android:id="@+id/drawer_user_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Salar Ahmed"
+        android:text="Ali Raza"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:letterSpacing="0.01" />
 
     <TextView
         android:id="@+id/drawer_roll_no"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="10dp"
         android:text="23F-0001"
         android:textColor="@color/white"
-        android:textSize="12sp" />
+        android:textSize="13sp"
+        android:alpha="0.85" />
 
     <TextView
         android:id="@+id/drawer_email"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="4dp"
-        android:text="salar@university.edu"
+        android:layout_marginTop="6dp"
+        android:text="ali.raza@student.com"
         android:textColor="@color/white"
-        android:textSize="11sp" />
+        android:textSize="11sp"
+        android:alpha="0.75" />
 </LinearLayout>

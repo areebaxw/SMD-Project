@@ -10,11 +10,15 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.smd_project.models.LoginRequest
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executor
 
 class MainActivity : AppCompatActivity() {
     
@@ -22,9 +26,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
+    private lateinit var btnBiometricLogin: Button
     private lateinit var rgUserType: RadioGroup
     private lateinit var rbStudent: RadioButton
     private lateinit var rbTeacher: RadioButton
+    private lateinit var executor: Executor
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +55,15 @@ class MainActivity : AppCompatActivity() {
         etEmail = findViewById(R.id.input_email)
         etPassword = findViewById(R.id.input_password)
         btnLogin = findViewById(R.id.btn_login)
+        btnBiometricLogin = findViewById(R.id.btn_biometric_login)
         
         // Setup signup click listener
         findViewById<TextView>(R.id.txt_signup)?.setOnClickListener {
             startActivity(Intent(this, SignupActivity::class.java))
         }
+        
+        // Setup biometric authentication
+        setupBiometricAuth()
     }
     
     private fun setupClickListeners() {
@@ -64,11 +76,15 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             
-            login(email, password)
+            login(email, password, enableBiometric = true)
+        }
+        
+        btnBiometricLogin.setOnClickListener {
+            biometricPrompt.authenticate(promptInfo)
         }
     }
     
-    private fun login(email: String, password: String) {
+    private fun login(email: String, password: String, enableBiometric: Boolean = false) {
         val loginRequest = LoginRequest(email, password)
         val apiService = RetrofitClient.getApiService(sessionManager)
         
@@ -91,7 +107,14 @@ class MainActivity : AppCompatActivity() {
                             sessionManager.saveUserId(student.student_id)
                             sessionManager.saveUserEmail(student.email)
                             sessionManager.saveUserName(student.full_name)
+                            sessionManager.saveRollNo(student.roll_no)
                             sessionManager.saveProfilePic(student.profile_picture_url)
+                        }
+                        
+                        // Save credentials for biometric login if requested
+                        if (enableBiometric) {
+                            sessionManager.saveBiometricCredentials(email, password)
+                            sessionManager.setBiometricEnabled(true)
                         }
                         
                         Toast.makeText(this@MainActivity, "Login successful!", Toast.LENGTH_SHORT).show()
@@ -117,6 +140,12 @@ class MainActivity : AppCompatActivity() {
                                 sessionManager.saveProfilePic(teacher.profile_picture_url)
                             }
                             
+                            // Save credentials for biometric login if requested
+                            if (enableBiometric) {
+                                sessionManager.saveBiometricCredentials(email, password)
+                                sessionManager.setBiometricEnabled(true)
+                            }
+                            
                             Toast.makeText(this@MainActivity, "Login successful!", Toast.LENGTH_SHORT).show()
                             navigateToDashboard()
                         }
@@ -140,5 +169,71 @@ class MainActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
+    }
+    
+    private fun setupBiometricAuth() {
+        executor = ContextCompat.getMainExecutor(this)
+        
+        biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    Toast.makeText(applicationContext,
+                        "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    Toast.makeText(applicationContext,
+                        "Authentication succeeded!", Toast.LENGTH_SHORT).show()
+                    
+                    // Use saved credentials to login
+                    val savedEmail = sessionManager.getSavedEmail()
+                    val savedPassword = sessionManager.getSavedPassword()
+                    
+                    if (savedEmail != null && savedPassword != null) {
+                        login(savedEmail, savedPassword, enableBiometric = false)
+                    } else {
+                        Toast.makeText(applicationContext,
+                            "No saved credentials found. Please login normally first.",
+                            Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    Toast.makeText(applicationContext, "Authentication failed",
+                        Toast.LENGTH_SHORT).show()
+                }
+            })
+
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Biometric Login")
+            .setSubtitle("Log in using your fingerprint or face")
+            .setNegativeButtonText("Use Password")
+            .build()
+        
+        // Check if biometric is available on device
+        checkBiometricAvailability()
+    }
+    
+    private fun checkBiometricAvailability() {
+        val biometricManager = BiometricManager.from(this)
+        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                Log.d("BiometricAuth", "App can authenticate using biometrics.")
+                // Only show biometric button if user has enabled it before
+                if (sessionManager.isBiometricEnabled()) {
+                    btnBiometricLogin.visibility = android.view.View.VISIBLE
+                }
+            }
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
+                Log.e("BiometricAuth", "No biometric features available on this device.")
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
+                Log.e("BiometricAuth", "Biometric features are currently unavailable.")
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                Log.e("BiometricAuth", "The user hasn't associated any biometric credentials with their account.")
+            }
+        }
     }
 }

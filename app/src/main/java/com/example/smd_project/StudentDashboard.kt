@@ -12,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.smd_project.activities.AssignmentsActivity
 import com.example.smd_project.activities.CourseRegistrationActivity
 import com.example.smd_project.adapters.AnnouncementAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
@@ -43,9 +44,9 @@ class StudentDashboard : AppCompatActivity() {
     
     // Action buttons
     private lateinit var btnCoursesAction: View
-    private lateinit var btnMarksAction: View
     private lateinit var btnEvaluationsAction: View
     private lateinit var btnFeesAction: View
+    private lateinit var btnAttendanceAction: View
     
     // Adapters
     private lateinit var todayClassAdapter: TodayClassAdapter
@@ -83,9 +84,9 @@ class StudentDashboard : AppCompatActivity() {
         
         // Action buttons
         btnCoursesAction = findViewById(R.id.btnCoursesAction)
-        btnMarksAction = findViewById(R.id.btnMarksAction)
         btnEvaluationsAction = findViewById(R.id.btnEvaluationsAction)
         btnFeesAction = findViewById(R.id.btnFeesAction)
+        btnAttendanceAction = findViewById(R.id.btnAttendanceAction)
         
         // Drawer
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -100,6 +101,9 @@ class StudentDashboard : AppCompatActivity() {
                 .error(R.drawable.ic_launcher_foreground)
                 .into(ivProfilePic)
         }
+        
+        // Make profile picture circular
+        ivProfilePic.clipToOutline = true
         
         tvStudentName.text = sessionManager.getUserName()
     }
@@ -130,8 +134,11 @@ class StudentDashboard : AppCompatActivity() {
             val drawerProfilePic = drawerHeaderContainer.findViewById<ImageView>(R.id.drawer_profile_pic)
             
             drawerUserName.text = sessionManager.getUserName()
-            drawerRollNo.text = sessionManager.getUserId().toString()
+            drawerRollNo.text = sessionManager.getRollNo() ?: "N/A"
             drawerEmail.text = sessionManager.getUserEmail()
+            
+            // Make drawer profile picture circular
+            drawerProfilePic.clipToOutline = true
             
             val profileUrl = sessionManager.getProfilePic()
             if (!profileUrl.isNullOrEmpty()) {
@@ -161,13 +168,8 @@ class StudentDashboard : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-                R.id.menu_marks -> {
-                    startActivity(Intent(this, StudentMarksActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
                 R.id.menu_evaluations -> {
-                    startActivity(Intent(this, StudentEvaluationsActivity::class.java))
+                    startActivity(Intent(this, AssignmentsActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -205,16 +207,16 @@ class StudentDashboard : AppCompatActivity() {
             startActivity(Intent(this, CourseListActivity::class.java))
         }
         
-        btnMarksAction.setOnClickListener {
-            startActivity(Intent(this, StudentMarksActivity::class.java))
-        }
-        
         btnEvaluationsAction.setOnClickListener {
-            startActivity(Intent(this, StudentEvaluationsActivity::class.java))
+            startActivity(Intent(this, AssignmentsActivity::class.java))
         }
         
         btnFeesAction.setOnClickListener {
             startActivity(Intent(this, StudentFeesActivity::class.java))
+        }
+        
+        btnAttendanceAction.setOnClickListener {
+            startActivity(Intent(this, StudentAttendanceActivity::class.java))
         }
         
         notificationIcon.setOnClickListener {
@@ -222,7 +224,7 @@ class StudentDashboard : AppCompatActivity() {
         }
         
         findViewById<TextView>(R.id.viewAllClasses)?.setOnClickListener {
-            startActivity(Intent(this, StudentAttendanceActivity::class.java))
+            startActivity(Intent(this, StudentScheduleActivity::class.java))
         }
         
         findViewById<TextView>(R.id.viewAllAnnouncements)?.setOnClickListener {
@@ -259,9 +261,19 @@ class StudentDashboard : AppCompatActivity() {
                         }
                         
                         // Update RecyclerViews
+                        android.util.Log.d("StudentDashboard", "Today's classes count: ${it.today_classes.size}")
+                        it.today_classes.forEach { cls ->
+                            android.util.Log.d("StudentDashboard", "Class: ${cls.course_name} on ${cls.day_of_week} at ${cls.start_time}")
+                        }
+                        
                         if (it.today_classes.isNotEmpty()) {
                             todayClassAdapter.updateClasses(it.today_classes)
+                            rvTodayClasses.visibility = View.VISIBLE
+                        } else {
+                            android.util.Log.d("StudentDashboard", "No classes for today")
+                            rvTodayClasses.visibility = View.GONE
                         }
+                        
                         if (it.announcements.isNotEmpty()) {
                             announcementAdapter.updateAnnouncements(it.announcements)
                         }

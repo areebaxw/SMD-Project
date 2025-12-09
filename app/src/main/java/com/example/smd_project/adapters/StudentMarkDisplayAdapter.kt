@@ -1,5 +1,6 @@
 package com.example.smd_project.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -30,11 +31,22 @@ class StudentMarkDisplayAdapter(private var marks: List<Mark>) :
         
         fun bind(mark: Mark) {
             binding.apply {
+                // Set title and course info
                 tvTitle.text = mark.title
                 tvCourseInfo.text = "${mark.course_code} - ${mark.course_name}"
-                tvEvaluationType.text = mark.evaluation_type
-                tvMarks.text = "${mark.obtained_marks.toInt()}/${mark.total_marks}"
-                tvPercentage.text = "${String.format("%.2f", mark.percentage)}%"
+                tvEvaluationType.text = mark.evaluation_type ?: "Evaluation"
+                
+                // Set marks - obtained marks in tvMarks, total in tvPercentage
+                tvMarks.text = mark.obtained_marks.toInt().toString()
+                tvPercentage.text = "/${mark.total_marks}"
+                
+                // Apply color based on percentage
+                val color = when {
+                    mark.percentage >= 80 -> Color.parseColor("#0DE322") // Green
+                    mark.percentage >= 60 -> Color.parseColor("#2196F3") // Blue
+                    else -> Color.parseColor("#F44336") // Red
+                }
+                tvMarks.setTextColor(color)
             }
         }
     }

@@ -180,6 +180,9 @@ interface ApiService {
     @GET("student/attendance")
     suspend fun getStudentAttendanceSummary(): Response<ApiResponse<List<AttendanceSummary>>>
 
+    @GET("student/schedule")
+    suspend fun getStudentSchedule(): Response<ApiResponse<List<Schedule>>>
+
     @POST("/api/student/fees/update-total")
     suspend fun updateStudentFeeTotal(@Body request: UpdateTotalFeeRequest): Response<ApiResponse<Any>>
 

@@ -8,7 +8,7 @@ import com.example.smd_project.databinding.ItemAttendanceSummaryBinding
 import com.example.smd_project.models.AttendanceSummary
 
 class AttendanceSummaryAdapter(
-    private val attendance: List<AttendanceSummary>
+    private val attendance: MutableList<AttendanceSummary> = mutableListOf()
 ) : RecyclerView.Adapter<AttendanceSummaryAdapter.AttendanceViewHolder>() {
 
     inner class AttendanceViewHolder(private val binding: ItemAttendanceSummaryBinding) :
@@ -61,10 +61,10 @@ class AttendanceSummaryAdapter(
     override fun getItemCount() = attendance.size
 
     fun updateAttendance(newAttendance: List<AttendanceSummary>) {
-        (attendance as? MutableList)?.apply {
-            clear()
-            addAll(newAttendance)
-            notifyDataSetChanged()
-        }
+        android.util.Log.d("AttendanceAdapter", "updateAttendance called with ${newAttendance.size} items")
+        attendance.clear()
+        attendance.addAll(newAttendance)
+        android.util.Log.d("AttendanceAdapter", "Attendance list now has ${attendance.size} items")
+        notifyDataSetChanged()
     }
 }

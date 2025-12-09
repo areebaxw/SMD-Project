@@ -78,6 +78,9 @@ dependencies {
     
     // SharedPreferences
     implementation("androidx.preference:preference-ktx:1.2.1")
+    
+    // Biometric Authentication
+    implementation("androidx.biometric:biometric:1.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
