@@ -45,6 +45,7 @@ class StudentDashboard : AppCompatActivity() {
     private lateinit var btnCoursesAction: View
     private lateinit var btnEvaluationsAction: View
     private lateinit var btnFeesAction: View
+    private lateinit var btnAttendanceAction: View
     
     // Adapters
     private lateinit var todayClassAdapter: TodayClassAdapter
@@ -84,6 +85,7 @@ class StudentDashboard : AppCompatActivity() {
         btnCoursesAction = findViewById(R.id.btnCoursesAction)
         btnEvaluationsAction = findViewById(R.id.btnEvaluationsAction)
         btnFeesAction = findViewById(R.id.btnFeesAction)
+        btnAttendanceAction = findViewById(R.id.btnAttendanceAction)
         
         // Drawer
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -210,6 +212,10 @@ class StudentDashboard : AppCompatActivity() {
         
         btnFeesAction.setOnClickListener {
             startActivity(Intent(this, StudentFeesActivity::class.java))
+        }
+        
+        btnAttendanceAction.setOnClickListener {
+            startActivity(Intent(this, StudentAttendanceActivity::class.java))
         }
         
         notificationIcon.setOnClickListener {
