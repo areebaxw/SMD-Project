@@ -1,5 +1,6 @@
 package com.example.smd_project
 
+import DrawerAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.smd_project.adapters.*
 import com.example.smd_project.models.Course
 import com.example.smd_project.models.Announcement
+import com.example.smd_project.models.DrawerItem
 import com.example.smd_project.models.Notification
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
@@ -143,25 +145,27 @@ class TeacherDashboard : AppCompatActivity() {
 
     private fun setupDrawer() {
         val drawerItems = listOf(
-            DrawerItem("Announcements", R.drawable.postannouncement_icon),
-            DrawerItem("Marks", R.drawable.entermarks_icon),
-            DrawerItem("Attendance", R.drawable.greentick),
-            DrawerItem("Courses", R.drawable.notifybutton),
-            DrawerItem("Schedule", R.drawable.notifybutton)
+            DrawerItem("Dashboard", R.drawable.dashboard),
+            DrawerItem("Announcements", R.drawable.announcements),
+            DrawerItem("Marks", R.drawable.test),
+            DrawerItem("Attendance", R.drawable.attendance),
+            DrawerItem("Courses", R.drawable.courses),
+            DrawerItem("Schedule", R.drawable.schedule),
+            DrawerItem("Upload Grades", R.drawable.upload_grades),
+                    DrawerItem("Logout", R.drawable.logout)
+
         )
 
         val drawerAdapter = DrawerAdapter(drawerItems) { item ->
-            when(item.title) {
-                "Announcements" -> {  val intent = Intent(this, AnnouncementListActivity::class.java)
-                    startActivity(intent) }
-                "Marks" -> { val intent = Intent(this, EnterMarks::class.java)
-                    startActivity(intent) }
-                "Attendance" -> {val intent = Intent(this, MarkAttendance::class.java)
-                    startActivity(intent)}
-                "Courses" -> { val intent = Intent(this, CourseListActivity::class.java)
-                    startActivity(intent)}
-                "Schedule" -> { val intent = Intent(this, ScheduleActivity::class.java)
-                    startActivity(intent) }
+            when (item.title) {
+                "Dashboard" -> { /* maybe reload current activity */ }
+                "Announcements" -> startActivity(Intent(this, AnnouncementListActivity::class.java))
+                "Marks" -> startActivity(Intent(this, EnterMarks::class.java))
+                "Attendance" -> startActivity(Intent(this, MarkAttendance::class.java))
+                "Courses" -> startActivity(Intent(this, CourseListActivity::class.java))
+                "Schedule" -> startActivity(Intent(this, ScheduleActivity::class.java))
+                "Upload Grades" -> startActivity(Intent(this, UploadGrade::class.java))
+                "Logout" -> performLogout()
             }
             drawerLayout.closeDrawer(GravityCompat.START)
         }
@@ -169,11 +173,21 @@ class TeacherDashboard : AppCompatActivity() {
         drawerRecyclerView.adapter = drawerAdapter
         drawerRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Menu icon click opens the drawer
+        // Populate header
+        val drawerUserName = findViewById<TextView>(R.id.drawer_user_name)
+        val drawerProfilePic = findViewById<ImageView>(R.id.drawer_profile_pic)
+        drawerUserName.text = sessionManager.getUserName()
+        Picasso.get().load(sessionManager.getProfilePic())
+            .placeholder(R.drawable.ic_launcher_foreground)
+            .error(R.drawable.ic_launcher_foreground)
+            .into(drawerProfilePic)
+
+        // Menu icon opens drawer
         findViewById<View>(R.id.menu_icon)?.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
     }
+
 
     private fun setupClickListeners() {
         try {
@@ -191,18 +205,18 @@ class TeacherDashboard : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        findViewById<View>(R.id.logout_container)?.setOnClickListener {
-            // Clear session
-            sessionManager.clearSession()
 
-            // Redirect to LoginActivity
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+    }
+    private fun performLogout() {
+        // Clear session
+        sessionManager.clearSession()
 
-            // Optional: show a toast
-            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-        }
+        // Redirect to LoginActivity
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
     }
 
     private fun setupSwipeRefresh() {

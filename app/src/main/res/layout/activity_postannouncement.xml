@@ -28,7 +28,7 @@
                 android:id="@+id/backArrow"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/backarrow"
+                android:src="@drawable/ep_back"
                 android:contentDescription="Back" />
 
             <!-- Title -->
@@ -92,10 +92,14 @@
                             android:id="@+id/spinnerCourse"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent" />
+
 
                         <ImageView
                             android:layout_width="20dp"
+                            android:id="@+id/spinnerCourseArrow"
+
                             android:layout_height="20dp"
                             android:src="@drawable/down_arrow"
                             android:contentDescription="Dropdown"
@@ -118,10 +122,13 @@
                             android:id="@+id/spinnerType"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent" />
 
                         <ImageView
                             android:layout_width="20dp"
+                            android:id="@+id/spinnerTypeArrow"
+
                             android:layout_height="20dp"
                             android:src="@drawable/down_arrow"
                             android:contentDescription="Dropdown"

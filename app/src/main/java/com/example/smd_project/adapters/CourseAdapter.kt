@@ -13,6 +13,8 @@ class CourseAdapter(
     private val onCourseClick: (Course) -> Unit
 ) : RecyclerView.Adapter<CourseAdapter.CourseViewHolder>() {
 
+    private var selectedPosition = RecyclerView.NO_POSITION
+
     class CourseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvCourseCode: TextView = view.findViewById(R.id.tvCourseCode)
         val tvCourseName: TextView = view.findViewById(R.id.tvCourseName)
@@ -28,17 +30,24 @@ class CourseAdapter(
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
         val course = courses[position]
-        
+
         holder.tvCourseCode.text = course.course_code
         holder.tvCourseName.text = course.course_name
-        
-        val details = "Credit Hours: ${course.credit_hours}" + 
-            if (course.instructors != null) " | Instructor: ${course.instructors}" else ""
+
+        val details = "Credit Hours: ${course.credit_hours}" +
+                if (course.instructors != null) " | Instructor: ${course.instructors}" else ""
         holder.tvCourseDetails.text = details
-        
+
         holder.tvSchedule.text = course.schedule ?: "Schedule not available"
-        
+
+        holder.itemView.isSelected = selectedPosition == position
+
         holder.itemView.setOnClickListener {
+            val previousPosition = selectedPosition
+            selectedPosition = holder.adapterPosition
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(selectedPosition)
+
             onCourseClick(course)
         }
     }
@@ -48,5 +57,12 @@ class CourseAdapter(
     fun updateCourses(newCourses: List<Course>) {
         courses = newCourses
         notifyDataSetChanged()
+    }
+
+    // Added function to get currently selected course
+    fun getSelectedCourse(): Course? {
+        return if (selectedPosition != RecyclerView.NO_POSITION) {
+            courses[selectedPosition]
+        } else null
     }
 }

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -37,6 +38,9 @@ class PostAnnouncement : AppCompatActivity() {
         setContentView(R.layout.activity_postannouncement)
 
         sessionManager = SessionManager(this)
+        findViewById<ImageView>(R.id.backArrow).setOnClickListener {
+            finish()  // simplest: takes user back to previous activity
+        }
 
         initViews()
         setupClickListeners()
@@ -50,7 +54,15 @@ class PostAnnouncement : AppCompatActivity() {
         etTitle = findViewById(R.id.etTitle)
         etContent = findViewById(R.id.etContent)
         btnPublish = findViewById(R.id.btnPublish)
+        findViewById<ImageView>(R.id.spinnerCourseArrow).setOnClickListener {
+            spinnerCourse.performClick()
+        }
+
+        findViewById<ImageView>(R.id.spinnerTypeArrow).setOnClickListener {
+            spinnerType.performClick()
+        }
     }
+
 
     private fun setupClickListeners() {
         btnPublish.setOnClickListener {

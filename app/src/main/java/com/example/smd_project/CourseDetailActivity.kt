@@ -50,7 +50,6 @@ class CourseDetailActivity : AppCompatActivity() {
         
         initViews()
         setupRecyclerView()
-        setupClickListeners()
         loadCourseStudents()
     }
     
@@ -59,9 +58,8 @@ class CourseDetailActivity : AppCompatActivity() {
         tvCourseCode = findViewById(R.id.tvCourseCode)
         tvStudentCount = findViewById(R.id.tvStudentCount)
         rvStudents = findViewById(R.id.rvStudents)
-        btnMarkAttendance = findViewById(R.id.btnMarkAttendance)
-        btnViewEvaluations = findViewById(R.id.btnViewEvaluations)
-        
+
+
         tvCourseName.text = courseName
         tvCourseCode.text = courseCode
         
@@ -79,24 +77,7 @@ class CourseDetailActivity : AppCompatActivity() {
         }
     }
     
-    private fun setupClickListeners() {
-        btnMarkAttendance.setOnClickListener {
-            val intent = Intent(this, MarkAttendance::class.java).apply {
-                putExtra("course_id", courseId)
-                putExtra("course_name", courseName)
-            }
-            startActivity(intent)
-        }
-        
-        btnViewEvaluations.setOnClickListener {
-            val intent = Intent(this, EvaluationListActivity::class.java).apply {
-                putExtra("course_id", courseId)
-                putExtra("course_name", courseName)
-            }
-            startActivity(intent)
-        }
-    }
-    
+
     private fun loadCourseStudents() {
         val apiService = RetrofitClient.getApiService(sessionManager)
         

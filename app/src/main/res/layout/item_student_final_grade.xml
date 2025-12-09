@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/lightpurple_card"
+    android:padding="12dp"
+    android:layout_marginBottom="4dp">
+
+    <ImageView
+        android:id="@+id/ivProfile"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/profile_circle_bg"
+        android:contentDescription="Profile Picture"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/profile_circle_bg" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tvStudentName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Student Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1C1C1E" />
+
+        <TextView
+            android:id="@+id/tvTotalMarks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Marks: 0/100"
+            android:textSize="14sp"
+            android:textColor="#3C3C43"
+            android:layout_marginTop="2dp" />
+
+        <TextView
+            android:id="@+id/tvLetterGrade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grade: A"
+            android:textSize="14sp"
+            android:textColor="#3C3C43"
+            android:layout_marginTop="2dp" />
+
+        <TextView
+            android:id="@+id/tvGPA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GPA: 4.0"
+            android:textSize="14sp"
+            android:textColor="#3C3C43"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -51,18 +51,7 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="16dp" />
 
-            <Button
-                android:id="@+id/btnMarkAttendance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Mark Attendance"
-                android:layout_marginBottom="8dp" />
 
-            <Button
-                android:id="@+id/btnViewEvaluations"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="View Evaluations" />
 
             <TextView
                 android:layout_width="match_parent"

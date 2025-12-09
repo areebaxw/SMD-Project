@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_item_root"
-    android:layout_width="247dp"
+    android:layout_width="match_parent"
     android:layout_height="60dp"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/assignment_card_bg">
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:background="@drawable/drawer_item_background">
 
     <ImageView
         android:id="@+id/item_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
-         />
+        android:layout_gravity="center_vertical" />
 
     <TextView
         android:id="@+id/item_title"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginStart="16dp"
         android:gravity="center_vertical"
         android:text="Item"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="16sp" />
 </LinearLayout>
