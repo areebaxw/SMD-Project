@@ -648,6 +648,10 @@ class EnterMarks : AppCompatActivity() {
                             // Clear and load marks for only this evaluation
                             marksMap.clear()
                             
+                            // Update adapter with fresh data from database
+                            // Clear and rebuild to ensure marks are properly displayed
+                            marksMap.clear()
+                            
                             // Load marks from database for this evaluation
                             for (mark in selectedEval.marks) {
                                 val marks = mark.obtained_marks ?: 0.0
@@ -655,16 +659,21 @@ class EnterMarks : AppCompatActivity() {
                             }
                             
                             // For any student without marks in this evaluation, initialize to 0
-                            for (student in data.students) {
+                            for (student in allStudents) {
                                 if (!marksMap.containsKey(student.student_id)) {
                                     marksMap[student.student_id] = 0.0
                                 }
                             }
                             
-                            android.util.Log.d("EnterMarks", "Loaded eval #${evaluation.evaluation_number} from DB: ${marksMap.size} marks - $marksMap")
+                            android.util.Log.d("EnterMarks", "Final marksMap before update: $marksMap")
                             
-                            // Update adapter with fresh data from database
-                            updateStudentListForSelectedEvaluation(selectedEval)
+                            // CRITICAL: Pass a COPY of marksMap to avoid clearing the same reference
+                            evaluationWithStudentsAdapter.updateMarksMap(marksMap.toMap())
+                            
+                            // Then update the data which will create new child adapters
+                            val evaluationList = listOf(selectedEval)
+                            evaluationWithStudentsAdapter.updateData(evaluationList, allStudents)
+                            
                             enteredMarks.clear()
                         }
                     }

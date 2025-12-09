@@ -26,6 +26,7 @@ class EvaluationWithStudentsAdapter(
         private val rvStudents: RecyclerView = itemView.findViewById(R.id.rvStudentsInEval)
 
         fun bind(evaluation: EvaluationWithMarks) {
+            android.util.Log.d("EvalAdapter", "bind called for eval #${evaluation.evaluation_number} - marksMap has ${marksMap.size} entries: $marksMap")
             tvEvalNumber.text = "Evaluation #${evaluation.evaluation_number}"
             tvEvalTopic.text = "Topic: ${evaluation.title}"
 
@@ -33,10 +34,12 @@ class EvaluationWithStudentsAdapter(
             val existingAdapter = studentMarkAdapters[bindingAdapterPosition]
             
             if (existingAdapter != null) {
-                // Reuse existing adapter and notify it of changes
+                android.util.Log.d("EvalAdapter", "Reusing existing adapter at position $bindingAdapterPosition")
+                // Reuse existing adapter and update marks
                 existingAdapter.updateMarksMap(marksMap)
             } else {
-                // Create new adapter only if it doesn't exist
+                android.util.Log.d("EvalAdapter", "Creating NEW adapter at position $bindingAdapterPosition with marksMap: $marksMap")
+                // Create new adapter with current marks
                 val studentMarkAdapter = StudentMarkEntryAdapter(
                     students = students,
                     marksMap = marksMap,
@@ -75,6 +78,7 @@ class EvaluationWithStudentsAdapter(
     override fun getItemCount() = evaluations.size
 
     fun updateData(newEvaluations: List<EvaluationWithMarks>, newStudents: List<Student>) {
+        android.util.Log.d("EvalAdapter", "updateData called - marksMap has ${marksMap.size} entries: $marksMap")
         evaluations = newEvaluations.sortedBy { it.evaluation_number }
         students = newStudents
         studentMarkAdapters.clear() // Clear cached adapters when data changes
@@ -82,14 +86,23 @@ class EvaluationWithStudentsAdapter(
     }
 
     fun updateMarksMap(newMarksMap: Map<Int, Double>) {
+        android.util.Log.d("EvalAdapter", "updateMarksMap called - before clear: ${marksMap.size}, newMap: ${newMarksMap.size}")
         marksMap.clear()
         marksMap.putAll(newMarksMap)
-        // Don't call notifyDataSetChanged here - let the caller decide when to refresh
+        android.util.Log.d("EvalAdapter", "updateMarksMap called - after putAll: ${marksMap.size}: $marksMap")
+        // Update all existing child adapters
+        for (adapter in studentMarkAdapters.values) {
+            adapter.updateMarksMap(newMarksMap)
+        }
     }
     
     fun updateMarksMapAndRefresh(newMarksMap: Map<Int, Double>) {
         marksMap.clear()
         marksMap.putAll(newMarksMap)
+        // Update all existing child adapters
+        for (adapter in studentMarkAdapters.values) {
+            adapter.updateMarksMap(newMarksMap)
+        }
         notifyDataSetChanged()
     }
 }

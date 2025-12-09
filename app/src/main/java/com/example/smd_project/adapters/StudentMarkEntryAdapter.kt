@@ -43,14 +43,15 @@ class StudentMarkEntryAdapter(
 
             // Set existing marks if any (including 0)
             val currentMarks = marksMap[student.student_id]
-            if (currentMarks != null) {
-                if (currentMarks > 0) {
-                    etMarks.setText(currentMarks.toString())
-                } else {
-                    etMarks.setText("") // Show empty for 0 marks
-                }
+            android.util.Log.d("StudentMarkEntry", "Binding student ${student.student_id} (${student.full_name}): marksMap has ${marksMap.size} entries, currentMarks=$currentMarks")
+            android.util.Log.d("StudentMarkEntry", "Full marksMap: $marksMap")
+            
+            if (currentMarks != null && currentMarks > 0.0) {
+                etMarks.setText(currentMarks.toString())
+                android.util.Log.d("StudentMarkEntry", "Set text to: ${currentMarks}")
             } else {
-                etMarks.setText("")
+                etMarks.setText("") // Show empty for 0 or null marks
+                android.util.Log.d("StudentMarkEntry", "Set text to empty")
             }
 
             // Listen to real-time text changes
