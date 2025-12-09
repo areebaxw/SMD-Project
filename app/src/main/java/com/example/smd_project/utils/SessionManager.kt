@@ -18,6 +18,9 @@ class SessionManager(context: Context) {
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_PROFILE_PIC = "profile_pic"
         private const val KEY_ROLL_NO = "roll_no"
+        private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
+        private const val KEY_SAVED_EMAIL = "saved_email"
+        private const val KEY_SAVED_PASSWORD = "saved_password"
     }
     
     fun saveAuthToken(token: String) {
@@ -81,6 +84,43 @@ class SessionManager(context: Context) {
     }
     
     fun clearSession() {
+        // Save biometric settings before clearing
+        val biometricEnabled = isBiometricEnabled()
+        val savedEmail = getSavedEmail()
+        val savedPassword = getSavedPassword()
+        
+        // Clear all session data
         prefs.edit().clear().apply()
+        
+        // Restore biometric settings if they existed
+        if (biometricEnabled && savedEmail != null && savedPassword != null) {
+            setBiometricEnabled(true)
+            saveBiometricCredentials(savedEmail, savedPassword)
+        }
+    }
+    
+    // Biometric authentication methods
+    fun isBiometricEnabled(): Boolean {
+        return prefs.getBoolean(KEY_BIOMETRIC_ENABLED, false)
+    }
+    
+    fun setBiometricEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_BIOMETRIC_ENABLED, enabled).apply()
+    }
+    
+    fun saveBiometricCredentials(email: String, password: String) {
+        prefs.edit().apply {
+            putString(KEY_SAVED_EMAIL, email)
+            putString(KEY_SAVED_PASSWORD, password)
+            apply()
+        }
+    }
+    
+    fun getSavedEmail(): String? {
+        return prefs.getString(KEY_SAVED_EMAIL, null)
+    }
+    
+    fun getSavedPassword(): String? {
+        return prefs.getString(KEY_SAVED_PASSWORD, null)
     }
 }
