@@ -17,6 +17,7 @@ class SessionManager(context: Context) {
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_PROFILE_PIC = "profile_pic"
+        private const val KEY_ROLL_NO = "roll_no"
     }
     
     fun saveAuthToken(token: String) {
@@ -65,6 +66,14 @@ class SessionManager(context: Context) {
     
     fun getProfilePic(): String? {
         return prefs.getString(KEY_PROFILE_PIC, null)
+    }
+    
+    fun saveRollNo(rollNo: String) {
+        prefs.edit().putString(KEY_ROLL_NO, rollNo).apply()
+    }
+    
+    fun getRollNo(): String? {
+        return prefs.getString(KEY_ROLL_NO, null)
     }
     
     fun isLoggedIn(): Boolean {

@@ -1,48 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
     <group android:id="@+id/group_main">
         <item
             android:id="@+id/menu_dashboard"
             android:icon="@drawable/dashboard"
-            android:title="Dashboard" />
+            android:title="Dashboard"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_registration"
-            android:icon="@drawable/courses"
-            android:title="Register Courses" />
+            android:icon="@drawable/register"
+            android:title="Register Courses"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_courses"
             android:icon="@drawable/courses"
-            android:title="My Courses" />
-        <item
-            android:id="@+id/menu_marks"
-            android:icon="@drawable/test"
-            android:title="Marks" />
+            android:title="My Courses"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_evaluations"
-            android:icon="@drawable/test"
-            android:title="Evaluations" />
+            android:icon="@drawable/evaluations"
+            android:title="Evaluations"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_attendance"
             android:icon="@drawable/attendance"
-            android:title="Attendance" />
+            android:title="Attendance"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_fees"
-            android:icon="@drawable/upload_grades"
-            android:title="Fees" />
+            android:icon="@drawable/fees"
+            android:title="Fees"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_announcements"
             android:icon="@drawable/announcements"
-            android:title="Announcements" />
+            android:title="Announcements"
+            app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/group_account">
         <item
-            android:id="@+id/menu_profile"
-            android:icon="@drawable/ic_launcher_foreground"
-            android:title="My Profile" />
-        <item
             android:id="@+id/menu_logout"
-            android:icon="@drawable/profile_circle_bg"
-            android:title="Logout" />
+            android:icon="@drawable/logout_icon"
+            android:title="Logout"
+            app:showAsAction="never" />
     </group>
 </menu>

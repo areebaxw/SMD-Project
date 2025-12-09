@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                             sessionManager.saveUserId(student.student_id)
                             sessionManager.saveUserEmail(student.email)
                             sessionManager.saveUserName(student.full_name)
+                            sessionManager.saveRollNo(student.roll_no)
                             sessionManager.saveProfilePic(student.profile_picture_url)
                         }
                         

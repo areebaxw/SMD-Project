@@ -14,6 +14,7 @@ class TodayClassAdapter(
 
     class TodayClassViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvClassTime: TextView = view.findViewById(R.id.tvClassTime)
+        val tvClassEndTime: TextView = view.findViewById(R.id.tvClassEndTime)
         val tvCourseName: TextView = view.findViewById(R.id.tvCourseName)
         val tvClassDetails: TextView = view.findViewById(R.id.tvClassDetails)
     }
@@ -27,10 +28,10 @@ class TodayClassAdapter(
     override fun onBindViewHolder(holder: TodayClassViewHolder, position: Int) {
         val todayClass = classes[position]
         
-        holder.tvClassTime.text = "${todayClass.start_time}\n   to\n${todayClass.end_time}"
+        holder.tvClassTime.text = todayClass.start_time
+        holder.tvClassEndTime.text = todayClass.end_time
         holder.tvCourseName.text = todayClass.course_name
-        val studentCount = todayClass.student_count ?: 0
-        holder.tvClassDetails.text = "Room : ${todayClass.room_number ?: "TBA"} . $studentCount Students"
+        holder.tvClassDetails.text = "Room : ${todayClass.room_number ?: "TBA"}"
     }
 
     override fun getItemCount() = classes.size
