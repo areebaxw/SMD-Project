@@ -85,9 +85,6 @@
             android:name=".EnterMarks"
             android:exported="false" />
         <activity
-            android:name=".StudentMarksActivity"
-            android:exported="false" />
-        <activity
             android:name=".StudentEvaluationsActivity"
             android:exported="false" />
         <activity
@@ -95,6 +92,21 @@
             android:exported="false" />
         <activity
             android:name=".StudentAttendanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AssignmentsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.QuizActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SessionalsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ProjectsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.FinalsActivity"
             android:exported="false" />
     </application>
 

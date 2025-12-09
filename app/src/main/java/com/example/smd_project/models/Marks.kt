@@ -1,9 +1,12 @@
 package com.example.smd_project.models
 
+import com.google.gson.annotations.SerializedName
+
 data class Mark(
     val course_name: String,
     val course_code: String,
-    val evaluation_type: String,
+    @SerializedName("type_name")
+    val evaluation_type: String?,
     val evaluation_number: Int,
     val title: String,
     val total_marks: Int,

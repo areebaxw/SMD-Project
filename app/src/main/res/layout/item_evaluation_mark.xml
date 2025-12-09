@@ -16,7 +16,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvEvaluationTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Assignment 1"
@@ -25,19 +25,35 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvCourseInfo"
+            android:id="@+id/tvWeightage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CS101 - Programming"
+            android:text="Weightage: 2"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
             android:layout_marginTop="4dp" />
 
         <TextView
-            android:id="@+id/tvEvaluationType"
+            android:id="@+id/tvAverage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Assignment"
+            android:text="Average: 139"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvHighest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Highest: 100"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvLowest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lowest: 10"
             android:textColor="#FFFFFF"
             android:textSize="12sp" />
     </LinearLayout>
@@ -52,19 +68,19 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/tvMarks"
+            android:id="@+id/tvObtainedMarks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="18"
+            android:text="168"
             android:textColor="#0DE322"
             android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvPercentage"
+            android:id="@+id/tvTotalMarks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="/20"
+            android:text="/200"
             android:textColor="#CCCCCC"
             android:textSize="12sp"
             android:layout_marginTop="2dp" />

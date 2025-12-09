@@ -12,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.smd_project.activities.AssignmentsActivity
 import com.example.smd_project.activities.CourseRegistrationActivity
 import com.example.smd_project.adapters.AnnouncementAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
@@ -162,7 +163,7 @@ class StudentDashboard : AppCompatActivity() {
                     true
                 }
                 R.id.menu_marks -> {
-                    startActivity(Intent(this, StudentMarksActivity::class.java))
+                    startActivity(Intent(this, AssignmentsActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -206,7 +207,7 @@ class StudentDashboard : AppCompatActivity() {
         }
         
         btnMarksAction.setOnClickListener {
-            startActivity(Intent(this, StudentMarksActivity::class.java))
+            startActivity(Intent(this, AssignmentsActivity::class.java))
         }
         
         btnEvaluationsAction.setOnClickListener {

@@ -191,117 +191,12 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Project Card 1 -->
-            <LinearLayout
+            <!-- RecyclerView for Projects -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProjects"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/assignment_card_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp"
-                android:gravity="center_vertical">
-
-                <!-- Project Info -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Student Management System"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Complete Databse UI with GUI"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Submission: 20th July, 2025"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Type: Group"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Weightage: 15"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lowest: 10"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Highest: 185"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Average: 160"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <!-- Score Card -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@drawable/score_card_bg"
-                    android:padding="16dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="185"
-                        android:textColor="#0DE322"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="/200"
-                        android:textColor="#CCCCCC"
-                        android:textSize="14sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-            </LinearLayout>
-
-
-
+                android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
     </LinearLayout>
