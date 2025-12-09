@@ -224,7 +224,7 @@ class StudentDashboard : AppCompatActivity() {
         }
         
         findViewById<TextView>(R.id.viewAllClasses)?.setOnClickListener {
-            startActivity(Intent(this, StudentAttendanceActivity::class.java))
+            startActivity(Intent(this, StudentScheduleActivity::class.java))
         }
         
         findViewById<TextView>(R.id.viewAllAnnouncements)?.setOnClickListener {
@@ -261,9 +261,19 @@ class StudentDashboard : AppCompatActivity() {
                         }
                         
                         // Update RecyclerViews
+                        android.util.Log.d("StudentDashboard", "Today's classes count: ${it.today_classes.size}")
+                        it.today_classes.forEach { cls ->
+                            android.util.Log.d("StudentDashboard", "Class: ${cls.course_name} on ${cls.day_of_week} at ${cls.start_time}")
+                        }
+                        
                         if (it.today_classes.isNotEmpty()) {
                             todayClassAdapter.updateClasses(it.today_classes)
+                            rvTodayClasses.visibility = View.VISIBLE
+                        } else {
+                            android.util.Log.d("StudentDashboard", "No classes for today")
+                            rvTodayClasses.visibility = View.GONE
                         }
+                        
                         if (it.announcements.isNotEmpty()) {
                             announcementAdapter.updateAnnouncements(it.announcements)
                         }

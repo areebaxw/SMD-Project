@@ -177,6 +177,9 @@ interface ApiService {
     @GET("student/attendance")
     suspend fun getStudentAttendanceSummary(): Response<ApiResponse<List<AttendanceSummary>>>
 
+    @GET("student/schedule")
+    suspend fun getStudentSchedule(): Response<ApiResponse<List<Schedule>>>
+
     @POST("teacher/upload-final-grades")
     suspend fun uploadFinalGrades(@Body request: UploadFinalGradesRequest): Response<ApiResponse<Any>>
 }

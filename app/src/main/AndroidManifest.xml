@@ -95,6 +95,9 @@
             android:name=".StudentAttendanceActivity"
             android:exported="false" />
         <activity
+            android:name=".StudentScheduleActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AssignmentsActivity"
             android:exported="false" />
         <activity
