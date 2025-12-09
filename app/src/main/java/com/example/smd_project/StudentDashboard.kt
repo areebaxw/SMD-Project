@@ -168,11 +168,6 @@ class StudentDashboard : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-                R.id.menu_marks -> {
-                    startActivity(Intent(this, AssignmentsActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
                 R.id.menu_evaluations -> {
                     startActivity(Intent(this, StudentEvaluationsActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
@@ -210,10 +205,6 @@ class StudentDashboard : AppCompatActivity() {
         // Quick action buttons
         btnCoursesAction.setOnClickListener {
             startActivity(Intent(this, CourseListActivity::class.java))
-        }
-        
-        btnMarksAction.setOnClickListener {
-            startActivity(Intent(this, AssignmentsActivity::class.java))
         }
         
         btnEvaluationsAction.setOnClickListener {
