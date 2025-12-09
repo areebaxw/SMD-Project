@@ -169,7 +169,7 @@ class StudentDashboard : AppCompatActivity() {
                     true
                 }
                 R.id.menu_evaluations -> {
-                    startActivity(Intent(this, StudentEvaluationsActivity::class.java))
+                    startActivity(Intent(this, AssignmentsActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
@@ -208,7 +208,7 @@ class StudentDashboard : AppCompatActivity() {
         }
         
         btnEvaluationsAction.setOnClickListener {
-            startActivity(Intent(this, StudentEvaluationsActivity::class.java))
+            startActivity(Intent(this, AssignmentsActivity::class.java))
         }
         
         btnFeesAction.setOnClickListener {
