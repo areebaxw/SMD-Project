@@ -191,6 +191,18 @@ class TeacherDashboard : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        findViewById<View>(R.id.logout_container)?.setOnClickListener {
+            // Clear session
+            sessionManager.clearSession()
+
+            // Redirect to LoginActivity
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+
+            // Optional: show a toast
+            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupSwipeRefresh() {
