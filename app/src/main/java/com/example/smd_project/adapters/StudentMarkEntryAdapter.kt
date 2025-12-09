@@ -37,33 +37,46 @@ class StudentMarkEntryAdapter(
             // Set max marks label dynamically
             tvMaxMarks.text = "/ $totalMarks"
 
-            // Set existing marks if any
+            // Remove old listeners before setting up new ones
+            etMarks.removeTextChangedListener(null) // Remove all listeners
+            etMarks.setOnFocusChangeListener(null)
+
+            // Set existing marks if any (including 0)
             val currentMarks = marksMap[student.student_id]
-            if (currentMarks != null && currentMarks > 0) {
-                etMarks.setText(currentMarks.toString())
+            if (currentMarks != null) {
+                if (currentMarks > 0) {
+                    etMarks.setText(currentMarks.toString())
+                } else {
+                    etMarks.setText("") // Show empty for 0 marks
+                }
             } else {
                 etMarks.setText("")
             }
 
             // Listen to real-time text changes
-            etMarks.addTextChangedListener(object : TextWatcher {
+            val textWatcher = object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     val hasValue = s?.toString()?.trim()?.isNotEmpty() ?: false
-                    if (hasValue) {
-                        val marks = s.toString().toDoubleOrNull() ?: 0.0
-                        // Validate marks don't exceed total marks
-                        if (marks <= totalMarks) {
-                            marksMap[student.student_id] = marks
-                            onMarksChange(student.student_id, marks)
-                            onMarksEntered(student.student_id, true)
-                        }
+                    val marks = if (hasValue) {
+                        s.toString().toDoubleOrNull() ?: 0.0
+                    } else {
+                        0.0
+                    }
+                    
+                    // Update map only if marks are valid (0 or less than total)
+                    if (marks >= 0 && marks <= totalMarks) {
+                        marksMap[student.student_id] = marks
+                        onMarksChange(student.student_id, marks)
+                        // Call onMarksEntered if there's actually a value (even if it's being edited)
+                        onMarksEntered(student.student_id, hasValue)
                     }
                 }
                 
                 override fun afterTextChanged(s: Editable?) {}
-            })
+            }
+            etMarks.addTextChangedListener(textWatcher)
             
             // Also listen to focus change for final confirmation
             etMarks.setOnFocusChangeListener { _, hasFocus ->

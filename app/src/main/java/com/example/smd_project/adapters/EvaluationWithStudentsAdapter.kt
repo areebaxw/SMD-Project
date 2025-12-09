@@ -18,6 +18,8 @@ class EvaluationWithStudentsAdapter(
     private val onMarksEntered: (studentId: Int, hasValue: Boolean) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<EvaluationWithStudentsAdapter.ViewHolder>() {
 
+    private var studentMarkAdapters = mutableMapOf<Int, StudentMarkEntryAdapter>() // Cache adapters by position
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvEvalNumber: TextView = itemView.findViewById(R.id.tvEvalNumber)
         private val tvEvalTopic: TextView = itemView.findViewById(R.id.tvEvalTopic)
@@ -27,23 +29,32 @@ class EvaluationWithStudentsAdapter(
             tvEvalNumber.text = "Evaluation #${evaluation.evaluation_number}"
             tvEvalTopic.text = "Topic: ${evaluation.title}"
 
-            // Setup nested RecyclerView for students
-            val studentMarkAdapter = StudentMarkEntryAdapter(
-                students = students,
-                marksMap = marksMap,
-                totalMarks = evaluation.total_marks,
-                onMarksChange = { studentId, marks ->
-                    onMarksChange(studentId, marks)
-                },
-                onMarksEntered = { studentId, hasValue ->
-                    onMarksEntered(studentId, hasValue)
+            // Check if adapter already exists for this position
+            val existingAdapter = studentMarkAdapters[bindingAdapterPosition]
+            
+            if (existingAdapter != null) {
+                // Reuse existing adapter and notify it of changes
+                existingAdapter.updateMarksMap(marksMap)
+            } else {
+                // Create new adapter only if it doesn't exist
+                val studentMarkAdapter = StudentMarkEntryAdapter(
+                    students = students,
+                    marksMap = marksMap,
+                    totalMarks = evaluation.total_marks,
+                    onMarksChange = { studentId, marks ->
+                        onMarksChange(studentId, marks)
+                    },
+                    onMarksEntered = { studentId, hasValue ->
+                        onMarksEntered(studentId, hasValue)
+                    }
+                )
+                studentMarkAdapters[bindingAdapterPosition] = studentMarkAdapter
+                
+                rvStudents.apply {
+                    layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
+                    adapter = studentMarkAdapter
+                    isNestedScrollingEnabled = false
                 }
-            )
-
-            rvStudents.apply {
-                layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
-                adapter = studentMarkAdapter
-                isNestedScrollingEnabled = false
             }
         }
     }
@@ -66,10 +77,17 @@ class EvaluationWithStudentsAdapter(
     fun updateData(newEvaluations: List<EvaluationWithMarks>, newStudents: List<Student>) {
         evaluations = newEvaluations.sortedBy { it.evaluation_number }
         students = newStudents
+        studentMarkAdapters.clear() // Clear cached adapters when data changes
         notifyDataSetChanged()
     }
 
     fun updateMarksMap(newMarksMap: Map<Int, Double>) {
+        marksMap.clear()
+        marksMap.putAll(newMarksMap)
+        // Don't call notifyDataSetChanged here - let the caller decide when to refresh
+    }
+    
+    fun updateMarksMapAndRefresh(newMarksMap: Map<Int, Double>) {
         marksMap.clear()
         marksMap.putAll(newMarksMap)
         notifyDataSetChanged()

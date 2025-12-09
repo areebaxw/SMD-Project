@@ -233,7 +233,9 @@ class MarkAttendance : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val response = apiService.getTodayAttendance(courseId)
+                // Get the selected date from etDate field
+                val selectedDate = etDate.text.toString()
+                val response = apiService.getTodayAttendance(courseId, selectedDate)
                 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val attendanceRecords = response.body()?.data ?: emptyList()
@@ -303,9 +305,13 @@ class MarkAttendance : AppCompatActivity() {
             )
         }
         
+        // Get the selected date from etDate field
+        val selectedDate = etDate.text.toString()
+        
         val request = MarkAttendanceRequest(
             courseId = selectedCourseId,
-            attendanceRecords = records
+            attendanceRecords = records,
+            attendanceDate = selectedDate  // Add the selected date to the request
         )
         
         
@@ -317,7 +323,7 @@ class MarkAttendance : AppCompatActivity() {
                 
                 if (response.isSuccessful && response.body()?.success == true) {
                     Toast.makeText(this@MarkAttendance,
-                        "Attendance marked successfully",
+                        "Attendance marked successfully for $selectedDate",
                         Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
@@ -346,6 +352,8 @@ class MarkAttendance : AppCompatActivity() {
                 }
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 etDate.setText(dateFormat.format(selectedDate.time))
+                // Reload attendance when date is changed
+                loadTodayAttendance(selectedCourseId, allStudents)
             },
             year,
             month,

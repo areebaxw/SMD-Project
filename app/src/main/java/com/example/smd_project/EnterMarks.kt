@@ -264,6 +264,8 @@ class EnterMarks : AppCompatActivity() {
                     tvEvaluationType.text = evaluationTypes[which].evaluation_type_name
                     tvEvaluationNumber.text = "Choose Evaluation"
                     evaluationDetailsHeader.visibility = View.GONE
+                    // Reset selected evaluation number so it doesn't try to restore previous selection
+                    selectedEvaluationNumber = 0
                     loadExistingMarks(selectedCourseId, selectedEvaluationTypeId)
                     dialog.dismiss()
                 }
@@ -323,13 +325,8 @@ class EnterMarks : AppCompatActivity() {
                     // Show evaluation details header
                     showEvaluationDetails(selected)
                     
-                    // Update marks map with existing marks from THIS specific evaluation only
-                    marksMap.clear()
-                    // Restore marks from the marksMapByEvaluation for this specific evaluation number
-                    marksMap.putAll(marksMapByEvaluation[selected.evaluation_number] ?: emptyMap())
-                    
-                    // Refresh the display with only selected evaluation's students
-                    updateStudentListForSelectedEvaluation(selected)
+                    // Load marks from database for this specific evaluation
+                    loadMarksForSpecificEvaluation(selected)
                     
                     dialog.dismiss()
                 }
@@ -366,10 +363,12 @@ class EnterMarks : AppCompatActivity() {
     }
     
     private fun updateStudentListForSelectedEvaluation(evaluation: EvaluationWithMarks) {
-        // Create a single evaluation list with its students for the adapter
+        // Update evaluation data FIRST with new data
         val evaluationList = listOf(evaluation)
         evaluationWithStudentsAdapter.updateData(evaluationList, allStudents)
-        evaluationWithStudentsAdapter.updateMarksMap(marksMap)
+        
+        // Then update marks and refresh - this ensures marks are available when adapter binds
+        evaluationWithStudentsAdapter.updateMarksMapAndRefresh(marksMap)
     }
     
     private fun showCreateEvaluationDialog() {
@@ -477,8 +476,6 @@ class EnterMarks : AppCompatActivity() {
                     evaluationNumber = evalNum,
                     title = topic,
                     totalMarks = totalMarks,
-                    semester = "",
-                    academicYear = "",
                     weightage = weightage.ifEmpty { null }
                 )
                 
@@ -633,6 +630,59 @@ class EnterMarks : AppCompatActivity() {
         evaluationWithStudentsAdapter.updateData(listOf(allStudentsEval), students)
     }
     
+    private fun loadMarksForSpecificEvaluation(evaluation: EvaluationWithMarks) {
+        val apiService = RetrofitClient.getApiService(sessionManager)
+        
+        lifecycleScope.launch {
+            try {
+                // Load marks for this specific evaluation number
+                val response = apiService.getEvaluationMarks(selectedCourseId, selectedEvaluationTypeId)
+                
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val data = response.body()?.data
+                    if (data != null) {
+                        // Find this specific evaluation in the response
+                        val selectedEval = data.evaluations.find { it.evaluation_number == evaluation.evaluation_number }
+                        
+                        if (selectedEval != null) {
+                            // Clear and load marks for only this evaluation
+                            marksMap.clear()
+                            
+                            // Load marks from database for this evaluation
+                            for (mark in selectedEval.marks) {
+                                val marks = when (mark.obtained_marks) {
+                                    is String -> (mark.obtained_marks as String).toDoubleOrNull() ?: 0.0
+                                    is Double -> mark.obtained_marks as Double
+                                    is Int -> (mark.obtained_marks as Int).toDouble()
+                                    else -> 0.0
+                                }
+                                marksMap[mark.student_id] = marks
+                            }
+                            
+                            // For any student without marks in this evaluation, initialize to 0
+                            for (student in data.students) {
+                                if (!marksMap.containsKey(student.student_id)) {
+                                    marksMap[student.student_id] = 0.0
+                                }
+                            }
+                            
+                            android.util.Log.d("EnterMarks", "Loaded eval #${evaluation.evaluation_number} from DB: ${marksMap.size} marks - $marksMap")
+                            
+                            // Update adapter with fresh data from database
+                            updateStudentListForSelectedEvaluation(selectedEval)
+                            enteredMarks.clear()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@EnterMarks, "Failed to load marks", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@EnterMarks, "Error loading marks: ${e.message}", Toast.LENGTH_SHORT).show()
+                android.util.Log.e("EnterMarks", "Error loading marks for eval #${evaluation.evaluation_number}: ${e.message}", e)
+            }
+        }
+    }
+    
     private fun loadExistingMarks(courseId: Int, evaluationTypeId: Int) {
         val apiService = RetrofitClient.getApiService(sessionManager)
         
@@ -667,6 +717,9 @@ class EnterMarks : AppCompatActivity() {
                             
                             // Store this evaluation's marks separately
                             marksMapByEvaluation[evaluation.evaluation_number] = evalSpecificMarks
+                            
+                            // Debug logging
+                            android.util.Log.d("EnterMarks", "Loaded eval #${evaluation.evaluation_number}: ${evalSpecificMarks.size} marks - $evalSpecificMarks")
                         }
                         
                         // If a specific evaluation was previously selected, keep it displayed
@@ -676,6 +729,7 @@ class EnterMarks : AppCompatActivity() {
                                 // Restore the selected evaluation display with its specific marks
                                 marksMap.clear()
                                 marksMap.putAll(marksMapByEvaluation[selectedEvaluationNumber] ?: emptyMap())
+                                android.util.Log.d("EnterMarks", "Restored eval #$selectedEvaluationNumber marks: $marksMap")
                                 showEvaluationDetails(selected)
                                 updateStudentListForSelectedEvaluation(selected)
                                 enteredMarks.clear()
@@ -702,6 +756,7 @@ class EnterMarks : AppCompatActivity() {
                 marksMapByEvaluation.clear()
                 currentEvaluationRecords = emptyList()
                 tvEvaluationNumber.text = "Select Evaluation"
+                android.util.Log.e("EnterMarks", "Error loading marks: ${e.message}", e)
                 Toast.makeText(this@EnterMarks, "Error loading marks: ${e.message}", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
             }
@@ -842,10 +897,34 @@ class EnterMarks : AppCompatActivity() {
                     Toast.makeText(this@EnterMarks,
                         "✓ Marks updated successfully",
                         Toast.LENGTH_SHORT).show()
-                    // Reload existing marks to display updated list
-                    loadExistingMarks(selectedCourseId, selectedEvaluationTypeId)
-                    // Keep the current evaluation selected - do NOT reset
+                    
+                    // Update local cache with newly submitted marks
+                    // This way we don't need to reload from server
+                    val updatedMarks = mutableMapOf<Int, Double>()
+                    
+                    // First, get existing marks for this evaluation
+                    val existingMarks = marksMapByEvaluation[evaluationNumber] ?: mutableMapOf()
+                    updatedMarks.putAll(existingMarks)
+                    
+                    // Then update with newly submitted marks
+                    for (record in marksRecords) {
+                        updatedMarks[record.student_id] = record.obtained_marks
+                    }
+                    
+                    // Store updated marks back
+                    marksMapByEvaluation[evaluationNumber] = updatedMarks
+                    
+                    // Update current marksMap to reflect changes
+                    marksMap.clear()
+                    marksMap.putAll(updatedMarks)
+                    
+                    // Refresh the adapter display without reloading from server
+                    updateStudentListForSelectedEvaluation(selectedEvaluationDetail ?: return@launch)
+                    
+                    // Clear entered marks for next submission
                     enteredMarks.clear()
+                    
+                    android.util.Log.d("EnterMarks", "Updated eval #$evaluationNumber locally with marks: $updatedMarks")
                 } else {
                     Toast.makeText(this@EnterMarks,
                         response.body()?.message ?: "Failed to submit marks",

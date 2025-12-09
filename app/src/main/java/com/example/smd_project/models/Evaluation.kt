@@ -18,8 +18,6 @@ data class CreateEvaluationRequest(
     val evaluationNumber: Int,
     val title: String,
     val totalMarks: Int,
-    val semester: String,
-    val academicYear: String,
     val weightage: String? = null
 )
 

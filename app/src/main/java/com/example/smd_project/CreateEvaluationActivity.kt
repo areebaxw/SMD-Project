@@ -178,9 +178,7 @@ class CreateEvaluationActivity : AppCompatActivity() {
             evaluationTypeId = selectedEvaluationTypeId,
             evaluationNumber = evaluationNumber,
             title = title,
-            totalMarks = totalMarks,
-            semester = getCurrentSemester(),
-            academicYear = getCurrentAcademicYear()
+            totalMarks = totalMarks
         )
         
         submitCreateEvaluation(request)

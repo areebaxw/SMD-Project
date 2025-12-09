@@ -22,7 +22,9 @@ data class MarkAttendanceRequest(
     @SerializedName("courseId")
     val courseId: Int,
     @SerializedName("attendanceRecords")
-    val attendanceRecords: List<AttendanceItem>
+    val attendanceRecords: List<AttendanceItem>,
+    @SerializedName("attendanceDate")
+    val attendanceDate: String? = null  // Optional: defaults to today if not provided
 )
 
 data class AttendanceItem(
