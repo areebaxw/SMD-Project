@@ -53,6 +53,12 @@ class UploadGrade : AppCompatActivity() {
             showScaleDialog()
         }
 
+        // Back arrow click listener
+        val backArrow = findViewById<View>(R.id.backArrow)
+        backArrow.setOnClickListener {
+            finish()
+        }
+
         spinnerCourses = findViewById(R.id.spinnerCourses)
         rvStudentGrades = findViewById(R.id.rvFinalGrades)
         tvCourseName = findViewById(R.id.tvCourseName)

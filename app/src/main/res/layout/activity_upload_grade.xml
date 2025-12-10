@@ -44,26 +44,46 @@
         android:orientation="vertical"
         android:layout_margin="12dp"
         android:elevation="6dp"
-        android:backgroundTint="#E9E9EB"
-        android:clipToOutline="true"
-        android:background="@drawable/lightgrey_card">
+        android:background="@drawable/card_dropdown_rounded">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Course"
             android:textSize="16sp"
-            android:textColor="#444444"
+            android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:paddingBottom="8dp" />
+            android:paddingBottom="12dp" />
 
-        <Spinner
-            android:id="@+id/spinnerCourses"
+        <!-- White Card Behind Spinner -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:background="@drawable/input_border" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/white_card_rounded"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+            <Spinner
+                android:id="@+id/spinnerCourses"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:textColor="#8B2072"
+                android:background="@android:color/transparent" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/down_arrow"
+                android:contentDescription="Select"
+                android:tint="#8B2072" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- RecyclerView Section -->
@@ -96,7 +116,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:background="@color/primary"
+            android:background="@drawable/button_scale_subtle"
             android:layout_gravity="center"
             android:elevation="2dp"/>
     </LinearLayout>
