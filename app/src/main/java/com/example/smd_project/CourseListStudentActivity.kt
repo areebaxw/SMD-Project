@@ -80,7 +80,7 @@ class CourseListStudentActivity : AppCompatActivity() {
             
             if (courses.isEmpty()) {
                 Toast.makeText(
-                    this@CourseListActivity,
+                    this@CourseListStudentActivity,
                     "No courses registered yet",
                     Toast.LENGTH_SHORT
                 ).show()

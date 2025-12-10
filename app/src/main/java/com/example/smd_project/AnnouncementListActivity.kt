@@ -7,6 +7,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.AnnouncementAdapter
+import com.example.smd_project.models.Announcement
+import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.repository.StudentRepository
 import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
@@ -58,30 +60,41 @@ class AnnouncementListActivity : AppCompatActivity() {
     private fun loadAnnouncements() {
         val userType = sessionManager.getUserType()
         
-        lifecycleScope.launch {
-            try {
-                if (userType == "Student") {
-                    // Use repository for student announcements (with offline support)
-                    val result = repository.getAnnouncements()
-                    result.onSuccess { announcements ->
-                        if (announcements.isNotEmpty()) {
-                            announcementAdapter.updateAnnouncements(announcements)
-                        } else {
-                            Toast.makeText(
-                                this@AnnouncementListActivity,
-                                "No announcements available",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }.onFailure { error ->
-                        Toast.makeText(
-                            this@AnnouncementListActivity,
-                            "Failed to load announcements: ${error.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+        if (userType == "Student") {
+            // Use repository for student announcements (with offline support via LiveData)
+            repository.getAnnouncements().observe(this) { announcementEntities ->
+                val announcements = announcementEntities.map { entity ->
+                    Announcement(
+                        announcement_id = entity.announcement_id,
+                        teacher_id = entity.teacher_id,
+                        course_id = entity.course_id,
+                        title = entity.title,
+                        content = entity.content,
+                        announcement_type = entity.announcement_type,
+                        created_at = entity.created_at,
+                        teacher_name = entity.teacher_name,
+                        course_name = entity.course_name
+                    )
+                }
+                if (announcements.isNotEmpty()) {
+                    announcementAdapter.updateAnnouncements(announcements)
                 } else {
-                    // Teacher announcements - check network first
+                    Toast.makeText(
+                        this@AnnouncementListActivity,
+                        "No announcements available",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            
+            // Trigger refresh from network if online
+            lifecycleScope.launch {
+                repository.refreshAnnouncements()
+            }
+        } else {
+            // Teacher announcements - check network first
+            lifecycleScope.launch {
+                try {
                     if (!NetworkUtils.isOnline(this@AnnouncementListActivity)) {
                         Toast.makeText(
                             this@AnnouncementListActivity,
@@ -111,13 +124,13 @@ class AnnouncementListActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        this@AnnouncementListActivity,
+                        "Error loading announcements: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@AnnouncementListActivity,
-                    "Error loading announcements: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         }
     }
