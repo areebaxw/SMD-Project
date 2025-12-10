@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CAMPUSINO</string>
+    <string name="app_name">campusino</string>
     <string name="course_selection">Select a course</string>
     <string name="evaluation_selection">Select evaluation type</string>
 </resources>

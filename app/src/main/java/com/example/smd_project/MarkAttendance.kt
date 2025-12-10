@@ -19,8 +19,10 @@ import com.example.smd_project.models.Course
 import com.example.smd_project.models.MarkAttendanceRequest
 import com.example.smd_project.models.Student
 import com.example.smd_project.models.TodayAttendanceItem
+import com.example.smd_project.models.TeacherActivity
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
+import com.example.smd_project.utils.ActivityManager
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -322,6 +324,16 @@ class MarkAttendance : AppCompatActivity() {
                 val response = apiService.markAttendance(request)
                 
                 if (response.isSuccessful && response.body()?.success == true) {
+                    // Log activity
+                    val activityManager = ActivityManager(this@MarkAttendance)
+                    val presentCount = attendanceMap.values.count { it == "Present" }
+                    val activity = TeacherActivity(
+                        activity_type = TeacherActivity.TYPE_ATTENDANCE,
+                        title = "Attendance Updated",
+                        description = "Marked attendance for ${spinnerCourse.selectedItem} - $presentCount present on $selectedDate"
+                    )
+                    activityManager.addActivity(activity)
+
                     Toast.makeText(this@MarkAttendance,
                         "Attendance marked successfully for $selectedDate",
                         Toast.LENGTH_SHORT).show()
