@@ -56,50 +56,66 @@ class AnnouncementListActivity : AppCompatActivity() {
     }
     
     private fun loadAnnouncements() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
         val userType = sessionManager.getUserType()
         
         lifecycleScope.launch {
             try {
-                // Load announcements based on user type
-                val announcements = if (userType == "Student") {
-                    val response = apiService.getStudentDashboard()
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        response.body()?.data?.announcements ?: emptyList()
-                    } else {
-                        emptyList()
+                if (userType == "Student") {
+                    // Use repository for student announcements (with offline support)
+                    val result = repository.getAnnouncements()
+                    result.onSuccess { announcements ->
+                        if (announcements.isNotEmpty()) {
+                            announcementAdapter.updateAnnouncements(announcements)
+                        } else {
+                            Toast.makeText(
+                                this@AnnouncementListActivity,
+                                "No announcements available",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }.onFailure { error ->
+                        Toast.makeText(
+                            this@AnnouncementListActivity,
+                            "Failed to load announcements: ${error.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
+                    // Teacher announcements - check network first
+                    if (!NetworkUtils.isOnline(this@AnnouncementListActivity)) {
+                        Toast.makeText(
+                            this@AnnouncementListActivity,
+                            "No internet connection. Please try again when online.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@launch
+                    }
+                    
+                    val apiService = RetrofitClient.getApiService(sessionManager)
                     val response = apiService.getTeacherAnnouncements()
                     if (response.isSuccessful && response.body()?.success == true) {
-                        response.body()?.data ?: emptyList()
+                        val announcements = response.body()?.data ?: emptyList()
+                        if (announcements.isNotEmpty()) {
+                            announcementAdapter.updateAnnouncements(announcements)
+                        } else {
+                            Toast.makeText(
+                                this@AnnouncementListActivity,
+                                "No announcements available",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     } else {
-                        emptyList()
+                        Toast.makeText(
+                            this@AnnouncementListActivity,
+                            "Failed to load announcements",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                }
-                
-                if (announcements.isNotEmpty()) {
-                    announcementAdapter.updateAnnouncements(announcements)
-                } else {
-                    Toast.makeText(
-                        this@AnnouncementListActivity,
-                        "No announcements available",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                
-                if (announcements.isEmpty()) {
-                    Toast.makeText(
-                        this@AnnouncementListActivity,
-                        "Failed to load announcements",
-                        "Failed to load announcements",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(
                     this@AnnouncementListActivity,
-                    "Error loading announcements",
+                    "Error loading announcements: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
