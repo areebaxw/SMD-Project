@@ -32,7 +32,7 @@ class ScheduleAdapter(
         holder.tvCourseName.text = schedule.course_name
         holder.tvCourseCode.text = schedule.course_code
         holder.tvDayOfWeek.text = schedule.day_of_week
-        holder.tvTime.text = "${schedule.start_time} - ${schedule.end_time}"
+        holder.tvTime.text = "${formatTime(schedule.start_time)} - ${formatTime(schedule.end_time)}"
         holder.tvRoom.text = "Room: ${schedule.room_number ?: "Not assigned"}"
     }
 
@@ -41,5 +41,14 @@ class ScheduleAdapter(
     fun updateSchedules(newSchedules: List<Schedule>) {
         schedules = newSchedules
         notifyDataSetChanged()
+    }
+
+    private fun formatTime(time: String): String {
+        // If time is in format HH:MM:SS, convert to HH:MM
+        return if (time.length > 5) {
+            time.substring(0, 5)
+        } else {
+            time
+        }
     }
 }

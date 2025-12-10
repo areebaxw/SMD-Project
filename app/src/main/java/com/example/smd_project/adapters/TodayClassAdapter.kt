@@ -28,8 +28,8 @@ class TodayClassAdapter(
     override fun onBindViewHolder(holder: TodayClassViewHolder, position: Int) {
         val todayClass = classes[position]
         
-        holder.tvClassTime.text = todayClass.start_time
-        holder.tvClassEndTime.text = todayClass.end_time
+        holder.tvClassTime.text = formatTime(todayClass.start_time)
+        holder.tvClassEndTime.text = formatTime(todayClass.end_time)
         holder.tvCourseName.text = todayClass.course_name
         holder.tvClassDetails.text = "Room : ${todayClass.room_number ?: "TBA"}"
     }
@@ -39,5 +39,14 @@ class TodayClassAdapter(
     fun updateClasses(newList: List<TodayClass>) {
         classes = newList
         notifyDataSetChanged()
+    }
+
+    private fun formatTime(time: String): String {
+        // If time is in format HH:MM:SS, convert to HH:MM
+        return if (time.length > 5) {
+            time.substring(0, 5)
+        } else {
+            time
+        }
     }
 }
