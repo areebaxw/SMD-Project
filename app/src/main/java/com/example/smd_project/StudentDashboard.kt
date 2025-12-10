@@ -14,12 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.activities.AssignmentsActivity
 import com.example.smd_project.activities.CourseRegistrationActivity
+import com.example.smd_project.activities.StudentNotificationActivity
 import com.example.smd_project.activities.StudentTranscriptActivity
 import com.example.smd_project.adapters.AnnouncementAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 
@@ -38,6 +40,7 @@ class StudentDashboard : AppCompatActivity() {
     private lateinit var rvAnnouncements: RecyclerView
     private lateinit var menuIcon: ImageView
     private lateinit var notificationIcon: ImageView
+    private lateinit var tvNotificationBadge: TextView
     
     // Drawer
     private lateinit var drawerLayout: DrawerLayout
@@ -63,7 +66,9 @@ class StudentDashboard : AppCompatActivity() {
         setupRecyclerViews()
         setupDrawer()
         setupClickListeners()
+        setupFCMToken()
         loadDashboardData()
+        loadUnreadNotificationCount()
     }
     
     private fun initViews() {
@@ -82,6 +87,7 @@ class StudentDashboard : AppCompatActivity() {
         // Icons
         menuIcon = findViewById(R.id.menuIcon)
         notificationIcon = findViewById(R.id.notificationIcon)
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge)
         
         // Action buttons
         btnCoursesAction = findViewById(R.id.btnCoursesAction)
@@ -226,7 +232,7 @@ class StudentDashboard : AppCompatActivity() {
         }
         
         notificationIcon.setOnClickListener {
-            Toast.makeText(this, "Opening Notifications", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, StudentNotificationActivity::class.java))
         }
         
         findViewById<TextView>(R.id.viewAllClasses)?.setOnClickListener {
@@ -309,5 +315,68 @@ class StudentDashboard : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadDashboardData()
+        loadUnreadNotificationCount()
+    }
+    
+    private fun setupFCMToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                android.util.Log.w("FCM", "Fetching FCM token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            // Get new FCM token
+            val token = task.result
+            android.util.Log.d("FCM", "FCM Token: $token")
+
+            // Send token to server
+            registerFCMToken(token)
+        }
+    }
+
+    private fun registerFCMToken(token: String) {
+        val apiService = RetrofitClient.getApiService(sessionManager)
+
+        lifecycleScope.launch {
+            try {
+                val response = apiService.registerFCMToken(
+                    mapOf(
+                        "fcm_token" to token,
+                        "device_type" to "android"
+                    )
+                )
+
+                if (response.isSuccessful) {
+                    sessionManager.saveFCMToken(token)
+                    android.util.Log.d("FCM", "Token registered successfully")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FCM", "Error registering token: ${e.message}")
+            }
+        }
+    }
+
+    private fun loadUnreadNotificationCount() {
+        val apiService = RetrofitClient.getApiService(sessionManager)
+
+        lifecycleScope.launch {
+            try {
+                val response = apiService.getUnreadNotificationsCount()
+
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val unreadCount = response.body()?.data?.unreadCount ?: 0
+
+                    if (unreadCount > 0) {
+                        tvNotificationBadge.visibility = View.VISIBLE
+                        tvNotificationBadge.text = if (unreadCount > 99) "99+" else unreadCount.toString()
+                    } else {
+                        tvNotificationBadge.visibility = View.GONE
+                    }
+                }
+            } catch (e: Exception) {
+                // Silently fail - notification badge is not critical
+                android.util.Log.e("Notification", "Error loading unread count: ${e.message}")
+            }
+        }
     }
 }

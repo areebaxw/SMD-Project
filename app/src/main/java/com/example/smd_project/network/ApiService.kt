@@ -64,6 +64,17 @@ interface ApiService {
     @GET("student/fees")
     suspend fun getStudentFees(): Response<ApiResponse<List<StudentFeeItem>>>
 
+    @GET("student/notifications")
+    suspend fun getStudentNotifications(@Query("limit") limit: Int = 50): Response<ApiResponse<List<Notification>>>
+
+    @GET("student/notifications/unread-count")
+    suspend fun getUnreadNotificationsCount(): Response<ApiResponse<UnreadCountResponse>>
+
+    @POST("student/notifications/{notificationId}/mark-read")
+    suspend fun markStudentNotificationAsRead(@Path("notificationId") notificationId: Int): Response<ApiResponse<Any>>
+
+    @POST("student/fcm-token")
+    suspend fun registerFCMToken(@Body body: Map<String, String>): Response<ApiResponse<Any>>
 
 
     @GET("student/transcript")

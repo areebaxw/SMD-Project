@@ -21,6 +21,7 @@ class SessionManager(context: Context) {
         private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
         private const val KEY_SAVED_EMAIL = "saved_email"
         private const val KEY_SAVED_PASSWORD = "saved_password"
+        private const val KEY_FCM_TOKEN = "fcm_token"
     }
     
     fun saveAuthToken(token: String) {
@@ -122,5 +123,14 @@ class SessionManager(context: Context) {
     
     fun getSavedPassword(): String? {
         return prefs.getString(KEY_SAVED_PASSWORD, null)
+    }
+    
+    // FCM Token methods
+    fun saveFCMToken(token: String) {
+        prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
+    }
+    
+    fun getFCMToken(): String? {
+        return prefs.getString(KEY_FCM_TOKEN, null)
     }
 }

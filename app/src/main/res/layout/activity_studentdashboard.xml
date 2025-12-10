@@ -51,12 +51,33 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1" />
 
-                        <ImageView
-                            android:id="@+id/notificationIcon"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/notify_icon"
-                            android:contentDescription="Notifications" />
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/notificationIcon"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/notify_icon"
+                                android:contentDescription="Notifications" />
+
+                            <TextView
+                                android:id="@+id/tvNotificationBadge"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_alignEnd="@id/notificationIcon"
+                                android:layout_alignTop="@id/notificationIcon"
+                                android:layout_marginTop="-6dp"
+                                android:layout_marginEnd="-6dp"
+                                android:background="@drawable/notification_badge_bg"
+                                android:gravity="center"
+                                android:text="5"
+                                android:textColor="@color/white"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+                        </RelativeLayout>
                     </LinearLayout>
 
                     <!-- User Profile Section -->
