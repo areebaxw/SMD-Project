@@ -71,9 +71,12 @@ class AnnouncementListActivity : AppCompatActivity() {
                         title = entity.title,
                         content = entity.content,
                         announcement_type = entity.announcement_type,
+                        is_active = entity.is_active,
                         created_at = entity.created_at,
                         teacher_name = entity.teacher_name,
-                        course_name = entity.course_name
+                        course_name = entity.course_name,
+                        course_code = null,
+                        updated_at = entity.updated_at
                     )
                 }
                 if (announcements.isNotEmpty()) {
