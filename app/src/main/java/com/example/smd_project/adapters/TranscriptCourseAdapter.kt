@@ -31,13 +31,29 @@ class TranscriptCourseAdapter(private var courses: List<TranscriptCourse>) :
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
         val course = courses[position]
+
         holder.tvCourseName.text = course.course_name
         holder.tvCourseCode.text = course.course_code
         holder.tvCredits.text = "Credits: ${course.credit_hours}"
+
+        // Marks always 0 for now
         holder.tvMarks.text = "Marks: ${course.marks}/100"
-        holder.tvGrade.text = course.grade
-        holder.tvGradePoints.text = "${course.grade_points} GP"
+
+        // Grade handling
+        holder.tvGrade.text = if (course.grade.isNullOrBlank()) {
+            "Not yet uploaded"
+        } else {
+            course.grade
+        }
+
+        // Grade points handling
+        holder.tvGradePoints.text = if (course.grade_points <= 0f) {
+            "Not yet uploaded"
+        } else {
+            "${course.grade_points} GP"
+        }
     }
+
 
     fun updateCourses(newCourses: List<TranscriptCourse>) {
         courses = newCourses
