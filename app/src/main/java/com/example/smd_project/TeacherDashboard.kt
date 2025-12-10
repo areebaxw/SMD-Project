@@ -100,6 +100,9 @@ class TeacherDashboard : AppCompatActivity() {
                     .error(R.drawable.ic_launcher_foreground)
                     .into(ivProfilePic)
             }
+            
+            // Make profile picture circular
+            ivProfilePic.clipToOutline = true
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -182,9 +185,11 @@ class TeacherDashboard : AppCompatActivity() {
         // Populate header
         val drawerUserName = findViewById<TextView>(R.id.drawer_user_name)
         val drawerEmail = findViewById<TextView>(R.id.drawer_email)
+        val drawerTeacherId = findViewById<TextView>(R.id.drawer_teacher_id)
         val drawerProfilePic = findViewById<ImageView>(R.id.drawer_profile_pic)
         drawerUserName.text = sessionManager.getUserName()
         drawerEmail.text = sessionManager.getUserEmail()
+        drawerTeacherId.text = "ID: ${sessionManager.getUserId()}"
         Picasso.get().load(sessionManager.getProfilePic())
             .placeholder(R.drawable.ic_launcher_foreground)
             .error(R.drawable.ic_launcher_foreground)

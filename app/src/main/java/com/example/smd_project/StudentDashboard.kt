@@ -17,10 +17,11 @@ import com.example.smd_project.activities.CourseRegistrationActivity
 import com.example.smd_project.activities.StudentNotificationActivity
 import com.example.smd_project.activities.StudentTranscriptActivity
 import com.example.smd_project.adapters.AnnouncementAdapter
+import DrawerAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
+import com.example.smd_project.models.DrawerItem
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
-import com.google.android.material.navigation.NavigationView
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
@@ -44,7 +45,7 @@ class StudentDashboard : AppCompatActivity() {
     
     // Drawer
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
+    private lateinit var drawerRecyclerView: RecyclerView
     
     // Action buttons
     private lateinit var btnCoursesAction: View
@@ -97,7 +98,7 @@ class StudentDashboard : AppCompatActivity() {
         
         // Drawer
         drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.navigation_drawer)
+        drawerRecyclerView = findViewById(R.id.drawerRecyclerView)
         
         // Load profile picture
         val profileUrl = sessionManager.getProfilePic()
@@ -111,8 +112,6 @@ class StudentDashboard : AppCompatActivity() {
         
         // Make profile picture circular
         ivProfilePic.clipToOutline = true
-        
-        tvStudentName.text = sessionManager.getUserName()
     }
     
     private fun setupRecyclerViews() {
@@ -132,88 +131,56 @@ class StudentDashboard : AppCompatActivity() {
     }
     
     private fun setupDrawer() {
-        // Update drawer header with student info
-        try {
-            val drawerHeaderContainer = navigationView.getHeaderView(0)
-            val drawerUserName = drawerHeaderContainer.findViewById<TextView>(R.id.drawer_user_name)
-            val drawerRollNo = drawerHeaderContainer.findViewById<TextView>(R.id.drawer_roll_no)
-            val drawerEmail = drawerHeaderContainer.findViewById<TextView>(R.id.drawer_email)
-            val drawerProfilePic = drawerHeaderContainer.findViewById<ImageView>(R.id.drawer_profile_pic)
+        val drawerItems = listOf(
+            DrawerItem("Dashboard", R.drawable.dashboard),
+            DrawerItem("Course Registration", R.drawable.register),
+            DrawerItem("My Courses", R.drawable.courses),
+            DrawerItem("Assignments", R.drawable.evaluations),
+            DrawerItem("Attendance", R.drawable.attendance),
+            DrawerItem("Fees", R.drawable.fees),
+            DrawerItem("Announcements", R.drawable.announcements),
+            DrawerItem("Transcript", R.drawable.marks),
+            DrawerItem("Logout", R.drawable.logout)
+        )
 
-            drawerUserName.text = sessionManager.getUserName()
-            drawerRollNo.text = sessionManager.getRollNo() ?: "N/A"
-            drawerEmail.text = sessionManager.getUserEmail()
-
-            // Make drawer profile picture circular
-            drawerProfilePic.clipToOutline = true
-
-            val profileUrl = sessionManager.getProfilePic()
-            if (!profileUrl.isNullOrEmpty()) {
-                Picasso.get()
-                    .load(profileUrl)
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .into(drawerProfilePic)
+        val drawerAdapter = DrawerAdapter(drawerItems) { item ->
+            when (item.title) {
+                "Dashboard" -> { /* maybe reload current activity */ }
+                "Course Registration" -> startActivity(Intent(this, CourseRegistrationActivity::class.java))
+                "My Courses" -> startActivity(Intent(this, CourseListActivity::class.java))
+                "Assignments" -> startActivity(Intent(this, AssignmentsActivity::class.java))
+                "Attendance" -> startActivity(Intent(this, StudentAttendanceActivity::class.java))
+                "Fees" -> startActivity(Intent(this, StudentFeesActivity::class.java))
+                "Announcements" -> startActivity(Intent(this, AnnouncementListActivity::class.java))
+                "Transcript" -> startActivity(Intent(this, StudentTranscriptActivity::class.java))
+                "Logout" -> performLogout()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            drawerLayout.closeDrawer(GravityCompat.START)
         }
 
-        // Handle navigation items
-        // Handle navigation items
-        navigationView.setNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.menu_dashboard -> {
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_registration -> {
-                    startActivity(Intent(this, CourseRegistrationActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_courses -> {
-                    startActivity(Intent(this, CourseListActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_evaluations -> {
-                    startActivity(Intent(this, AssignmentsActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_attendance -> {
-                    startActivity(Intent(this, StudentAttendanceActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_fees -> {
-                    startActivity(Intent(this, StudentFeesActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_announcements -> {
-                    startActivity(Intent(this, AnnouncementListActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_transcript -> {  // <-- NEW ITEM
-                    startActivity(Intent(this, StudentTranscriptActivity::class.java))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                R.id.menu_logout -> {
-                    performLogout()
-                    true
-                }
-                else -> false
-            }
-        }
-}
-        private fun setupClickListeners() {
-        menuIcon.setOnClickListener {
+        drawerRecyclerView.adapter = drawerAdapter
+        drawerRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Populate header
+        val drawerUserName = findViewById<TextView>(R.id.drawer_user_name)
+        val drawerRollNo = findViewById<TextView>(R.id.drawer_roll_no)
+        val drawerEmail = findViewById<TextView>(R.id.drawer_email)
+        val drawerProfilePic = findViewById<ImageView>(R.id.drawer_profile_pic)
+        drawerUserName.text = sessionManager.getUserName()
+        drawerRollNo.text = sessionManager.getRollNo() ?: "N/A"
+        drawerEmail.text = sessionManager.getUserEmail()
+        Picasso.get().load(sessionManager.getProfilePic())
+            .placeholder(R.drawable.ic_launcher_foreground)
+            .error(R.drawable.ic_launcher_foreground)
+            .into(drawerProfilePic)
+
+        // Menu icon opens drawer
+        findViewById<View>(R.id.menuIcon)?.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
-        
+    }
+
+    private fun setupClickListeners() {
         // Quick action buttons
         btnCoursesAction.setOnClickListener {
             startActivity(Intent(this, CourseListActivity::class.java))
@@ -258,8 +225,10 @@ class StudentDashboard : AppCompatActivity() {
                         // Update UI with dashboard data
                         tvStudentName.text = it.student.full_name
                         tvRollNo.text = it.student.roll_no
+                        // SGPA and CGPA are dynamically loaded from the API
                         tvSGPA.text = String.format("%.2f", it.sgpa)
                         tvCGPA.text = String.format("%.2f", it.cgpa)
+                        // Overall attendance percentage across all courses
                         tvAttendancePercentage.text = String.format("%.0f%%", it.attendance_percentage)
                         
                         // Load profile picture

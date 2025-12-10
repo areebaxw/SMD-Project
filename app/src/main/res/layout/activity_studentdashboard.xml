@@ -468,36 +468,28 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Drawer Navigation Menu -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigation_drawer"
-        android:layout_width="280dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        android:background="@android:color/white"
-        app:headerLayout="@layout/drawer_header_student"
-        app:menu="@menu/student_drawer_menu"
-        app:itemIconTint="@color/primary"
-        app:itemTextColor="@android:color/black" />
-
-    <!-- Alternative: RecyclerView based drawer -->
+    <!-- Drawer content -->
     <LinearLayout
-        android:id="@+id/drawerLayout"
+        android:id="@+id/drawer_container"
         android:layout_width="280dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
         android:orientation="vertical"
-        android:background="@color/white"
-        android:visibility="gone">
+        android:layout_gravity="start"
+        android:background="@color/white">
 
-        <include layout="@layout/drawer_header_student" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/drawerRecyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white" />
+            android:orientation="vertical">
+
+            <include layout="@layout/drawer_header_student"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/drawerRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>
