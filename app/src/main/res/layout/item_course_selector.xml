@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="Course Name"
             android:textSize="17sp"
-            android:textColor="#000000"
+            android:textColor="#FFFFFF"
             android:fontFamily="sans-serif" />
 
         <TextView
@@ -32,7 +32,8 @@
             android:layout_height="wrap_content"
             android:text="CS-101"
             android:textSize="13sp"
-            android:textColor="#8E8E93"
+            android:textColor="#FFFFFF"
+            android:alpha="0.8"
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif" />
 
@@ -43,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginStart="20dp"
-        android:background="#C6C6C8" />
+        android:background="#FFFFFF"
+        android:alpha="0.3" />
 
 </LinearLayout>
