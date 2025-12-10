@@ -77,11 +77,34 @@ class StudentRepository(private val context: Context) {
         }
     }
     
-    private fun cacheDashboard(dashboard: StudentDashboard) {
+    private suspend fun cacheDashboard(dashboard: StudentDashboard) {
         try {
+            // Save to SharedPreferences for quick access
             val json = gson.toJson(dashboard)
             sharedPreferences.edit().putString(CACHE_DASHBOARD, json).apply()
-            Log.d(TAG, "Dashboard cached successfully")
+            Log.d(TAG, "Dashboard cached to SharedPreferences")
+            
+            // Also save announcements to Room database for offline access
+            if (dashboard.announcements.isNotEmpty()) {
+                val announcementEntities = dashboard.announcements.map { announcement ->
+                    AnnouncementEntity(
+                        announcement_id = announcement.announcement_id,
+                        teacher_id = announcement.teacher_id,
+                        course_id = announcement.course_id,
+                        title = announcement.title,
+                        content = announcement.content,
+                        announcement_type = announcement.announcement_type,
+                        is_active = announcement.is_active,
+                        created_at = announcement.created_at,
+                        updated_at = announcement.updated_at ?: "",
+                        teacher_name = announcement.teacher_name,
+                        course_name = announcement.course_name,
+                        last_synced_at = System.currentTimeMillis()
+                    )
+                }
+                database.announcementDao().insertAnnouncements(announcementEntities)
+                Log.d(TAG, "Saved ${announcementEntities.size} announcements to database")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error caching dashboard", e)
         }
@@ -116,6 +139,39 @@ class StudentRepository(private val context: Context) {
                 
                 val response = apiService.getStudentCourses()
                 if (response.isSuccessful && response.body()?.success == true) {
+                    val courses = response.body()?.data ?: emptyList()
+                    val studentId = sessionManager.getUserId()
+                    
+                    // Convert courses to enrollment entities
+                    val enrollments = courses.map { course ->
+                        EnrollmentEntity(
+                            enrollment_id = course.course_id * 1000 + studentId, // Synthetic ID
+                            student_id = studentId,
+                            course_id = course.course_id,
+                            academic_year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString(),
+                            semester = course.semester?.toString() ?: "1",
+                            enrollment_date = "",
+                            status = course.status ?: "Enrolled",
+                            grade = course.grade,
+                            gpa = course.gpa,
+                            created_at = "",
+                            updated_at = "",
+                            course_code = course.course_code,
+                            course_name = course.course_name,
+                            description = course.description,
+                            credit_hours = course.credit_hours,
+                            teacher_name = course.instructors,
+                            teacher_id = null,
+                            last_synced_at = System.currentTimeMillis()
+                        )
+                    }
+                    
+                    // Clear old enrollments and save fresh data from API
+                    // This ensures unenrolled courses are removed
+                    database.enrollmentDao().clearAll()
+                    database.enrollmentDao().insertEnrollments(enrollments)
+                    Log.d(TAG, "Refreshed enrollments: cleared old and saved ${enrollments.size} courses to database")
+                    
                     Result.success(true)
                 } else {
                     Result.failure(Exception("Failed to fetch courses"))
@@ -288,6 +344,34 @@ class StudentRepository(private val context: Context) {
                 
                 val response = apiService.getStudentFees()
                 if (response.isSuccessful && response.body()?.success == true) {
+                    val fees = response.body()?.data ?: emptyList()
+                    val studentId = sessionManager.getUserId()
+                    
+                    // Convert fee items to entities
+                    val feeEntities = fees.map { fee ->
+                        StudentFeeEntity(
+                            fee_id = fee.fee_id,
+                            student_id = fee.student_id,
+                            fee_structure_id = fee.fee_structure_id,
+                            total_amount = fee.total_amount,
+                            paid_amount = fee.paid_amount ?: 0.0,
+                            remaining_amount = fee.remaining_amount,
+                            payment_status = fee.payment_status,
+                            due_date = fee.due_date,
+                            created_at = "",
+                            updated_at = "",
+                            program = fee.program,
+                            semester = fee.semester,
+                            academic_year = fee.academic_year,
+                            structure_total_fee = fee.total_amount,
+                            last_synced_at = System.currentTimeMillis()
+                        )
+                    }
+                    
+                    // Save to database
+                    database.studentFeeDao().insertFees(feeEntities)
+                    Log.d(TAG, "Saved ${feeEntities.size} fees to database")
+                    
                     Result.success(true)
                 } else {
                     Result.failure(Exception("Failed to fetch fees"))

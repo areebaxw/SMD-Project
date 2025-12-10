@@ -95,10 +95,12 @@ class CourseRegistrationActivity : AppCompatActivity() {
                 val registeredResponse = RetrofitClient.getApiService(sessionManager).getRegisteredCourses()
                 Log.d(TAG, "Registered courses response - Code: ${registeredResponse.code()}, isSuccessful: ${registeredResponse.isSuccessful}")
                 
+                var registeredCourses: List<Course> = emptyList()
                 registeredCourseIds = if (registeredResponse.isSuccessful) {
                     try {
                         if (registeredResponse.body()?.success == true) {
-                            val ids = registeredResponse.body()?.data?.map { it.course_id }?.toSet() ?: emptySet()
+                            registeredCourses = registeredResponse.body()?.data ?: emptyList()
+                            val ids = registeredCourses.map { it.course_id }.toSet()
                             Log.d(TAG, "Registered course IDs: $ids")
                             ids
                         } else {
@@ -121,8 +123,29 @@ class CourseRegistrationActivity : AppCompatActivity() {
                 if (availableResponse.isSuccessful) {
                     try {
                         if (availableResponse.body()?.success == true) {
-                            allCourses = availableResponse.body()?.data ?: emptyList()
-                            Log.d(TAG, "Loaded ${allCourses.size} available courses")
+                            val availableCourses = availableResponse.body()?.data ?: emptyList()
+                            Log.d(TAG, "Loaded ${availableCourses.size} available courses")
+                            
+                            // Combine registered and available courses, avoiding duplicates
+                            val allCourseIds = mutableSetOf<Int>()
+                            val combinedCourses = mutableListOf<Course>()
+                            
+                            // Add registered courses first
+                            for (course in registeredCourses) {
+                                if (allCourseIds.add(course.course_id)) {
+                                    combinedCourses.add(course)
+                                }
+                            }
+                            
+                            // Add available courses that are not already in the list
+                            for (course in availableCourses) {
+                                if (allCourseIds.add(course.course_id)) {
+                                    combinedCourses.add(course)
+                                }
+                            }
+                            
+                            allCourses = combinedCourses
+                            Log.d(TAG, "Combined total: ${allCourses.size} courses (${registeredCourses.size} registered + ${availableCourses.size} available)")
                             displayCourses(allCourses)
                         } else {
                             Log.e(TAG, "Success flag false: ${availableResponse.body()?.message}")
@@ -299,9 +322,11 @@ class CourseRegistrationActivity : AppCompatActivity() {
         }
         bottomRow.addView(checkbox)
 
+        val isRegistered = registeredCourseIds.contains(course.course_id)
+
+        // Enroll Button (Green)
         val enrollBtn = AppCompatButton(this).apply {
-            val isRegistered = registeredCourseIds.contains(course.course_id)
-            text = if (isRegistered) "Drop" else "Enroll"
+            text = "Enroll"
             textSize = 13f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(24, 10, 24, 10)
@@ -314,26 +339,52 @@ class CourseRegistrationActivity : AppCompatActivity() {
             
             // Rounded button background
             val btnDrawable = android.graphics.drawable.GradientDrawable()
-            btnDrawable.setColor(if (isRegistered)
-                android.graphics.Color.parseColor("#FF3B30") // Apple red
-            else
-                android.graphics.Color.parseColor("#34C759") // Apple green
+            btnDrawable.setColor(
+                if (isRegistered) android.graphics.Color.parseColor("#A8D5A2") // Disabled green
+                else android.graphics.Color.parseColor("#34C759") // Apple green
             )
             btnDrawable.cornerRadius = 8f
             background = btnDrawable
             setTextColor(android.graphics.Color.WHITE)
+            isEnabled = !isRegistered
+            alpha = if (isRegistered) 0.5f else 1.0f
 
             setOnClickListener {
-                if (registeredCourseIds.contains(course.course_id)) {
-                    // Drop course
-                    dropCourse(course)
-                } else {
-                    // Quick enroll single course
-                    enrollSingleCourse(course)
-                }
+                enrollSingleCourse(course)
             }
         }
         bottomRow.addView(enrollBtn)
+
+        // Unenroll Button (Red)
+        val unenrollBtn = AppCompatButton(this).apply {
+            text = "Unenroll"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(24, 10, 24, 10)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(8, 0, 0, 0)
+            }
+            
+            // Rounded button background
+            val btnDrawable = android.graphics.drawable.GradientDrawable()
+            btnDrawable.setColor(
+                if (!isRegistered) android.graphics.Color.parseColor("#FFAAAA") // Disabled red
+                else android.graphics.Color.parseColor("#FF3B30") // Apple red
+            )
+            btnDrawable.cornerRadius = 8f
+            background = btnDrawable
+            setTextColor(android.graphics.Color.WHITE)
+            isEnabled = isRegistered
+            alpha = if (!isRegistered) 0.5f else 1.0f
+
+            setOnClickListener {
+                dropCourse(course)
+            }
+        }
+        bottomRow.addView(unenrollBtn)
 
         val spacer = android.view.View(this).apply {
             layoutParams = LinearLayout.LayoutParams(0, 0, 1f)

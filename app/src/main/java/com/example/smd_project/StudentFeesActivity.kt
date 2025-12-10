@@ -116,6 +116,11 @@ class StudentFeesActivity : AppCompatActivity() {
             }
             feesAdapter.updateFees(fees)
             swipeRefreshLayout.isRefreshing = false
+            
+            // Load payment history for each fee
+            if (fees.isNotEmpty()) {
+                loadAllPaymentHistories(fees)
+            }
         }
         
         // Initial refresh
