@@ -47,7 +47,8 @@ interface ApiService {
 
     @GET("student/courses")
     suspend fun getStudentCourses(): Response<ApiResponse<List<Course>>>
-
+    @PUT("student/cgpa")
+    suspend fun updateCGPA(@Body body: CGPARequest): Response<Any>
     @GET("student/attendance")
     suspend fun getStudentAttendance(): Response<ApiResponse<List<AttendanceSummary>>>
 

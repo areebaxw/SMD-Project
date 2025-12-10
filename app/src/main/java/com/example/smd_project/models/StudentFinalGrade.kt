@@ -10,3 +10,7 @@ data class StudentFinalGrade(
     val semester: String,
     val gpa: Double
 )
+data class CGPARequest(
+    val cgpa: Double,
+    val total_credits: Int
+)

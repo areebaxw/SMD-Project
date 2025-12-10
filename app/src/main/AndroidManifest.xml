@@ -22,6 +22,9 @@
         android:theme="@style/Theme.SMDProject"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.StudentTranscriptActivity"
+            android:exported="false" />
+        <activity
             android:name=".UploadGrade"
             android:exported="false" />
         <activity

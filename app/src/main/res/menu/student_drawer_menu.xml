@@ -38,6 +38,11 @@
             android:icon="@drawable/announcements"
             android:title="Announcements"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_transcript"
+            android:icon="@drawable/upload_grades"
+            android:title="Transcript"
+            app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/group_account">

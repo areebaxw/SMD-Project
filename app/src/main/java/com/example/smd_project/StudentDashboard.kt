@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.activities.AssignmentsActivity
 import com.example.smd_project.activities.CourseRegistrationActivity
+import com.example.smd_project.activities.StudentTranscriptActivity
 import com.example.smd_project.adapters.AnnouncementAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
 import com.example.smd_project.network.RetrofitClient
@@ -132,14 +133,14 @@ class StudentDashboard : AppCompatActivity() {
             val drawerRollNo = drawerHeaderContainer.findViewById<TextView>(R.id.drawer_roll_no)
             val drawerEmail = drawerHeaderContainer.findViewById<TextView>(R.id.drawer_email)
             val drawerProfilePic = drawerHeaderContainer.findViewById<ImageView>(R.id.drawer_profile_pic)
-            
+
             drawerUserName.text = sessionManager.getUserName()
             drawerRollNo.text = sessionManager.getRollNo() ?: "N/A"
             drawerEmail.text = sessionManager.getUserEmail()
-            
+
             // Make drawer profile picture circular
             drawerProfilePic.clipToOutline = true
-            
+
             val profileUrl = sessionManager.getProfilePic()
             if (!profileUrl.isNullOrEmpty()) {
                 Picasso.get()
@@ -150,7 +151,8 @@ class StudentDashboard : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
+
+        // Handle navigation items
         // Handle navigation items
         navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -188,6 +190,11 @@ class StudentDashboard : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.menu_transcript -> {  // <-- NEW ITEM
+                    startActivity(Intent(this, StudentTranscriptActivity::class.java))
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 R.id.menu_logout -> {
                     performLogout()
                     true
@@ -195,9 +202,8 @@ class StudentDashboard : AppCompatActivity() {
                 else -> false
             }
         }
-    }
-    
-    private fun setupClickListeners() {
+}
+        private fun setupClickListeners() {
         menuIcon.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
