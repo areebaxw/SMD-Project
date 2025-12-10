@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity() {
                             sessionManager.saveUserName(student.full_name)
                             sessionManager.saveRollNo(student.roll_no)
                             sessionManager.saveProfilePic(student.profile_picture_url)
+
                         }
                         
                         // Save credentials for biometric login if requested
@@ -139,6 +140,8 @@ class MainActivity : AppCompatActivity() {
                                 sessionManager.saveUserEmail(teacher.email)
                                 sessionManager.saveUserName(teacher.full_name)
                                 sessionManager.saveProfilePic(teacher.profile_picture_url)
+                                sessionManager.saveEmployeeId(teacher.employee_id)
+
                             }
                             
                             // Save credentials for biometric login if requested

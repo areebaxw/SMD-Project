@@ -195,7 +195,7 @@ class TeacherDashboard : AppCompatActivity() {
         val drawerProfilePic = findViewById<ImageView>(R.id.drawer_profile_pic)
         drawerUserName.text = sessionManager.getUserName()
         drawerEmail.text = sessionManager.getUserEmail()
-        drawerTeacherId.text = "ID: ${sessionManager.getUserId()}"
+        drawerTeacherId.text = "ID: ${sessionManager.getEmployeeId()}"
         Picasso.get().load(sessionManager.getProfilePic())
             .placeholder(R.drawable.ic_launcher_foreground)
             .error(R.drawable.ic_launcher_foreground)
