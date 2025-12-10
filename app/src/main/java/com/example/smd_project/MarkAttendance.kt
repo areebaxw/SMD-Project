@@ -177,7 +177,7 @@ class MarkAttendance : AppCompatActivity() {
                         val courseNames = courses.map { it.course_name }
                         val adapter = ArrayAdapter(
                             this@MarkAttendance,
-                            android.R.layout.simple_spinner_item,
+                            R.layout.spinner_item_white,
                             courseNames
                         )
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

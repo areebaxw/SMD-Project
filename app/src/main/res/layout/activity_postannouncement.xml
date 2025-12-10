@@ -271,6 +271,7 @@
             app:cornerRadius="26dp"
             app:elevation="0dp"
             app:backgroundTint="@color/primary"
+            app:textAllCaps="false"
             style="@style/Widget.MaterialComponents.Button" />
     </LinearLayout>
 
