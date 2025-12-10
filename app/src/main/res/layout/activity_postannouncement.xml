@@ -49,200 +49,158 @@
             android:padding="16dp">
 
             <!-- Course Selection Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#8B2072"
-                app:strokeColor="#8B2072"
-                app:strokeWidth="0dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/card_dropdown_rounded"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:layout_marginBottom="8dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <Spinner
+                    android:id="@+id/spinnerCourse"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_weight="1"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Select Course"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/rounded_input_field"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp">
-
-                        <Spinner
-                            android:id="@+id/spinnerCourse"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="@android:color/transparent"
-                            android:textColor="#333333" />
-
-                        <ImageView
-                            android:id="@+id/spinnerCourseArrow"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/down_arrow"
-                            android:contentDescription="Select"
-                            android:tint="#8B2072"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                <ImageView
+                    android:id="@+id/spinnerCourseArrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/down_arrow"
+                    android:contentDescription="Select"
+                    android:tint="@color/white" />
+            </LinearLayout>
 
             <!-- Announcement Type Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#8B2072"
-                app:strokeColor="#8B2072"
-                app:strokeWidth="0dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/card_dropdown_rounded"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:layout_marginBottom="8dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
+                    android:layout_weight="1"
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Announcement Type"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <LinearLayout
+                        android:alpha="0.7" />
+                    <Spinner
+                        android:id="@+id/spinnerType"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/rounded_input_field"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp">
-
-                        <Spinner
-                            android:id="@+id/spinnerType"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="@android:color/transparent"
-                            android:textColor="#333333" />
-
-                        <ImageView
-                            android:id="@+id/spinnerTypeArrow"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/down_arrow"
-                            android:contentDescription="Select"
-                            android:tint="#8B2072"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:background="@android:color/transparent"
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+
+                <ImageView
+                    android:id="@+id/spinnerTypeArrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/down_arrow"
+                    android:contentDescription="Select"
+                    android:tint="@color/white" />
+            </LinearLayout>
 
             <!-- Title Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#8B2072"
-                app:strokeColor="#8B2072"
-                app:strokeWidth="0dp">
+                android:orientation="vertical"
+                android:background="@drawable/card_dropdown_rounded"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:layout_marginBottom="8dp">
 
-                <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Announcement Title"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:alpha="0.7" />
+
+                <EditText
+                    android:id="@+id/etTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Announcement Title"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <EditText
-                        android:id="@+id/etTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/rounded_input_field"
-                        android:hint="Enter title..."
-                        android:textColorHint="#CCCCCC"
-                        android:textSize="15sp"
-                        android:textColor="#333333"
-                        android:padding="14dp"
-                        android:maxLines="1"
-                        android:inputType="text"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                    android:background="@android:color/transparent"
+                    android:hint="Enter title..."
+                    android:textColorHint="#CCCCCC"
+                    android:textSize="15sp"
+                    android:textColor="#FFFFFF"
+                    android:textCursorDrawable="@drawable/cursor_white"
+                    android:padding="0dp"
+                    android:maxLines="1"
+                    android:inputType="text"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
 
             <!-- Content Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#8B2072"
-                app:strokeColor="#8B2072"
-                app:strokeWidth="0dp">
+                android:orientation="vertical"
+                android:background="@drawable/card_dropdown_rounded"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
+                android:layout_marginBottom="8dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:text="Announcement Content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:alpha="0.7" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Announcement Content"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <EditText
-                        android:id="@+id/etContent"
-                        android:layout_width="match_parent"
-                        android:layout_height="160dp"
-                        android:background="@drawable/rounded_input_field"
-                        android:hint="Enter content..."
-                        android:textColorHint="#CCCCCC"
-                        android:textSize="15sp"
-                        android:textColor="#333333"
-                        android:padding="14dp"
-                        android:gravity="top|start"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:maxLines="8"
-                        android:scrollbars="vertical" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                <EditText
+                    android:id="@+id/etContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:background="@android:color/transparent"
+                    android:hint="Enter content..."
+                    android:textColorHint="#CCCCCC"
+                    android:textSize="15sp"
+                    android:textColor="#FFFFFF"
+                    android:textCursorDrawable="@drawable/cursor_white"
+                    android:padding="0dp"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:maxLines="6"
+                    android:scrollbars="vertical"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
 
             <!-- Spacer -->
             <View

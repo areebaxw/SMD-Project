@@ -96,18 +96,19 @@ class PostAnnouncement : AppCompatActivity() {
 
         val adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, courseNames) {
 
-            // Selected item text color (dark gray - for visibility on white background)
+            // Selected item text color (white)
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(Color.parseColor("#333333"))
+                view.setTextColor(Color.parseColor("#FFFFFF"))
                 view.textSize = 15f
+                view.setPadding(0, 0, 0, 0)
                 return view
             }
 
             // Dropdown items text color (black)
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(Color.parseColor("#333333"))
+                view.setTextColor(Color.parseColor("#000000"))
                 view.textSize = 15f
                 return view
             }
@@ -115,6 +116,7 @@ class PostAnnouncement : AppCompatActivity() {
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCourse.adapter = adapter
+        spinnerCourse.setSelection(0)
 
         spinnerCourse.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -130,18 +132,19 @@ class PostAnnouncement : AppCompatActivity() {
     private fun setupTypeSpinner() {
         val adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, announcementTypes) {
 
-            // Selected item text color (dark gray - for visibility on white background)
+            // Selected item text color (white)
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(Color.parseColor("#333333"))
+                view.setTextColor(Color.parseColor("#FFFFFF"))
                 view.textSize = 15f
+                view.setPadding(0, 0, 0, 0)
                 return view
             }
 
-            // Dropdown items text color (dark gray)
+            // Dropdown items text color (black)
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(Color.parseColor("#333333"))
+                view.setTextColor(Color.parseColor("#000000"))
                 view.textSize = 15f
                 return view
             }
@@ -149,6 +152,7 @@ class PostAnnouncement : AppCompatActivity() {
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerType.adapter = adapter
+        spinnerType.setSelection(0)
 
         spinnerType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
