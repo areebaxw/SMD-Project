@@ -57,11 +57,13 @@ class AnnouncementListActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                // Load student announcements
-                val response = apiService.getStudentAnnouncements()
+                // Load announcements from student dashboard (same as what appears in "Recent Announcements")
+                val response = apiService.getStudentDashboard()
                 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    val announcements = response.body()?.data ?: emptyList()
+                    val dashboard = response.body()?.data
+                    val announcements = dashboard?.announcements ?: emptyList()
+                    
                     if (announcements.isNotEmpty()) {
                         announcementAdapter.updateAnnouncements(announcements)
                     } else {
