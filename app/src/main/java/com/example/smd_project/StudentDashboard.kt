@@ -145,7 +145,7 @@ class StudentDashboard : AppCompatActivity() {
             when (item.title) {
                 "Dashboard" -> { /* maybe reload current activity */ }
                 "Course Registration" -> startActivity(Intent(this, CourseRegistrationActivity::class.java))
-                "My Courses" -> startActivity(Intent(this, CourseListActivity::class.java))
+                "My Courses" -> startActivity(Intent(this, CourseListStudentActivity::class.java))
                 "Evaluations" -> startActivity(Intent(this, AssignmentsActivity::class.java))
                 "Attendance" -> startActivity(Intent(this, StudentAttendanceActivity::class.java))
                 "Fees" -> startActivity(Intent(this, StudentFeesActivity::class.java))
@@ -181,7 +181,7 @@ class StudentDashboard : AppCompatActivity() {
     private fun setupClickListeners() {
         // Quick action buttons
         btnCoursesAction.setOnClickListener {
-            startActivity(Intent(this, CourseListActivity::class.java))
+            startActivity(Intent(this, CourseListStudentActivity::class.java))
         }
         
         btnEvaluationsAction.setOnClickListener {

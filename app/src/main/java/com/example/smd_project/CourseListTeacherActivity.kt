@@ -13,54 +13,54 @@ import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
-class CourseListActivity : AppCompatActivity() {
-    
+class CourseListTeacherActivity : AppCompatActivity() {
+
     private lateinit var sessionManager: SessionManager
     private lateinit var rvCourses: RecyclerView
     private lateinit var courseAdapter: CourseAdapter
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_course_list)
-        
+
         sessionManager = SessionManager(this)
-        
+
         initViews()
         setupRecyclerView()
         loadCourses()
     }
-    
+
     private fun initViews() {
         rvCourses = findViewById(R.id.rvCourses)
-        
+
         // Setup back button
         findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)?.apply {
             setNavigationOnClickListener { finish() }
         }
     }
-    
+
     private fun setupRecyclerView() {
         courseAdapter = CourseAdapter(emptyList()) { course ->
             navigateToCourseDetail(course)
         }
         rvCourses.apply {
-            layoutManager = LinearLayoutManager(this@CourseListActivity)
+            layoutManager = LinearLayoutManager(this@CourseListTeacherActivity)
             adapter = courseAdapter
         }
     }
-    
+
     private fun loadCourses() {
         val apiService = RetrofitClient.getApiService(sessionManager)
-        
+
         lifecycleScope.launch {
             try {
-                val response = apiService.getStudentCourses()
-                
+                val response = apiService.getTeacherCourses()
+
                 if (response.isSuccessful && response.body()?.success == true) {
                     val courses = response.body()?.data ?: emptyList()
                     if (courses.isEmpty()) {
                         Toast.makeText(
-                            this@CourseListActivity,
+                            this@CourseListTeacherActivity,
                             "No courses registered yet",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -69,14 +69,14 @@ class CourseListActivity : AppCompatActivity() {
                     }
                 } else {
                     Toast.makeText(
-                        this@CourseListActivity,
+                        this@CourseListTeacherActivity,
                         response.body()?.message ?: "Failed to load courses",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(
-                    this@CourseListActivity,
+                    this@CourseListTeacherActivity,
                     "Error: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -84,9 +84,9 @@ class CourseListActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun navigateToCourseDetail(course: Course) {
-        val intent = Intent(this, CourseDetailActivity::class.java).apply {
+        val intent = Intent(this, CourseDetailsActivity::class.java).apply {
             putExtra("course_id", course.course_id)
             putExtra("course_name", course.course_name)
             putExtra("course_code", course.course_code)

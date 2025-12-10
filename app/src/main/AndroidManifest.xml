@@ -23,7 +23,11 @@
         android:theme="@style/Theme.SMDProject"
         android:usesCleartextTraffic="true" >
         <activity
-            android:name=".activities.CourseDetailsActivity"
+            android:name=".CourseListTeacherActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CourseDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.StudentTranscriptActivity"
@@ -60,7 +64,7 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".CourseListActivity"
+            android:name=".CourseListStudentActivity"
             android:exported="false" />
         <activity
             android:name=".CourseDetailActivity"
