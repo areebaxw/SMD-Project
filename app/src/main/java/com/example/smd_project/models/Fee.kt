@@ -17,6 +17,15 @@ data class Fee(
     val academic_year: String,
     val student_id: Int
 )
+data class PaymentHistoryItem(
+    val payment_id: Int,
+    val student_id: Int,
+    val fee_id: Int,
+    val amount_paid: Double,
+    val payment_method: String,
+    val remarks: String?,
+    val created_at: String
+)
 
 data class Payment(
     val payment_id: Int,

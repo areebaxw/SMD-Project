@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,9 +16,12 @@ import com.example.smd_project.models.Fee
 import com.example.smd_project.models.StudentCourse
 import com.example.smd_project.models.StudentFeeItem
 import com.example.smd_project.models.UpdateTotalFeeRequest
+import com.example.smd_project.models.PaymentHistoryItem
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class StudentFeesActivity : AppCompatActivity() {
 
@@ -26,6 +30,7 @@ class StudentFeesActivity : AppCompatActivity() {
     private lateinit var feesAdapter: StudentFeesAdapter
     private lateinit var toolbar: Toolbar
     private lateinit var btnPrintFees: Button
+    private lateinit var llPaymentHistoryContainer: LinearLayout
 
     companion object {
         const val CREDIT_COST = 11000 // Fee per credit hour
@@ -52,17 +57,14 @@ class StudentFeesActivity : AppCompatActivity() {
             adapter = feesAdapter
         }
 
-        // Add Print Button programmatically at the bottom
-        btnPrintFees = Button(this).apply {
-            text = "Print Fees"
-            setOnClickListener { printFees() }
-        }
+        // Payment history container
+        llPaymentHistoryContainer = findViewById(R.id.llPaymentHistoryContainer)
 
-        // Add button to layout
-        val parentLayout = findViewById<LinearLayout>(R.id.rootLayout)
-        parentLayout.addView(btnPrintFees)
+        // Print Button
+        btnPrintFees = findViewById(R.id.btnPrintFees)
+        btnPrintFees.setOnClickListener { printFees() }
 
-        Log.d(TAG, "onCreate: Starting to load fees data")
+        // Load fees and their payment histories
         loadFeesData()
     }
 
@@ -71,44 +73,38 @@ class StudentFeesActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Fetch enrolled courses
-                Log.d(TAG, "Fetching enrolled courses")
+                // 1. Fetch student dashboard to get student info
+                val dashboardResponse = apiService.getStudentDashboard()
+                val studentProgram = if (dashboardResponse.isSuccessful && dashboardResponse.body()?.success == true) {
+                    dashboardResponse.body()?.data?.student?.program ?: "N/A"
+                } else "N/A"
+
+
+
+                // 2. Fetch enrolled courses
                 val coursesResponse = apiService.getStudentEnrolledCourses()
                 if (coursesResponse.isSuccessful && coursesResponse.body()?.success == true) {
                     val coursesList: List<StudentCourse> = coursesResponse.body()?.data ?: emptyList()
-                    Log.d(TAG, "Enrolled courses fetched: ${coursesList.size} courses")
 
                     if (coursesList.isNotEmpty()) {
                         val totalCredits = coursesList.sumOf { it.credit_hours }
-                        Log.d(TAG, "Total credits: $totalCredits")
                         val calculatedTotalAmount = totalCredits * CREDIT_COST.toDouble()
-                        Log.d(TAG, "Calculated total amount: $calculatedTotalAmount")
 
-                        // Update total amount in DB
-                        val updateResponse = updateTotalAmountInDB(calculatedTotalAmount)
-                        Log.d(TAG, "Total amount update response: $updateResponse")
-                        if (!updateResponse) {
-                            Toast.makeText(
-                                this@StudentFeesActivity,
-                                "Failed to update total fee in DB",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        // 3. Update total amount in DB
+                        updateTotalAmountInDB(calculatedTotalAmount)
 
-                        // Fetch existing fees
-                        Log.d(TAG, "Fetching existing fees")
+                        // 4. Fetch existing fees
                         val feesResponse = apiService.getStudentFees()
                         val existingFees: List<StudentFeeItem> = if (feesResponse.isSuccessful && feesResponse.body()?.success == true) {
                             feesResponse.body()?.data ?: emptyList()
                         } else emptyList()
-                        Log.d(TAG, "Existing fees fetched: ${existingFees.size}")
 
+                        // 5. Map fees to Fee model
                         val mappedFees = existingFees.map { fee ->
-                            Log.d(TAG, "Mapping fee: $fee")
                             Fee(
                                 fee_id = fee.fee_id,
                                 student_id = fee.student_id,
-                                program = "Enrolled Courses",
+                                program = studentProgram,
                                 semester = fee.semester,
                                 academic_year = fee.academic_year ?: "",
                                 total_amount = calculatedTotalAmount,
@@ -126,7 +122,7 @@ class StudentFeesActivity : AppCompatActivity() {
                                 Fee(
                                     fee_id = 0,
                                     student_id = sessionManager.getUserId(),
-                                    program = "Enrolled Courses",
+                                    program = studentProgram,
                                     semester = 0,
                                     academic_year = "",
                                     total_amount = calculatedTotalAmount,
@@ -138,40 +134,26 @@ class StudentFeesActivity : AppCompatActivity() {
                             )
                         }
 
-                        Log.d(TAG, "Mapped fees size: ${mappedFees.size}")
+                        // 6. Update fees RecyclerView
                         feesAdapter.updateFees(mappedFees)
-                        Log.d(TAG, "Fees adapter updated")
+
+                        // 7. Load all payment histories for all fees
+                        loadAllPaymentHistories(mappedFees)
 
                     } else {
-                        Log.d(TAG, "No courses enrolled yet")
-                        Toast.makeText(
-                            this@StudentFeesActivity,
-                            "No courses enrolled yet",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@StudentFeesActivity, "No courses enrolled yet", Toast.LENGTH_SHORT).show()
                     }
 
                 } else {
-                    Log.e(TAG, "Failed to fetch courses: ${coursesResponse.code()} ${coursesResponse.message()}")
-                    Toast.makeText(
-                        this@StudentFeesActivity,
-                        "Failed to fetch courses",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@StudentFeesActivity, "Failed to fetch courses", Toast.LENGTH_SHORT).show()
                 }
 
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading fees data", e)
-                Toast.makeText(
-                    this@StudentFeesActivity,
-                    "Error: ${e.localizedMessage}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@StudentFeesActivity, "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Update total amount in database
     private suspend fun updateTotalAmountInDB(totalAmount: Double): Boolean {
         val apiService = RetrofitClient.getApiService(sessionManager)
         return try {
@@ -180,15 +162,54 @@ class StudentFeesActivity : AppCompatActivity() {
                 total_amount = totalAmount
             )
             val response = apiService.updateStudentFeeTotal(request)
-            Log.d(TAG, "updateTotalAmountInDB response: ${response.body()}")
             response.isSuccessful && (response.body()?.success == true)
         } catch (e: Exception) {
-            Log.e(TAG, "Exception updating total fee in DB", e)
             false
         }
     }
 
-    // Print fees
+    private fun loadAllPaymentHistories(fees: List<Fee>) {
+        llPaymentHistoryContainer.removeAllViews()
+        val apiService = RetrofitClient.getApiService(sessionManager)
+
+        lifecycleScope.launch {
+            for (fee in fees) {
+                try {
+                    val response = apiService.getFeePaymentHistory(fee.fee_id)
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val historyList: List<PaymentHistoryItem> = response.body()?.data ?: emptyList()
+
+                        historyList.forEach { payment ->
+                            val card = layoutInflater.inflate(R.layout.payment_history_card, llPaymentHistoryContainer, false)
+                            val tvAmount = card.findViewById<TextView>(R.id.tvAmount)
+                            val tvMethod = card.findViewById<TextView>(R.id.tvMethod)
+                            val tvDate = card.findViewById<TextView>(R.id.tvDate)
+
+                            tvAmount.text = "PKR ${String.format("%.2f", payment.amount_paid)}"
+                            tvMethod.text = "Method: ${payment.payment_method}"
+                            tvDate.text = "Date: ${formatDate(payment.created_at)}"
+
+                            llPaymentHistoryContainer.addView(card)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to load payment history for fee ${fee.fee_id}", e)
+                }
+            }
+        }
+    }
+
+    private fun formatDate(dateString: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val date = inputFormat.parse(dateString)
+            date?.let { outputFormat.format(it) } ?: dateString
+        } catch (e: Exception) {
+            dateString
+        }
+    }
+
     private fun printFees() {
         if (feesAdapter.itemCount == 0) {
             Toast.makeText(this, "No fees to print", Toast.LENGTH_SHORT).show()

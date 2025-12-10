@@ -15,8 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.smd_project.models.PostAnnouncementRequest
 import com.example.smd_project.models.Course
+import com.example.smd_project.models.TeacherActivity
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
+import com.example.smd_project.utils.ActivityManager
 import kotlinx.coroutines.launch
 
 class PostAnnouncement : AppCompatActivity() {
@@ -97,20 +99,24 @@ class PostAnnouncement : AppCompatActivity() {
             // Selected item text color (white)
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(Color.WHITE)
+                view.setTextColor(Color.parseColor("#FFFFFF"))
+                view.textSize = 15f
+                view.setPadding(0, 0, 0, 0)
                 return view
             }
 
             // Dropdown items text color (black)
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(Color.BLACK)
+                view.setTextColor(Color.parseColor("#000000"))
+                view.textSize = 15f
                 return view
             }
         }
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCourse.adapter = adapter
+        spinnerCourse.setSelection(0)
 
         spinnerCourse.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -129,20 +135,24 @@ class PostAnnouncement : AppCompatActivity() {
             // Selected item text color (white)
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(Color.WHITE)
+                view.setTextColor(Color.parseColor("#FFFFFF"))
+                view.textSize = 15f
+                view.setPadding(0, 0, 0, 0)
                 return view
             }
 
             // Dropdown items text color (black)
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(Color.BLACK)
+                view.setTextColor(Color.parseColor("#000000"))
+                view.textSize = 15f
                 return view
             }
         }
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerType.adapter = adapter
+        spinnerType.setSelection(0)
 
         spinnerType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -179,6 +189,16 @@ class PostAnnouncement : AppCompatActivity() {
             try {
                 val response = apiService.postAnnouncement(request)
                 if (response.isSuccessful && response.body()?.success == true) {
+                    // Log activity
+                    val activityManager = ActivityManager(this@PostAnnouncement)
+                    val activity = TeacherActivity(
+                        activity_type = TeacherActivity.TYPE_ANNOUNCEMENT,
+                        title = "Announced: $title",
+                        description = "Posted announcement: \"$title\" to ${spinnerCourse.selectedItem}",
+                        relatedName = spinnerCourse.selectedItem?.toString()
+                    )
+                    activityManager.addActivity(activity)
+
                     Toast.makeText(this@PostAnnouncement, "Announcement posted successfully", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {

@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#99FFFFFF"
+            android:background="@drawable/card_bg_light_purple"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:padding="16dp">
@@ -72,10 +72,13 @@
             <!-- Course Section with Label and Dropdown -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:background="@drawable/rounded_spinner_bg"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:layout_marginBottom="12dp">
 
                 <Spinner
                     android:id="@+id/spinnerCourse"
@@ -83,13 +86,15 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textColor="@color/white"
+                    android:textColorHint="@color/white"
                     android:textSize="14sp"
-                    android:background="@android:color/transparent" />
+                    android:background="@android:color/transparent"
+                    android:dropDownSelector="@android:color/transparent" />
 
                 <ImageView
                     android:id="@+id/dropdownArrow"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/down_arrow"
                     android:contentDescription="Dropdown"
                     android:layout_marginStart="8dp"
@@ -99,9 +104,12 @@
             <!-- Date Section -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:background="@drawable/rounded_spinner_bg"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
                 android:layout_marginBottom="16dp">
 
                 <EditText
@@ -119,8 +127,8 @@
 
                 <ImageView
                     android:id="@+id/calendarIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/down_arrow"
                     android:contentDescription="Calendar"
                     android:layout_marginStart="8dp"
@@ -136,35 +144,44 @@
 
                 <TextView
                     android:id="@+id/btnAllPresent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
                     android:text="All Present"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:background="#4CAF50"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
+                    android:background="@drawable/btn_present_rounded"
+                    android:gravity="center"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
                     android:id="@+id/allAbsentButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
                     android:text="All Absent"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:background="#F44336"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp" />
+                    android:background="@drawable/btn_absent_rounded"
+                    android:gravity="center"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Search Bar -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
     <!-- Search Bar -->
     <LinearLayout
@@ -212,8 +229,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="@drawable/square_white"
-            android:padding="12dp"
+            android:background="@drawable/stats_card_bg"
+            android:padding="14dp"
             android:layout_marginEnd="6dp"
             android:gravity="center">
 
@@ -241,8 +258,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="@drawable/square_white"
-            android:padding="12dp"
+            android:background="@drawable/stats_card_bg"
+            android:padding="14dp"
             android:layout_marginStart="3dp"
             android:layout_marginEnd="3dp"
             android:gravity="center">
@@ -271,8 +288,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="@drawable/square_white"
-            android:padding="12dp"
+            android:background="@drawable/stats_card_bg"
+            android:padding="14dp"
             android:layout_marginStart="6dp"
             android:gravity="center">
 
@@ -312,11 +329,13 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvStudents"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:clipToPadding="false" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Submit Button -->
     <LinearLayout

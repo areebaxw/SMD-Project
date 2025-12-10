@@ -21,6 +21,7 @@ import com.example.smd_project.models.DrawerItem
 import com.example.smd_project.models.Notification
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
+import com.example.smd_project.utils.ActivityManager
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 
@@ -44,6 +45,8 @@ class TeacherDashboard : AppCompatActivity() {
     private var courseAdapter: CourseAdapter? = null
     private var announcementAdapter: AnnouncementAdapter? = null
     private var notificationAdapter: NotificationAdapter? = null
+    private var activityAdapter: TeacherActivityAdapter? = null
+    private lateinit var activityManager: ActivityManager
 
     // Drawer views
     private lateinit var drawerLayout: DrawerLayout
@@ -54,6 +57,7 @@ class TeacherDashboard : AppCompatActivity() {
         setContentView(R.layout.activity_teacherdashboard)
 
         sessionManager = SessionManager(this)
+        activityManager = ActivityManager(this)
 
         initViews()
         setupRecyclerViews()
@@ -108,11 +112,13 @@ class TeacherDashboard : AppCompatActivity() {
             adapter = todayClassAdapter
         }
 
-        // Setup recent activity (announcements)
-        announcementAdapter = AnnouncementAdapter(emptyList())
+        // Setup recent activity with new TeacherActivityAdapter
+        activityAdapter = TeacherActivityAdapter(emptyList()) { activity ->
+            showActivityDetailsDialog(activity)
+        }
         rvRecentActivity.apply {
             layoutManager = LinearLayoutManager(this@TeacherDashboard)
-            adapter = announcementAdapter
+            adapter = activityAdapter
         }
 
         // Setup other adapters if RecyclerViews exist
@@ -175,8 +181,10 @@ class TeacherDashboard : AppCompatActivity() {
 
         // Populate header
         val drawerUserName = findViewById<TextView>(R.id.drawer_user_name)
+        val drawerEmail = findViewById<TextView>(R.id.drawer_email)
         val drawerProfilePic = findViewById<ImageView>(R.id.drawer_profile_pic)
         drawerUserName.text = sessionManager.getUserName()
+        drawerEmail.text = sessionManager.getUserEmail()
         Picasso.get().load(sessionManager.getProfilePic())
             .placeholder(R.drawable.ic_launcher_foreground)
             .error(R.drawable.ic_launcher_foreground)
@@ -202,10 +210,64 @@ class TeacherDashboard : AppCompatActivity() {
             findViewById<View>(R.id.btnPostAnnouncement)?.setOnClickListener {
                 startActivity(Intent(this, PostAnnouncement::class.java))
             }
+
+            findViewById<View>(R.id.btnViewAllSchedule)?.setOnClickListener {
+                startActivity(Intent(this, ScheduleActivity::class.java))
+            }
+
+            findViewById<ImageView>(R.id.btnClearActivity)?.setOnClickListener {
+                clearAllActivities()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
 
+    private fun clearAllActivities() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Clear Activities")
+            .setMessage("Are you sure you want to clear all activities?")
+            .setPositiveButton("Yes") { _, _ ->
+                activityManager.clearAllActivities()
+                activityAdapter?.updateActivities(emptyList())
+                Toast.makeText(this, "Activities cleared", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    private fun showActivityDetailsDialog(activity: com.example.smd_project.models.TeacherActivity) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_activity_details, null)
+
+        val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvDialogDescription = dialogView.findViewById<TextView>(R.id.tvDialogDescription)
+        val tvDialogTime = dialogView.findViewById<TextView>(R.id.tvDialogTime)
+        val btnDeleteActivity = dialogView.findViewById<TextView>(R.id.btnDeleteActivity)
+        val btnCloseDialog = dialogView.findViewById<TextView>(R.id.btnCloseDialog)
+
+        tvDialogTitle.text = activity.title
+        tvDialogDescription.text = activity.description
+        tvDialogTime.text = activity.getFormattedTime()
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnCloseDialog.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnDeleteActivity.setOnClickListener {
+            activityManager.removeActivity(activity.activity_id)
+            val updatedActivities = activityManager.getRecentActivities(limit = 5)
+            activityAdapter?.updateActivities(updatedActivities)
+            dialog.dismiss()
+            Toast.makeText(this@TeacherDashboard, "Activity deleted", Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.show()
     }
     private fun performLogout() {
         // Clear session
@@ -293,6 +355,18 @@ class TeacherDashboard : AppCompatActivity() {
             loadCoursesData()
             loadAnnouncementsData()
             loadNotificationsData()
+            loadRecentActivitiesData()
+        }
+    }
+
+    private fun loadRecentActivitiesData() {
+        try {
+            val activities = activityManager.getRecentActivities(limit = 5)
+            if (activities.isNotEmpty()) {
+                activityAdapter?.updateActivities(activities)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -378,5 +452,6 @@ class TeacherDashboard : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadDashboardData()
+        loadRecentActivitiesData()
     }
 }

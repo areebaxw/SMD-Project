@@ -21,8 +21,10 @@ import com.example.smd_project.models.EvaluationWithMarks
 import com.example.smd_project.models.EvaluationMarksResponse
 import com.example.smd_project.models.MarksRecordItem
 import com.example.smd_project.models.Student
+import com.example.smd_project.models.TeacherActivity
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
+import com.example.smd_project.utils.ActivityManager
 import kotlinx.coroutines.launch
 
 class EnterMarks : AppCompatActivity() {
@@ -898,6 +900,15 @@ class EnterMarks : AppCompatActivity() {
                 val response = apiService.enterMarks(request)
                 
                 if (response.isSuccessful && response.body()?.success == true) {
+                    // Log activity
+                    val activityManager = ActivityManager(this@EnterMarks)
+                    val activity = TeacherActivity(
+                        activity_type = TeacherActivity.TYPE_MARKS,
+                        title = "Marks Entered: Evaluation #$evaluationNumber",
+                        description = "Updated marks for $title ($selectedCourseId) - ${marksRecords.size} students"
+                    )
+                    activityManager.addActivity(activity)
+
                     Toast.makeText(this@EnterMarks,
                         "✓ Marks updated successfully",
                         Toast.LENGTH_SHORT).show()
