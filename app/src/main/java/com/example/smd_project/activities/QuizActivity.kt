@@ -16,6 +16,7 @@ import com.example.smd_project.adapters.CourseSelectorAdapter
 import com.example.smd_project.adapters.StudentMarkDisplayAdapter
 import com.example.smd_project.models.Mark
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
@@ -94,6 +95,12 @@ class QuizActivity : AppCompatActivity() {
     }
     
     private fun loadMarksData() {
+        // Check network before making API call
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection. Marks require online access.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(sessionManager)
         
         lifecycleScope.launch {

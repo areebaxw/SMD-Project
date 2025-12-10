@@ -15,12 +15,15 @@ import com.example.smd_project.R
 import com.example.smd_project.adapters.StudentNotificationAdapter
 import com.example.smd_project.models.Notification
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class StudentNotificationActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: StudentRepository
     private lateinit var rvNotifications: RecyclerView
     private lateinit var notificationAdapter: StudentNotificationAdapter
     private lateinit var backButton: ImageView
@@ -37,11 +40,13 @@ class StudentNotificationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_student_notification)
 
         sessionManager = SessionManager(this)
+        repository = StudentRepository(this)
 
         initViews()
         setupRecyclerView()
         setupClickListeners()
-        loadNotifications()
+        observeNotifications()
+        observeUnreadCount()
     }
 
     private fun initViews() {
@@ -81,80 +86,72 @@ class StudentNotificationActivity : AppCompatActivity() {
         }
 
         swipeRefresh.setOnRefreshListener {
-            loadNotifications()
+            refreshNotifications()
         }
     }
 
-    private fun loadNotifications() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
-        lifecycleScope.launch {
-            try {
-                showLoading(true)
-
-                val response = apiService.getStudentNotifications(limit = 100)
-
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val notificationList = response.body()?.data ?: emptyList()
-
-                    notifications.clear()
-                    notifications.addAll(notificationList)
-
-                    notificationAdapter.notifyDataSetChanged()
-
-                    // Update unread count
-                    val unreadCount = notifications.count { it.is_read == 0 }
-                    updateUnreadCount(unreadCount)
-
-                    // Show/hide empty state
-                    if (notifications.isEmpty()) {
-                        tvNoNotifications.visibility = View.VISIBLE
-                        rvNotifications.visibility = View.GONE
-                    } else {
-                        tvNoNotifications.visibility = View.GONE
-                        rvNotifications.visibility = View.VISIBLE
-                    }
-                } else {
-                    Toast.makeText(
-                        this@StudentNotificationActivity,
-                        "Failed to load notifications",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@StudentNotificationActivity,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                e.printStackTrace()
-            } finally {
-                showLoading(false)
+    private fun observeNotifications() {
+        repository.getNotifications(100).observe(this) { notificationEntities ->
+            val notificationList = notificationEntities.map { entity ->
+                Notification(
+                    notification_id = entity.notification_id,
+                    recipient_type = entity.recipient_type,
+                    recipient_id = entity.recipient_id ?: 0,
+                    title = entity.title,
+                    message = entity.message,
+                    notification_type = entity.notification_type,
+                    is_read = entity.is_read,
+                    created_at = entity.created_at
+                )
             }
+            
+            notifications.clear()
+            notifications.addAll(notificationList)
+            notificationAdapter.notifyDataSetChanged()
+            
+            // Show/hide empty state
+            if (notifications.isEmpty()) {
+                tvNoNotifications.visibility = View.VISIBLE
+                rvNotifications.visibility = View.GONE
+            } else {
+                tvNoNotifications.visibility = View.GONE
+                rvNotifications.visibility = View.VISIBLE
+            }
+            
+            showLoading(false)
+        }
+        
+        // Initial refresh
+        refreshNotifications()
+    }
+    
+    private fun observeUnreadCount() {
+        repository.getUnreadNotificationCount().observe(this) { unreadCount ->
+            updateUnreadCount(unreadCount)
+        }
+    }
+    
+    private fun refreshNotifications() {
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+            swipeRefresh.isRefreshing = false
+            return
+        }
+        
+        lifecycleScope.launch {
+            swipeRefresh.isRefreshing = true
+            repository.refreshNotifications()
+            swipeRefresh.isRefreshing = false
         }
     }
 
     private fun markNotificationAsRead(notification: Notification) {
         if (notification.is_read == 1) return // Already read
 
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
         lifecycleScope.launch {
             try {
-                val response = apiService.markStudentNotificationAsRead(notification.notification_id)
-
-                if (response.isSuccessful && response.body()?.success == true) {
-                    // Update local notification status
-                    val index = notifications.indexOfFirst { it.notification_id == notification.notification_id }
-                    if (index != -1) {
-                        notifications[index] = notification.copy(is_read = 1)
-                        notificationAdapter.notifyItemChanged(index)
-
-                        // Update unread count
-                        val unreadCount = notifications.count { it.is_read == 0 }
-                        updateUnreadCount(unreadCount)
-                    }
-                }
+                repository.markNotificationAsRead(notification.notification_id)
+                // LiveData will automatically update the UI
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -184,8 +181,10 @@ class StudentNotificationActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // Refresh notifications when returning to this activity
-        if (::notificationAdapter.isInitialized) {
-            loadNotifications()
+        if (NetworkUtils.isOnline(this)) {
+            lifecycleScope.launch {
+                repository.refreshNotifications()
+            }
         }
     }
 }

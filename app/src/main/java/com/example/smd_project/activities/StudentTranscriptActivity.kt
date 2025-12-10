@@ -13,16 +13,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.smd_project.R
 import com.example.smd_project.adapters.TranscriptCourseAdapter
 import com.example.smd_project.models.CGPARequest
 import com.example.smd_project.models.TranscriptCourse
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class StudentTranscriptActivity : AppCompatActivity() {
 
+    private lateinit var repository: StudentRepository
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var spinnerSemesters: Spinner
     private lateinit var rvCourses: RecyclerView
     private lateinit var tvTotalCredits: TextView
@@ -41,6 +46,8 @@ class StudentTranscriptActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_student_transcript)
 
+        repository = StudentRepository(this)
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         spinnerSemesters = findViewById(R.id.spinner_semesters)
         rvCourses = findViewById(R.id.rv_transcript_courses)
         tvTotalCredits = findViewById(R.id.tv_total_credits_value)
@@ -52,10 +59,29 @@ class StudentTranscriptActivity : AppCompatActivity() {
         rvCourses.layoutManager = LinearLayoutManager(this)
         rvCourses.adapter = adapter
 
+        setupSwipeRefresh()
         loadTranscript()
     }
 
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            if (NetworkUtils.isOnline(this)) {
+                loadTranscript()
+            } else {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+
     private fun loadTranscript() {
+        // Check network before making API call
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection. Transcript requires online access.", Toast.LENGTH_SHORT).show()
+            swipeRefreshLayout.isRefreshing = false
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(SessionManager(this))
         lifecycleScope.launch {
             try {
@@ -95,6 +121,8 @@ class StudentTranscriptActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Exception fetching transcript", e)
+            } finally {
+                swipeRefreshLayout.isRefreshing = false
             }
         }
     }

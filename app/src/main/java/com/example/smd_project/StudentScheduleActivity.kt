@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.DayScheduleAdapter
 import com.example.smd_project.models.Schedule
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
@@ -50,6 +51,12 @@ class StudentScheduleActivity : AppCompatActivity() {
     }
     
     private fun loadSchedule() {
+        // Check network before making API call
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection. Schedule requires online access.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(sessionManager)
         
         lifecycleScope.launch {
@@ -72,10 +79,9 @@ class StudentScheduleActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(
                     this@StudentScheduleActivity,
-                    "Error: ${e.message}",
+                    "Failed to load schedule. Please check your connection.",
                     Toast.LENGTH_SHORT
                 ).show()
-                e.printStackTrace()
             }
         }
     }

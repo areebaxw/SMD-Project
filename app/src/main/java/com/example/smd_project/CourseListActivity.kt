@@ -7,15 +7,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.smd_project.adapters.CourseAdapter
 import com.example.smd_project.models.Course
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class CourseListActivity : AppCompatActivity() {
     
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: StudentRepository
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var rvCourses: RecyclerView
     private lateinit var courseAdapter: CourseAdapter
     
@@ -24,13 +29,16 @@ class CourseListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_course_list)
         
         sessionManager = SessionManager(this)
+        repository = StudentRepository(this)
         
         initViews()
         setupRecyclerView()
-        loadCourses()
+        setupSwipeRefresh()
+        observeCourses()
     }
     
     private fun initViews() {
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         rvCourses = findViewById(R.id.rvCourses)
         
         // Setup back button
@@ -49,39 +57,59 @@ class CourseListActivity : AppCompatActivity() {
         }
     }
     
-    private fun loadCourses() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
-        lifecycleScope.launch {
-            try {
-                val response = apiService.getStudentCourses()
-                
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val courses = response.body()?.data ?: emptyList()
-                    if (courses.isEmpty()) {
-                        Toast.makeText(
-                            this@CourseListActivity,
-                            "No courses registered yet",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        courseAdapter.updateCourses(courses)
-                    }
-                } else {
-                    Toast.makeText(
-                        this@CourseListActivity,
-                        response.body()?.message ?: "Failed to load courses",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (e: Exception) {
+    private fun observeCourses() {
+        repository.getCourses().observe(this) { enrollments ->
+            val courses = enrollments.map { enrollment ->
+                Course(
+                    course_id = enrollment.course_id,
+                    course_code = enrollment.course_code ?: "",
+                    course_name = enrollment.course_name ?: "",
+                    description = enrollment.description,
+                    credit_hours = enrollment.credit_hours ?: 0,
+                    semester = enrollment.semester?.toIntOrNull(),
+                    is_required = 0,
+                    is_active = 1,
+                    instructors = enrollment.teacher_name,
+                    schedule = null,
+                    enrolled_students = null,
+                    grade = enrollment.grade,
+                    gpa = enrollment.gpa,
+                    status = enrollment.status
+                )
+            }
+            
+            if (courses.isEmpty()) {
                 Toast.makeText(
                     this@CourseListActivity,
-                    "Error: ${e.message}",
+                    "No courses registered yet",
                     Toast.LENGTH_SHORT
                 ).show()
-                e.printStackTrace()
+            } else {
+                courseAdapter.updateCourses(courses)
             }
+        }
+        
+        // Initial refresh
+        refreshCourses()
+    }
+    
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            refreshCourses()
+        }
+    }
+    
+    private fun refreshCourses() {
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+            swipeRefreshLayout.isRefreshing = false
+            return
+        }
+        
+        lifecycleScope.launch {
+            swipeRefreshLayout.isRefreshing = true
+            repository.refreshCourses()
+            swipeRefreshLayout.isRefreshing = false
         }
     }
     

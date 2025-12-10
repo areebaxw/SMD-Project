@@ -7,13 +7,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.AnnouncementAdapter
-import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class AnnouncementListActivity : AppCompatActivity() {
     
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: StudentRepository
     private lateinit var rvAnnouncements: RecyclerView
     private lateinit var announcementAdapter: AnnouncementAdapter
     
@@ -22,6 +24,7 @@ class AnnouncementListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_announcement_list)
         
         sessionManager = SessionManager(this)
+        repository = StudentRepository(this)
         
         initViews()
         setupRecyclerView()
@@ -53,19 +56,25 @@ class AnnouncementListActivity : AppCompatActivity() {
     }
     
     private fun loadAnnouncements() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
-                // Load announcements from student dashboard (same as what appears in "Recent Announcements")
-                val response = apiService.getStudentDashboard()
+                // Use repository to get cached dashboard data
+                val result = repository.getDashboardData(forceRefresh = false)
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val dashboard = response.body()?.data
+                if (result.isSuccess) {
+                    val dashboard = result.getOrNull()
                     val announcements = dashboard?.announcements ?: emptyList()
                     
                     if (announcements.isNotEmpty()) {
                         announcementAdapter.updateAnnouncements(announcements)
+                        
+                        if (!NetworkUtils.isOnline(this@AnnouncementListActivity)) {
+                            Toast.makeText(
+                                this@AnnouncementListActivity,
+                                "Showing cached announcements (offline)",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     } else {
                         Toast.makeText(
                             this@AnnouncementListActivity,
@@ -76,14 +85,14 @@ class AnnouncementListActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(
                         this@AnnouncementListActivity,
-                        response.body()?.message ?: "Failed to load announcements",
+                        "Failed to load announcements",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(
                     this@AnnouncementListActivity,
-                    "Error: ${e.message}",
+                    "Error loading announcements",
                     Toast.LENGTH_SHORT
                 ).show()
             }

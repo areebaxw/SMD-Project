@@ -12,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.smd_project.activities.AssignmentsActivity
 import com.example.smd_project.activities.CourseRegistrationActivity
 import com.example.smd_project.activities.StudentNotificationActivity
@@ -21,7 +22,10 @@ import DrawerAdapter
 import com.example.smd_project.adapters.TodayClassAdapter
 import com.example.smd_project.models.DrawerItem
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
+import com.example.smd_project.utils.SyncManager
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
@@ -29,8 +33,10 @@ import kotlinx.coroutines.launch
 class StudentDashboard : AppCompatActivity() {
     
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: StudentRepository
     
     // Views
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var ivProfilePic: ImageView
     private lateinit var tvStudentName: TextView
     private lateinit var tvRollNo: TextView
@@ -41,6 +47,7 @@ class StudentDashboard : AppCompatActivity() {
     private lateinit var menuIcon: ImageView
     private lateinit var notificationIcon: ImageView
     private lateinit var tvNotificationBadge: TextView
+    private lateinit var tvOfflineIndicator: TextView
     
     // Drawer
     private lateinit var drawerLayout: DrawerLayout
@@ -61,23 +68,28 @@ class StudentDashboard : AppCompatActivity() {
         setContentView(R.layout.activity_studentdashboard)
         
         sessionManager = SessionManager(this)
+        repository = StudentRepository(this)
         
         initViews()
         setupRecyclerViews()
         setupDrawer()
         setupClickListeners()
+        setupSwipeRefresh()
         setupFCMToken()
+        setupPeriodicSync()
         loadDashboardData()
-        loadUnreadNotificationCount()
+        observeUnreadNotifications()
     }
     
     private fun initViews() {
         // Profile Views
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         ivProfilePic = findViewById(R.id.ivProfilePic)
         tvStudentName = findViewById(R.id.tvStudentName)
         tvRollNo = findViewById(R.id.tvRollNo)
         tvCGPA = findViewById(R.id.tvCGPA)
         tvAttendancePercentage = findViewById(R.id.tvAttendancePercentage)
+        tvOfflineIndicator = findViewById(R.id.tvOfflineIndicator)
         
         // RecyclerViews
         rvTodayClasses = findViewById(R.id.rvTodayClasses)
@@ -97,6 +109,9 @@ class StudentDashboard : AppCompatActivity() {
         // Drawer
         drawerLayout = findViewById(R.id.drawer_layout)
         drawerRecyclerView = findViewById(R.id.drawerRecyclerView)
+        
+        // Update offline indicator
+        updateOfflineIndicator()
         
         // Load profile picture
         val profileUrl = sessionManager.getProfilePic()
@@ -210,63 +225,130 @@ class StudentDashboard : AppCompatActivity() {
     }
     
     private fun loadDashboardData() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
-                val response = apiService.getStudentDashboard()
+                val result = repository.getDashboardData(forceRefresh = false)
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val dashboard = response.body()?.data
-                    
+                if (result.isSuccess) {
+                    val dashboard = result.getOrNull()
                     dashboard?.let {
-                        // Update UI with dashboard data
-                        tvStudentName.text = it.student.full_name
-                        tvRollNo.text = it.student.roll_no
-                        // SGPA and CGPA are dynamically loaded from the API
-
-                        tvCGPA.text = String.format("%.2f", it.student.cgpa)
-                        // Overall attendance percentage across all courses
-                        tvAttendancePercentage.text = String.format("%.0f%%", it.attendance_percentage)
+                        updateUI(it)
                         
-                        // Load profile picture
-                        it.student.profile_picture_url?.let { url ->
-                            if (url.isNotEmpty()) {
-                                Picasso.get()
-                                    .load(url)
-                                    .placeholder(R.drawable.ic_launcher_foreground)
-                                    .into(ivProfilePic)
-                            }
+                        // Show offline indicator if needed
+                        if (!NetworkUtils.isOnline(this@StudentDashboard)) {
+                            Toast.makeText(this@StudentDashboard, 
+                                "Showing cached data (offline)", 
+                                Toast.LENGTH_SHORT).show()
                         }
-                        
-                        // Update RecyclerViews
-                        android.util.Log.d("StudentDashboard", "Today's classes count: ${it.today_classes.size}")
-                        it.today_classes.forEach { cls ->
-                            android.util.Log.d("StudentDashboard", "Class: ${cls.course_name} on ${cls.day_of_week} at ${cls.start_time}")
-                        }
-                        
-                        if (it.today_classes.isNotEmpty()) {
-                            todayClassAdapter.updateClasses(it.today_classes)
-                            rvTodayClasses.visibility = View.VISIBLE
-                        } else {
-                            android.util.Log.d("StudentDashboard", "No classes for today")
-                            rvTodayClasses.visibility = View.GONE
-                        }
-                        
-                        if (it.announcements.isNotEmpty()) {
-                            announcementAdapter.updateAnnouncements(it.announcements)
-                        }
+                    } ?: run {
+                        // No cached data available
+                        Toast.makeText(this@StudentDashboard, 
+                            "No data available. Please connect to internet.", 
+                            Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this@StudentDashboard, 
-                        response.body()?.message ?: "Failed to load dashboard", 
-                        Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
+                android.util.Log.e("StudentDashboard", "Error loading data", e)
                 Toast.makeText(this@StudentDashboard, 
-                    "Error: ${e.message}", 
+                    "Error loading data", 
                     Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
+            } finally {
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+    
+    private fun updateUI(dashboardData: com.example.smd_project.models.StudentDashboard) {
+        // Update UI with dashboard data
+        tvStudentName.text = dashboardData.student.full_name
+        tvRollNo.text = dashboardData.student.roll_no
+        tvCGPA.text = String.format("%.2f", dashboardData.student.cgpa)
+        tvAttendancePercentage.text = String.format("%.0f%%", dashboardData.attendance_percentage)
+        
+        // Load profile picture
+        dashboardData.student.profile_picture_url?.let { url ->
+            if (url.isNotEmpty()) {
+                Picasso.get()
+                    .load(url)
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(ivProfilePic)
+            }
+        }
+        
+        // Update RecyclerViews
+        android.util.Log.d("StudentDashboard", "Today's classes count: ${dashboardData.today_classes.size}")
+        
+        if (dashboardData.today_classes.isNotEmpty()) {
+            todayClassAdapter.updateClasses(dashboardData.today_classes)
+            rvTodayClasses.visibility = View.VISIBLE
+        } else {
+            android.util.Log.d("StudentDashboard", "No classes for today")
+            rvTodayClasses.visibility = View.GONE
+        }
+        
+        if (dashboardData.announcements.isNotEmpty()) {
+            announcementAdapter.updateAnnouncements(dashboardData.announcements)
+        }
+    }
+    
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            if (NetworkUtils.isOnline(this)) {
+                refreshDashboard()
+            } else {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+    
+    private fun refreshDashboard() {
+        lifecycleScope.launch {
+            try {
+                swipeRefreshLayout.isRefreshing = true
+                
+                // Force refresh from network
+                val result = repository.getDashboardData(forceRefresh = true)
+                
+                if (result.isSuccess) {
+                    val dashboard = result.getOrNull()
+                    dashboard?.let {
+                        updateUI(it)
+                        Toast.makeText(this@StudentDashboard, "Data updated", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                
+                updateOfflineIndicator()
+            } catch (e: Exception) {
+                android.util.Log.e("StudentDashboard", "Error refreshing", e)
+                Toast.makeText(this@StudentDashboard, "Refresh failed", Toast.LENGTH_SHORT).show()
+            } finally {
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+    
+    private fun updateOfflineIndicator() {
+        if (NetworkUtils.isOnline(this)) {
+            tvOfflineIndicator.visibility = View.GONE
+        } else {
+            tvOfflineIndicator.visibility = View.VISIBLE
+            tvOfflineIndicator.text = "Offline Mode"
+        }
+    }
+    
+    private fun setupPeriodicSync() {
+        // Schedule background sync
+        SyncManager.schedulePeriodicSync(this)
+    }
+    
+    private fun observeUnreadNotifications() {
+        repository.getUnreadNotificationCount().observe(this) { unreadCount ->
+            if (unreadCount > 0) {
+                tvNotificationBadge.visibility = View.VISIBLE
+                tvNotificationBadge.text = if (unreadCount > 99) "99+" else unreadCount.toString()
+            } else {
+                tvNotificationBadge.visibility = View.GONE
             }
         }
     }
@@ -282,7 +364,12 @@ class StudentDashboard : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadDashboardData()
-        loadUnreadNotificationCount()
+        updateOfflineIndicator()
+        
+        // Trigger background sync if online
+        if (NetworkUtils.isOnline(this)) {
+            SyncManager.syncDashboard(this)
+        }
     }
     
     private fun setupFCMToken() {
@@ -306,6 +393,11 @@ class StudentDashboard : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                if (!NetworkUtils.isOnline(this@StudentDashboard)) {
+                    android.util.Log.d("FCM", "Offline - will register token later")
+                    return@launch
+                }
+                
                 val response = apiService.registerFCMToken(
                     mapOf(
                         "fcm_token" to token,
@@ -319,30 +411,6 @@ class StudentDashboard : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 android.util.Log.e("FCM", "Error registering token: ${e.message}")
-            }
-        }
-    }
-
-    private fun loadUnreadNotificationCount() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
-        lifecycleScope.launch {
-            try {
-                val response = apiService.getUnreadNotificationsCount()
-
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val unreadCount = response.body()?.data?.unreadCount ?: 0
-
-                    if (unreadCount > 0) {
-                        tvNotificationBadge.visibility = View.VISIBLE
-                        tvNotificationBadge.text = if (unreadCount > 99) "99+" else unreadCount.toString()
-                    } else {
-                        tvNotificationBadge.visibility = View.GONE
-                    }
-                }
-            } catch (e: Exception) {
-                // Silently fail - notification badge is not critical
-                android.util.Log.e("Notification", "Error loading unread count: ${e.message}")
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.smd_project.adapters.StudentFeesAdapter
 import com.example.smd_project.models.Fee
 import com.example.smd_project.models.StudentCourse
@@ -18,6 +19,8 @@ import com.example.smd_project.models.StudentFeeItem
 import com.example.smd_project.models.UpdateTotalFeeRequest
 import com.example.smd_project.models.PaymentHistoryItem
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -26,6 +29,8 @@ import java.util.Locale
 class StudentFeesActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: StudentRepository
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var rvFees: RecyclerView
     private lateinit var feesAdapter: StudentFeesAdapter
     private lateinit var toolbar: Toolbar
@@ -42,6 +47,7 @@ class StudentFeesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_student_fees)
 
         sessionManager = SessionManager(this)
+        repository = StudentRepository(this)
 
         // Toolbar setup
         toolbar = findViewById(R.id.toolbar)
@@ -70,8 +76,52 @@ class StudentFeesActivity : AppCompatActivity() {
         btnPrintFees = findViewById(R.id.btnPrintFees)
         btnPrintFees.setOnClickListener { printFees() }
 
+        // Setup swipe refresh
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        setupSwipeRefresh()
+        
         // Load fees and their payment histories
-        loadFeesData()
+        observeFees()
+    }
+    
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            if (NetworkUtils.isOnline(this)) {
+                lifecycleScope.launch {
+                    repository.refreshFees()
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            } else {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+    
+    private fun observeFees() {
+        repository.getFees().observe(this) { feeEntities ->
+            val fees = feeEntities.map { entity ->
+                Fee(
+                    fee_id = entity.fee_id,
+                    student_id = entity.student_id,
+                    program = entity.program ?: "N/A",
+                    semester = entity.semester ?: 0,
+                    academic_year = entity.academic_year ?: "",
+                    total_amount = entity.total_amount,
+                    paid_amount = entity.paid_amount,
+                    remaining_amount = entity.remaining_amount,
+                    payment_status = entity.payment_status,
+                    due_date = entity.due_date
+                )
+            }
+            feesAdapter.updateFees(fees)
+            swipeRefreshLayout.isRefreshing = false
+        }
+        
+        // Initial refresh
+        lifecycleScope.launch {
+            repository.refreshFees()
+        }
     }
 
     private fun loadFeesData() {

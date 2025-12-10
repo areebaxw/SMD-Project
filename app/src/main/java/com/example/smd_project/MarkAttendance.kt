@@ -21,8 +21,11 @@ import com.example.smd_project.models.Student
 import com.example.smd_project.models.TodayAttendanceItem
 import com.example.smd_project.models.TeacherActivity
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.TeacherRepository
+import com.example.smd_project.repository.AttendanceRecord
 import com.example.smd_project.utils.SessionManager
 import com.example.smd_project.utils.ActivityManager
+import com.example.smd_project.utils.NetworkUtils
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,15 +51,19 @@ class MarkAttendance : AppCompatActivity() {
     
     private lateinit var attendanceAdapter: AttendanceStudentAdapter
     private val attendanceMap = mutableMapOf<Int, String>() // student_id to status (Present/Absent/Late)
+    private val studentNamesMap = mutableMapOf<Int, String>() // student_id to name
+    private val studentRollNoMap = mutableMapOf<Int, String>() // student_id to roll_no
     private var selectedCourseId: Int = 0
     private var courses: List<Course> = emptyList()
     private var allStudents: List<Student> = emptyList()
+    private lateinit var repository: TeacherRepository
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_markattendance)
         
         sessionManager = SessionManager(this)
+        repository = TeacherRepository(this)
         
         initViews()
         setupRecyclerView()
@@ -200,6 +207,12 @@ class MarkAttendance : AppCompatActivity() {
     }
     
     private fun loadStudents(courseId: Int) {
+        // Check network before making API call
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection. Cannot load students.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(sessionManager)
         
         lifecycleScope.launch {
@@ -211,6 +224,12 @@ class MarkAttendance : AppCompatActivity() {
                     allStudents = students
                     searchEditText.text.clear()
                     attendanceAdapter.updateStudents(students)
+                    
+                    // Store student names and roll numbers for offline sync
+                    students.forEach { student ->
+                        studentNamesMap[student.student_id] = student.full_name
+                        studentRollNoMap[student.student_id] = student.roll_no
+                    }
                     
                     // Fetch today's attendance records first
                     loadTodayAttendance(courseId, students)
@@ -224,7 +243,7 @@ class MarkAttendance : AppCompatActivity() {
                         Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MarkAttendance, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MarkAttendance, "Error loading students", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
             }
         }
@@ -300,30 +319,28 @@ class MarkAttendance : AppCompatActivity() {
             return
         }
         
+        // Get the selected date from etDate field
+        val selectedDate = etDate.text.toString()
+        
+        // Create attendance records for repository
         val records = attendanceMap.map { (studentId, status) ->
-            AttendanceItem(
-                studentId = studentId,
+            AttendanceRecord(
+                student_id = studentId,
+                student_name = studentNamesMap[studentId],
+                roll_no = studentRollNoMap[studentId],
                 status = status
             )
         }
         
-        // Get the selected date from etDate field
-        val selectedDate = etDate.text.toString()
-        
-        val request = MarkAttendanceRequest(
-            courseId = selectedCourseId,
-            attendanceRecords = records,
-            attendanceDate = selectedDate  // Add the selected date to the request
-        )
-        
-        
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
-                val response = apiService.markAttendance(request)
+                val result = repository.markAttendance(
+                    courseId = selectedCourseId,
+                    date = selectedDate,
+                    attendanceRecords = records
+                )
                 
-                if (response.isSuccessful && response.body()?.success == true) {
+                if (result.isSuccess) {
                     // Log activity
                     val activityManager = ActivityManager(this@MarkAttendance)
                     val presentCount = attendanceMap.values.count { it == "Present" }
@@ -334,13 +351,16 @@ class MarkAttendance : AppCompatActivity() {
                     )
                     activityManager.addActivity(activity)
 
-                    Toast.makeText(this@MarkAttendance,
-                        "Attendance marked successfully for $selectedDate",
-                        Toast.LENGTH_SHORT).show()
+                    val message = if (NetworkUtils.isOnline(this@MarkAttendance)) {
+                        "Attendance marked successfully for $selectedDate"
+                    } else {
+                        "Attendance saved locally. Will sync when online."
+                    }
+                    Toast.makeText(this@MarkAttendance, message, Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
                     Toast.makeText(this@MarkAttendance,
-                        response.body()?.message ?: "Failed to mark attendance",
+                        "Failed to mark attendance",
                         Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {

@@ -19,15 +19,18 @@ import com.example.smd_project.models.Course
 import com.example.smd_project.models.Announcement
 import com.example.smd_project.models.DrawerItem
 import com.example.smd_project.models.Notification
-import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.TeacherRepository
+import com.example.smd_project.sync.TeacherSyncWorker
 import com.example.smd_project.utils.SessionManager
 import com.example.smd_project.utils.ActivityManager
+import com.example.smd_project.utils.NetworkUtils
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 
 class TeacherDashboard : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: TeacherRepository
     private lateinit var ivProfilePic: ImageView
     private lateinit var tvTeacherName: TextView
     private lateinit var tvEmployeeId: TextView
@@ -36,6 +39,7 @@ class TeacherDashboard : AppCompatActivity() {
     private lateinit var tvPendingTasksCount: TextView
     private lateinit var rvTodayClasses: RecyclerView
     private lateinit var rvRecentActivity: RecyclerView
+    private var tvOfflineIndicator: TextView? = null
 
     private var rvCourses: RecyclerView? = null
     private var rvAnnouncements: RecyclerView? = null
@@ -57,6 +61,7 @@ class TeacherDashboard : AppCompatActivity() {
         setContentView(R.layout.activity_teacherdashboard)
 
         sessionManager = SessionManager(this)
+        repository = TeacherRepository(this)
         activityManager = ActivityManager(this)
 
         initViews()
@@ -65,6 +70,8 @@ class TeacherDashboard : AppCompatActivity() {
         setupClickListeners()
         loadDashboardData()
         setupSwipeRefresh()
+        setupPeriodicSync()
+        observePendingSync()
     }
 
     private fun initViews() {
@@ -77,6 +84,7 @@ class TeacherDashboard : AppCompatActivity() {
             tvPendingTasksCount = findViewById(R.id.tvPendingTasksCount)
             rvTodayClasses = findViewById(R.id.rvTodayClasses)
             rvRecentActivity = findViewById(R.id.rvRecentActivity)
+            tvOfflineIndicator = findViewById(R.id.tvOfflineIndicator)
 
             drawerLayout = findViewById(R.id.drawer_layout)
             drawerRecyclerView = findViewById(R.id.drawerRecyclerView)
@@ -289,72 +297,101 @@ class TeacherDashboard : AppCompatActivity() {
     private fun setupSwipeRefresh() {
         // SwipeRefreshLayout not available in current layout
     }
+    
+    private fun setupPeriodicSync() {
+        TeacherSyncWorker.schedulePeriodicSync(this)
+    }
+    
+    private fun observePendingSync() {
+        repository.getPendingSyncCount().observe(this) { count ->
+            if (count > 0) {
+                tvPendingTasksCount.text = count.toString()
+            }
+        }
+    }
+    
+    private fun updateOfflineIndicator() {
+        tvOfflineIndicator?.let { indicator ->
+            if (NetworkUtils.isOnline(this)) {
+                indicator.visibility = View.GONE
+            } else {
+                indicator.visibility = View.VISIBLE
+                indicator.text = "Offline Mode"
+            }
+        }
+    }
 
     private fun loadDashboardData() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
         tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
+        updateOfflineIndicator()
 
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherDashboard()
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body?.success == true) {
-                        val dashboard = body.data
-                        dashboard?.let {
-                            it.teacher?.let { teacher ->
-                                tvTeacherName.text = teacher.full_name
-                                tvEmployeeId.text = teacher.email
-                                teacher.profile_picture_url?.let { url ->
-                                    if (url.isNotEmpty()) {
-                                        Picasso.get()
-                                            .load(url)
-                                            .placeholder(R.drawable.ic_launcher_foreground)
-                                            .error(R.drawable.ic_launcher_foreground)
-                                            .into(ivProfilePic)
-                                    }
-                                }
-                            } ?: run {
-                                tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
-                                tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
-                                val profileUrl = sessionManager.getProfilePic()
-                                if (!profileUrl.isNullOrEmpty()) {
+                val result = repository.getDashboardData(forceRefresh = false)
+                
+                if (result.isSuccess) {
+                    val dashboard = result.getOrNull()
+                    
+                    dashboard?.let {
+                        it.teacher?.let { teacher ->
+                            tvTeacherName.text = teacher.full_name
+                            tvEmployeeId.text = teacher.email
+                            teacher.profile_picture_url?.let { url ->
+                                if (url.isNotEmpty()) {
                                     Picasso.get()
-                                        .load(profileUrl)
+                                        .load(url)
                                         .placeholder(R.drawable.ic_launcher_foreground)
                                         .error(R.drawable.ic_launcher_foreground)
                                         .into(ivProfilePic)
                                 }
                             }
-
-                            val courseCount = it.courses?.size ?: 0
-                            tvCourseCount.text = courseCount.toString()
-
-                            it.stats?.let { stats ->
-                                tvStudentCount.text = stats.total_students.toString()
-                                tvCourseCount.text = stats.total_courses.toString()
-                                tvPendingTasksCount.text = stats.pending_tasks.toString()
-                            } ?: run {
-                                tvCourseCount.text = courseCount.toString()
-                            }
-
-                            it.todaySchedule?.let { schedule ->
-                                if (schedule.isNotEmpty()) {
-                                    todayClassAdapter.updateClasses(schedule)
-                                }
+                        } ?: run {
+                            tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
+                            tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
+                            val profileUrl = sessionManager.getProfilePic()
+                            if (!profileUrl.isNullOrEmpty()) {
+                                Picasso.get()
+                                    .load(profileUrl)
+                                    .placeholder(R.drawable.ic_launcher_foreground)
+                                    .error(R.drawable.ic_launcher_foreground)
+                                    .into(ivProfilePic)
                             }
                         }
-                    } else {
+
+                        val courseCount = it.courses?.size ?: 0
+                        tvCourseCount.text = courseCount.toString()
+
+                        it.stats?.let { stats ->
+                            tvStudentCount.text = stats.total_students.toString()
+                            tvCourseCount.text = stats.total_courses.toString()
+                            tvPendingTasksCount.text = stats.pending_tasks.toString()
+                        } ?: run {
+                            tvCourseCount.text = courseCount.toString()
+                        }
+
+                        it.todaySchedule?.let { schedule ->
+                            if (schedule.isNotEmpty()) {
+                                todayClassAdapter.updateClasses(schedule)
+                            }
+                        }
+                        
+                        // Show offline indicator if applicable
+                        if (!NetworkUtils.isOnline(this@TeacherDashboard)) {
+                            Toast.makeText(this@TeacherDashboard, "Showing cached data (offline)", Toast.LENGTH_SHORT).show()
+                        }
+                    } ?: run {
+                        // No cached data
                         tvTeacherName.text = sessionManager.getUserName() ?: "Teacher"
                         tvEmployeeId.text = sessionManager.getUserEmail() ?: "N/A"
+                        
+                        if (!NetworkUtils.isOnline(this@TeacherDashboard)) {
+                            Toast.makeText(this@TeacherDashboard, "No cached data available", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                } else {
-                    Toast.makeText(this@TeacherDashboard, "Failed to load dashboard", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@TeacherDashboard, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TeacherDashboard, "Error loading data", Toast.LENGTH_SHORT).show()
             }
 
             loadCoursesData()
@@ -376,28 +413,22 @@ class TeacherDashboard : AppCompatActivity() {
     }
 
     private fun loadCoursesData() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherCourses()
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body?.success == true) {
-                        val courses = body.data ?: emptyList()
-                        if (courses.isNotEmpty()) {
-                            tvCourseCount.text = courses.size.toString()
-                            courseAdapter?.updateCourses(courses)
-                            val totalStudents = courses.sumOf { it.enrolled_students ?: 0 }
-                            tvStudentCount.text = totalStudents.toString()
-                        } else {
-                            tvCourseCount.text = "0"
-                            tvStudentCount.text = "0"
-                        }
+                val result = repository.getCourses(forceRefresh = false)
+                if (result.isSuccess) {
+                    val courses = result.getOrDefault(emptyList())
+                    if (courses.isNotEmpty()) {
+                        tvCourseCount.text = courses.size.toString()
+                        courseAdapter?.updateCourses(courses)
+                        val totalStudents = courses.sumOf { it.enrolled_students ?: 0 }
+                        tvStudentCount.text = totalStudents.toString()
                     } else {
                         tvCourseCount.text = "0"
                         tvStudentCount.text = "0"
                     }
                 } else {
+                    tvCourseCount.text = "0"
                     tvStudentCount.text = "0"
                 }
             } catch (_: Exception) {
@@ -408,18 +439,14 @@ class TeacherDashboard : AppCompatActivity() {
     }
 
     private fun loadAnnouncementsData() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherAnnouncements()
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body?.success == true) {
-                        val announcements = body.data ?: emptyList()
-                        if (announcements.isNotEmpty()) {
-                            val recentAnnouncements = announcements.take(5)
-                            announcementAdapter?.updateAnnouncements(recentAnnouncements)
-                        }
+                val result = repository.getAnnouncements(forceRefresh = false)
+                if (result.isSuccess) {
+                    val announcements = result.getOrDefault(emptyList())
+                    if (announcements.isNotEmpty()) {
+                        val recentAnnouncements = announcements.take(5)
+                        announcementAdapter?.updateAnnouncements(recentAnnouncements)
                     }
                 }
             } catch (_: Exception) {}
@@ -427,7 +454,10 @@ class TeacherDashboard : AppCompatActivity() {
     }
 
     private fun loadNotificationsData() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
+        // Keep direct API call for notifications as they need real-time updates
+        if (!NetworkUtils.isOnline(this)) return
+        
+        val apiService = com.example.smd_project.network.RetrofitClient.getApiService(sessionManager)
         lifecycleScope.launch {
             try {
                 val response = apiService.getTeacherNotifications()

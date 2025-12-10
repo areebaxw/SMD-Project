@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.AttendanceRecordAdapter
 import com.example.smd_project.models.AttendanceSummary
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
@@ -63,6 +64,12 @@ class StudentAttendanceActivity : AppCompatActivity() {
     }
     
     private fun loadAttendanceData() {
+        // Check network before making API call
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection. Attendance requires online access.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(sessionManager)
         
         lifecycleScope.launch {
@@ -101,10 +108,9 @@ class StudentAttendanceActivity : AppCompatActivity() {
                 android.util.Log.e("StudentAttendance", "Exception: ${e.message}", e)
                 Toast.makeText(
                     this@StudentAttendanceActivity,
-                    "Error: ${e.message}",
+                    "Failed to load attendance. Please check your connection.",
                     Toast.LENGTH_SHORT
                 ).show()
-                e.printStackTrace()
             }
         }
     }
@@ -131,6 +137,11 @@ class StudentAttendanceActivity : AppCompatActivity() {
     }
     
     private fun loadCourseRecords(courseId: Int) {
+        if (!NetworkUtils.isOnline(this)) {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(sessionManager)
         
         // Get the selected course to display its overall attendance

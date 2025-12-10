@@ -18,13 +18,19 @@
         app:titleTextColor="@color/white"
         app:navigationIcon="@drawable/ic_back" />
 
-    <!-- ScrollView to allow scrolling of fees list and payment history -->
-    <ScrollView
+    <!-- SwipeRefreshLayout for pull-to-refresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:padding="8dp">
+        android:layout_weight="1">
+
+        <!-- ScrollView to allow scrolling of fees list and payment history -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:padding="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,6 +76,7 @@
 
         </LinearLayout>
     </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Print Fees Button -->
     <Button
