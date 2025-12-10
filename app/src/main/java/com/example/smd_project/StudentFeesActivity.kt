@@ -47,7 +47,13 @@ class StudentFeesActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "My Fees"
+        
+        // Make back arrow white
+        val backArrow = toolbar.navigationIcon
+        if (backArrow != null) {
+            backArrow.setTint(android.graphics.Color.WHITE)
+            toolbar.navigationIcon = backArrow
+        }
 
         // RecyclerView setup
         rvFees = findViewById(R.id.rvFees)

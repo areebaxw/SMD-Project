@@ -31,9 +31,16 @@ class AnnouncementListActivity : AppCompatActivity() {
     private fun initViews() {
         rvAnnouncements = findViewById(R.id.rvAnnouncements)
         
-        // Setup back button
-        findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)?.apply {
+        // Setup toolbar with white back arrow
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar?.apply {
             setNavigationOnClickListener { finish() }
+            // Make back arrow white
+            val backArrow = navigationIcon
+            if (backArrow != null) {
+                backArrow.setTint(android.graphics.Color.WHITE)
+                navigationIcon = backArrow
+            }
         }
     }
     
@@ -50,15 +57,24 @@ class AnnouncementListActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherAnnouncements()
+                // Load student announcements
+                val response = apiService.getStudentAnnouncements()
                 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val announcements = response.body()?.data ?: emptyList()
-                    announcementAdapter.updateAnnouncements(announcements)
+                    if (announcements.isNotEmpty()) {
+                        announcementAdapter.updateAnnouncements(announcements)
+                    } else {
+                        Toast.makeText(
+                            this@AnnouncementListActivity,
+                            "No announcements available",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 } else {
                     Toast.makeText(
                         this@AnnouncementListActivity,
-                        "Failed to load announcements",
+                        response.body()?.message ?: "Failed to load announcements",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

@@ -18,12 +18,12 @@
             android:background="@drawable/header_bg"
             android:padding="20dp">
 
-            <!-- Back Icon -->
+            <!-- Back Arrow -->
             <ImageView
                 android:id="@+id/menu_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/menu"
+                android:src="@drawable/ic_back"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="10dp" />
 

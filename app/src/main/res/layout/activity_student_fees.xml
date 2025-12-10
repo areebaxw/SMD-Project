@@ -14,7 +14,9 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         android:elevation="4dp"
-        app:titleTextColor="@color/white" />
+        app:title="My Fees"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/ic_back" />
 
     <!-- ScrollView to allow scrolling of fees list and payment history -->
     <ScrollView

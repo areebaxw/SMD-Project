@@ -61,6 +61,9 @@ class CourseRegistrationActivity : AppCompatActivity() {
         totalCreditsText = findViewById(R.id.total_credits_text)
         btnRegister = findViewById(R.id.btnSave)
         menuIcon = findViewById(R.id.menu_icon)
+        
+        // Make back arrow white
+        menuIcon.setColorFilter(android.graphics.Color.WHITE, android.graphics.PorterDuff.Mode.SRC_IN)
     }
 
     private fun setupListeners() {
