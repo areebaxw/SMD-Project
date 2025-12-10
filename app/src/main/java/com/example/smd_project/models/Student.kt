@@ -18,6 +18,7 @@ data class Student(
     val created_at: String
 )
 
+
 data class StudentDashboard(
     val student: Student,
     val today_classes: List<TodayClass>,

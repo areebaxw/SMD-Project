@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/rootLayout"
-
     android:background="@color/white">
 
     <!-- Toolbar -->
@@ -17,16 +16,60 @@
         android:elevation="4dp"
         app:titleTextColor="@color/white" />
 
-    <!-- RecyclerView for fees -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFees"
+    <!-- ScrollView to allow scrolling of fees list and payment history -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        android:clipToPadding="false" />
+        android:fillViewport="true"
+        android:padding="8dp">
 
-    <!-- Print Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Fees Section Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"
+                android:textColor="@color/black"/>
+
+            <!-- RecyclerView for fees -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFees"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"/>
+
+            <!-- Payment History Section Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Payment History"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="4dp"
+                android:textColor="@color/black"/>
+
+            <!-- Container for payment history cards -->
+            <LinearLayout
+                android:id="@+id/llPaymentHistoryContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="?android:attr/dividerVertical"
+                android:showDividers="middle"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Print Fees Button -->
     <Button
         android:id="@+id/btnPrintFees"
         android:layout_gravity="center"
