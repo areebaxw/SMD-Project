@@ -1,5 +1,7 @@
 package com.example.smd_project.models
 
+import com.google.gson.annotations.SerializedName
+
 data class Course(
     val course_id: Int,
     val course_code: String,
@@ -16,7 +18,17 @@ data class Course(
     val gpa: Double?,
     val status: String?
 )
-
+data class CourseDetails(
+    @SerializedName("course_id") val course_id: Int,
+    @SerializedName("course_code") val course_code: String,
+    @SerializedName("course_name") val course_name: String,
+    @SerializedName("description") val description: String?,
+    @SerializedName("credit_hours") val credit_hours: Int,
+    @SerializedName("semester") val semester: Int,
+    @SerializedName("is_required") val isRequired: Int,
+    @SerializedName("is_active") val isActive: Int,
+    val instructors: List<instructors>
+)
 data class TodayClass(
     val schedule_id: Int,
     val course_id: Int,
@@ -27,4 +39,13 @@ data class TodayClass(
     val course_name: String,
     val course_code: String,
     val student_count: Int? = null
+)
+data class CourseResponse(
+    val success: Boolean,
+    val message: String,
+    val data: CourseDetails,
+)
+data class instructors(
+    val teacherId: Int,
+    val full_name: String
 )

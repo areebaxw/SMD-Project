@@ -16,7 +16,7 @@ import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
-class CourseListActivity : AppCompatActivity() {
+class CourseListStudentActivity : AppCompatActivity() {
     
     private lateinit var sessionManager: SessionManager
     private lateinit var repository: StudentRepository
@@ -52,7 +52,7 @@ class CourseListActivity : AppCompatActivity() {
             navigateToCourseDetail(course)
         }
         rvCourses.apply {
-            layoutManager = LinearLayoutManager(this@CourseListActivity)
+            layoutManager = LinearLayoutManager(this@CourseListStudentActivity)
             adapter = courseAdapter
         }
     }

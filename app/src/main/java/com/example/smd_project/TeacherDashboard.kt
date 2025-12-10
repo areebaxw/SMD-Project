@@ -3,7 +3,6 @@ package com.example.smd_project
 import DrawerAdapter
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.lifecycleScope
 import com.example.smd_project.adapters.*
 import com.example.smd_project.models.Course
-import com.example.smd_project.models.Announcement
 import com.example.smd_project.models.DrawerItem
 import com.example.smd_project.models.Notification
 import com.example.smd_project.repository.TeacherRepository
@@ -179,7 +177,7 @@ class TeacherDashboard : AppCompatActivity() {
                 "Announcements" -> startActivity(Intent(this, AnnouncementListActivity::class.java))
                 "Marks" -> startActivity(Intent(this, EnterMarks::class.java))
                 "Attendance" -> startActivity(Intent(this, MarkAttendance::class.java))
-                "Courses" -> startActivity(Intent(this, CourseListActivity::class.java))
+                "Courses" -> startActivity(Intent(this, CourseListTeacherActivity::class.java))
                 "Schedule" -> startActivity(Intent(this, ScheduleActivity::class.java))
                 "Upload Grades" -> startActivity(Intent(this, UploadGrade::class.java))
                 "Logout" -> performLogout()
@@ -433,7 +431,6 @@ class TeacherDashboard : AppCompatActivity() {
                 }
             } catch (_: Exception) {
                 tvCourseCount.text = "0"
-                tvStudentCount.text = "0"
             }
         }
     }

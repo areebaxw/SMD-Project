@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -12,11 +13,15 @@
         android:background="#FFFFFF">
 
         <!-- ===== HEADER ===== -->
-        <RelativeLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/header_bg"
-            android:padding="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="70dp"
+            android:clipChildren="false">
 
             <!-- Back Icon -->
             <ImageView
@@ -46,12 +51,14 @@
                 android:id="@+id/course_dropdown_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
                 android:orientation="horizontal"
-                android:background="#88FFFFFF"
                 android:padding="16dp"
-                android:layout_alignParentBottom="true"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:background="@drawable/rounded_course_card_bg"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -78,15 +85,16 @@
                         android:layout_marginTop="2dp" />
                 </LinearLayout>
 
-                <!-- Dropdown Arrow Icon - Space for your icon -->
+                <!-- Dropdown Arrow Icon -->
                 <ImageView
                     android:id="@+id/dropdown_arrow"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginStart="8dp"
-                    />
+                    android:src="@drawable/down_arrow"
+                    android:tint="#FFFFFF" />
             </LinearLayout>
-        </RelativeLayout>
+        </FrameLayout>
 
         <!-- ===== TABS SECTION (Horizontal Scroll) ===== -->
         <HorizontalScrollView

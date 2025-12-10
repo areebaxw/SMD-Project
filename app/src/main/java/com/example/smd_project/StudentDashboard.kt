@@ -148,7 +148,7 @@ class StudentDashboard : AppCompatActivity() {
             DrawerItem("Dashboard", R.drawable.dashboard),
             DrawerItem("Course Registration", R.drawable.register),
             DrawerItem("My Courses", R.drawable.courses),
-            DrawerItem("Assignments", R.drawable.evaluations),
+            DrawerItem("Evaluations", R.drawable.evaluations),
             DrawerItem("Attendance", R.drawable.attendance),
             DrawerItem("Fees", R.drawable.fees),
             DrawerItem("Announcements", R.drawable.announcements),
@@ -160,8 +160,8 @@ class StudentDashboard : AppCompatActivity() {
             when (item.title) {
                 "Dashboard" -> { /* maybe reload current activity */ }
                 "Course Registration" -> startActivity(Intent(this, CourseRegistrationActivity::class.java))
-                "My Courses" -> startActivity(Intent(this, CourseListActivity::class.java))
-                "Assignments" -> startActivity(Intent(this, AssignmentsActivity::class.java))
+                "My Courses" -> startActivity(Intent(this, CourseListStudentActivity::class.java))
+                "Evaluations" -> startActivity(Intent(this, AssignmentsActivity::class.java))
                 "Attendance" -> startActivity(Intent(this, StudentAttendanceActivity::class.java))
                 "Fees" -> startActivity(Intent(this, StudentFeesActivity::class.java))
                 "Announcements" -> startActivity(Intent(this, AnnouncementListActivity::class.java))
@@ -196,7 +196,7 @@ class StudentDashboard : AppCompatActivity() {
     private fun setupClickListeners() {
         // Quick action buttons
         btnCoursesAction.setOnClickListener {
-            startActivity(Intent(this, CourseListActivity::class.java))
+            startActivity(Intent(this, CourseListStudentActivity::class.java))
         }
         
         btnEvaluationsAction.setOnClickListener {

@@ -207,4 +207,9 @@ interface ApiService {
 
     @POST("teacher/upload-final-grades")
     suspend fun uploadFinalGrades(@Body request: UploadFinalGradesRequest): Response<ApiResponse<Any>>
+
+    //get course details
+    @GET("student/course-details/{course_id}")
+    suspend fun getCourseDetails(@Path("course_id") courseId: Int): Response<CourseResponse>
+
 }
