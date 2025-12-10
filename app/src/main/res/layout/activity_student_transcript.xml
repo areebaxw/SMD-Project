@@ -13,17 +13,19 @@
         <!-- ===== HEADER ===== -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="100dp"
             android:background="@drawable/header_bg"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:layout_marginBottom="48dp">
 
             <ImageView
-                android:id="@+id/menu_icon"
+                android:id="@+id/back_button"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/menu"
+                android:src="@drawable/ic_back"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:contentDescription="Back" />
 
             <TextView
                 android:id="@+id/title_text"
@@ -49,147 +51,205 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="12dp"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical">
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center">
 
-            <!-- Total Credits -->
-            <LinearLayout
+            <!-- Total Credits Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="140dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:background="@drawable/curved_background"
-                android:padding="12dp"
-                android:gravity="center">
+                android:layout_marginEnd="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#8B2072"
+                app:cardElevation="2dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-                <TextView
-                    android:id="@+id/tv_total_credits_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Credits"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tv_total_credits_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="--"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="2dp" />
+                    <TextView
+                        android:id="@+id/tv_total_credits_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Credits"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Completed"
-                    android:textColor="@color/black"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_total_credits_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#FFFFFF"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
 
-            <!-- Semesters -->
-            <LinearLayout
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textColor="#E8D4E8"
+                        android:textSize="10sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SGPA Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="140dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:background="@drawable/curved_background"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginStart="8dp">
+                android:layout_marginStart="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#8B2072"
+                app:cardElevation="2dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SGPA"
-                    android:textColor="@color/black"
-                    android:textSize="12sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tv_total_semesters"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="--"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="2dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SGPA"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total"
-                    android:textColor="@color/black"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_total_semesters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#FFFFFF"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textColor="#E8D4E8"
+                        android:textSize="10sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-        <!-- ===== SUMMARY CARDS ROW 2 (CGPA) ===== -->
+        <!-- ===== CGPA CARD ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="8dp"
-            android:gravity="center_vertical">
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="20dp">
 
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/curved_background"
-                android:padding="14dp"
-                android:gravity="center">
+                android:layout_height="140dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#8B2072"
+                app:cardElevation="2dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CGPA"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tv_cgpa"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="--"
-                    android:textColor="@color/black"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="4dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CGPA"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cumulative"
-                    android:textColor="@color/black"
-                    android:textSize="11sp" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_cgpa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#FFFFFF"
+                        android:textSize="40sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cumulative"
+                        android:textColor="#E8D4E8"
+                        android:textSize="11sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
         <!-- ===== SEMESTER SELECTION ===== -->
         <LinearLayout
-            android:id="@+id/semester_selector_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="16dp">
 
-            <Spinner
-                android:id="@+id/spinner_semesters"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Semester"
+                android:textColor="#333333"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:spinnerMode="dropdown"
-                android:background="@drawable/lightpurple_card"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:textAlignment="center" />
+                android:layout_height="56dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardElevation="1dp"
+                android:layout_marginBottom="4dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <Spinner
+                        android:id="@+id/spinner_semesters"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:spinnerMode="dropdown"
+                        android:background="@android:color/transparent"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="50dp"
+                        android:layout_alignParentStart="true" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/down_arrow"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="12dp"
+                        android:contentDescription="Dropdown"
+                        android:scaleType="centerInside"
+                        android:tint="#8B2072" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
         <!-- ===== COURSES LIST ===== -->
@@ -200,6 +260,7 @@
             android:paddingHorizontal="16dp"
             android:clipToPadding="false"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
             android:overScrollMode="never" />
 
         <!-- ===== PLACEHOLDER ===== -->
@@ -212,7 +273,8 @@
             android:textSize="14sp"
             android:gravity="center"
             android:visibility="gone"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp" />
 
     </LinearLayout>
 </ScrollView>

@@ -48,6 +48,13 @@ class StudentTranscriptActivity : AppCompatActivity() {
         tvCGPA = findViewById(R.id.tv_cgpa)
         tvNoCourses = findViewById(R.id.tv_no_courses)
 
+        // Setup back button
+        val backButton: android.widget.ImageView? = findViewById(R.id.back_button)
+        backButton?.apply {
+            setColorFilter(android.graphics.Color.WHITE)
+            setOnClickListener { finish() }
+        }
+
         adapter = TranscriptCourseAdapter(emptyList())
         rvCourses.layoutManager = LinearLayoutManager(this)
         rvCourses.adapter = adapter
