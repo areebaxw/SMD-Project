@@ -149,35 +149,6 @@
                         android:layout_marginEnd="12dp"
                         android:orientation="horizontal">
 
-                        <!-- Current Semester SGPA Card -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/square_white"
-                            android:orientation="vertical"
-                            android:padding="12dp"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/tvSGPA"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="3.1"
-                                android:textColor="#8B2072"
-                                android:textSize="24sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="SGPA"
-                                android:textColor="@color/black"
-                                android:textSize="11sp"
-                                android:textAlignment="center" />
-                        </LinearLayout>
 
                         <!-- All Semesters CGPA Card -->
                         <LinearLayout

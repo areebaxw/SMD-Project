@@ -34,7 +34,6 @@ class StudentDashboard : AppCompatActivity() {
     private lateinit var ivProfilePic: ImageView
     private lateinit var tvStudentName: TextView
     private lateinit var tvRollNo: TextView
-    private lateinit var tvSGPA: TextView
     private lateinit var tvCGPA: TextView
     private lateinit var tvAttendancePercentage: TextView
     private lateinit var rvTodayClasses: RecyclerView
@@ -77,7 +76,6 @@ class StudentDashboard : AppCompatActivity() {
         ivProfilePic = findViewById(R.id.ivProfilePic)
         tvStudentName = findViewById(R.id.tvStudentName)
         tvRollNo = findViewById(R.id.tvRollNo)
-        tvSGPA = findViewById(R.id.tvSGPA)
         tvCGPA = findViewById(R.id.tvCGPA)
         tvAttendancePercentage = findViewById(R.id.tvAttendancePercentage)
         
@@ -226,8 +224,8 @@ class StudentDashboard : AppCompatActivity() {
                         tvStudentName.text = it.student.full_name
                         tvRollNo.text = it.student.roll_no
                         // SGPA and CGPA are dynamically loaded from the API
-                        tvSGPA.text = String.format("%.2f", it.sgpa)
-                        tvCGPA.text = String.format("%.2f", it.cgpa)
+
+                        tvCGPA.text = String.format("%.2f", it.student.cgpa)
                         // Overall attendance percentage across all courses
                         tvAttendancePercentage.text = String.format("%.0f%%", it.attendance_percentage)
                         

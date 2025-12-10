@@ -160,9 +160,14 @@ class StudentTranscriptActivity : AppCompatActivity() {
         val sgpa = if (coursesWithGrades.isNotEmpty()) {
             coursesWithGrades.sumOf { it.credit_hours * it.grade_points.toDouble() } /
                     coursesWithGrades.sumOf { it.credit_hours }
-        } else 0.0
+        } else null
 
-        tvSGPA.text = String.format("%.2f", sgpa)
+        tvSGPA.text = if (sgpa == null) {
+            "—"
+        } else {
+            String.format("%.2f", sgpa)
+        }
+
     }
 
     private fun calculateCGPA(apiData: Map<String, Any>): Pair<Double, Int> {

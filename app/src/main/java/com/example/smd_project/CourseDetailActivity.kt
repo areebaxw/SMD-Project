@@ -1,6 +1,5 @@
 package com.example.smd_project
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -10,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.StudentAdapter
-import com.example.smd_project.models.Student
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
