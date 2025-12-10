@@ -54,29 +54,41 @@ class AnnouncementListActivity : AppCompatActivity() {
     
     private fun loadAnnouncements() {
         val apiService = RetrofitClient.getApiService(sessionManager)
+        val userType = sessionManager.getUserType()
         
         lifecycleScope.launch {
             try {
-                // Load announcements from student dashboard (same as what appears in "Recent Announcements")
-                val response = apiService.getStudentDashboard()
-                
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val dashboard = response.body()?.data
-                    val announcements = dashboard?.announcements ?: emptyList()
-                    
-                    if (announcements.isNotEmpty()) {
-                        announcementAdapter.updateAnnouncements(announcements)
+                // Load announcements based on user type
+                val announcements = if (userType == "Student") {
+                    val response = apiService.getStudentDashboard()
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        response.body()?.data?.announcements ?: emptyList()
                     } else {
-                        Toast.makeText(
-                            this@AnnouncementListActivity,
-                            "No announcements available",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        emptyList()
                     }
+                } else {
+                    val response = apiService.getTeacherAnnouncements()
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        response.body()?.data ?: emptyList()
+                    } else {
+                        emptyList()
+                    }
+                }
+                
+                if (announcements.isNotEmpty()) {
+                    announcementAdapter.updateAnnouncements(announcements)
                 } else {
                     Toast.makeText(
                         this@AnnouncementListActivity,
-                        response.body()?.message ?: "Failed to load announcements",
+                        "No announcements available",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                
+                if (announcements.isEmpty()) {
+                    Toast.makeText(
+                        this@AnnouncementListActivity,
+                        "Failed to load announcements",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
