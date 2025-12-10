@@ -384,22 +384,15 @@ class TeacherDashboard : AppCompatActivity() {
                         if (courses.isNotEmpty()) {
                             tvCourseCount.text = courses.size.toString()
                             courseAdapter?.updateCourses(courses)
-                            val totalStudents = courses.sumOf { it.enrolled_students ?: 0 }
-                            tvStudentCount.text = totalStudents.toString()
                         } else {
                             tvCourseCount.text = "0"
-                            tvStudentCount.text = "0"
                         }
                     } else {
                         tvCourseCount.text = "0"
-                        tvStudentCount.text = "0"
                     }
-                } else {
-                    tvStudentCount.text = "0"
                 }
             } catch (_: Exception) {
                 tvCourseCount.text = "0"
-                tvStudentCount.text = "0"
             }
         }
     }
