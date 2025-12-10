@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
-    private lateinit var btnBiometricLogin: Button
+    private lateinit var btnBiometricLogin: ImageButton
     private lateinit var rgUserType: RadioGroup
     private lateinit var rbStudent: RadioButton
     private lateinit var rbTeacher: RadioButton

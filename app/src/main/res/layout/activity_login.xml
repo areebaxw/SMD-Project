@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:text="Welcome Back"
             android:textColor="#000000"
-            android:textSize="36sp"
+            android:textSize="32sp"
             android:textStyle="normal"
             android:fontFamily="@font/poppinsregular"
             android:layout_marginTop="60dp"
@@ -109,21 +109,18 @@
         </LinearLayout>
 
         <!-- Biometric Login Button -->
-        <androidx.appcompat.widget.AppCompatButton
+        <ImageButton
             android:id="@+id/btn_biometric_login"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Login with Fingerprint/Face ID"
-            android:textColor="#8B2E8B"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:background="@drawable/input_border"
-            android:drawableLeft="@android:drawable/ic_lock_lock"
-            android:drawablePadding="8dp"
-            android:gravity="center"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone" />
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:src="@drawable/faceidprint"
+            android:contentDescription="Login with Face ID or Fingerprint"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Forgot Password Text -->
         <TextView
