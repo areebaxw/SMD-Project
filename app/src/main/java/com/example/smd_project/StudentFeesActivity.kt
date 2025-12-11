@@ -80,10 +80,13 @@ class StudentFeesActivity : AppCompatActivity() {
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         setupSwipeRefresh()
         
-        // Load fees and their payment histories
+        // Load fees with offline support
         observeFees()
-        loadFeesData()
-
+        
+        // Only load additional data (like calculated fees) if online
+        if (NetworkUtils.isOnline(this)) {
+            loadFeesData()
+        }
     }
     
     private fun setupSwipeRefresh() {
@@ -132,6 +135,11 @@ class StudentFeesActivity : AppCompatActivity() {
     }
 
     private fun loadFeesData() {
+        // Skip if offline - data will be loaded from cache via observeFees()
+        if (!NetworkUtils.isOnline(this)) {
+            return
+        }
+        
         val apiService = RetrofitClient.getApiService(sessionManager)
 
         lifecycleScope.launch {
@@ -245,32 +253,46 @@ class StudentFeesActivity : AppCompatActivity() {
 
     private fun loadAllPaymentHistories(fees: List<Fee>) {
         llPaymentHistoryContainer.removeAllViews()
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
-        lifecycleScope.launch {
-            for (fee in fees) {
-                try {
-                    val response = apiService.getFeePaymentHistory(fee.fee_id)
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        val historyList: List<PaymentHistoryItem> = response.body()?.data ?: emptyList()
-
-                        historyList.forEach { payment ->
-                            val card = layoutInflater.inflate(R.layout.payment_history_card, llPaymentHistoryContainer, false)
-                            val tvAmount = card.findViewById<TextView>(R.id.tvAmount)
-                            val tvMethod = card.findViewById<TextView>(R.id.tvMethod)
-                            val tvDate = card.findViewById<TextView>(R.id.tvDate)
-
-                            tvAmount.text = "PKR ${String.format("%.2f", payment.amount_paid)}"
-                            tvMethod.text = "Method: ${payment.payment_method}"
-                            tvDate.text = "Date: ${formatDate(payment.created_at)}"
-
-                            llPaymentHistoryContainer.addView(card)
-                        }
+        for (fee in fees) {
+            if (NetworkUtils.isOnline(this)) {
+                // Online: refresh and display
+                lifecycleScope.launch {
+                    val result = repository.refreshPaymentHistory(fee.fee_id)
+                    val historyList = result.getOrNull() ?: emptyList()
+                    displayPaymentHistoryCards(historyList)
+                }
+            } else {
+                // Offline: load from local database
+                repository.getPaymentHistory(fee.fee_id).observe(this) { entities ->
+                    val historyList = entities.map { entity ->
+                        PaymentHistoryItem(
+                            payment_id = entity.payment_id,
+                            student_id = entity.student_id,
+                            fee_id = entity.fee_id,
+                            amount_paid = entity.amount_paid,
+                            payment_method = entity.payment_method,
+                            remarks = entity.remarks,
+                            created_at = entity.created_at
+                        )
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to load payment history for fee ${fee.fee_id}", e)
+                    displayPaymentHistoryCards(historyList)
                 }
             }
+        }
+    }
+
+    private fun displayPaymentHistoryCards(historyList: List<PaymentHistoryItem>) {
+        for (payment in historyList) {
+            val card = layoutInflater.inflate(R.layout.payment_history_card, llPaymentHistoryContainer, false)
+            val tvAmount = card.findViewById<TextView>(R.id.tvAmount)
+            val tvMethod = card.findViewById<TextView>(R.id.tvMethod)
+            val tvDate = card.findViewById<TextView>(R.id.tvDate)
+
+            tvAmount.text = "PKR ${String.format("%.2f", payment.amount_paid)}"
+            tvMethod.text = "Method: ${payment.payment_method}"
+            tvDate.text = "Date: ${formatDate(payment.created_at)}"
+
+            llPaymentHistoryContainer.addView(card)
         }
     }
 
