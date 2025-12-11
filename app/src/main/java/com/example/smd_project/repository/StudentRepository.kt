@@ -32,38 +32,43 @@ class StudentRepository(private val context: Context) {
     suspend fun getDashboardData(forceRefresh: Boolean = false): Result<StudentDashboard?> {
         return withContext(Dispatchers.IO) {
             try {
+                // Get client's current day of week for correct class schedule
+                val dayOfWeek = java.text.SimpleDateFormat("EEEE", java.util.Locale.ENGLISH)
+                    .format(java.util.Date())
+                Log.d(TAG, "Client day of week: $dayOfWeek")
+                
                 // If offline, return cache immediately - don't even try network
                 if (!NetworkUtils.isOnline(context)) {
                     Log.d(TAG, "Device is offline - returning cached data")
                     return@withContext Result.success(getCachedDashboard())
                 }
                 
-                // Online - check if we should fetch fresh data
-                if (forceRefresh) {
-                    Log.d(TAG, "Force refresh - fetching from API")
-                    try {
-                        val response = apiService.getStudentDashboard()
+                // Online - always fetch fresh data from server (simplest approach)
+                Log.d(TAG, "Fetching from API with day: $dayOfWeek")
+                try {
+                    val response = apiService.getStudentDashboard(dayOfWeek)
+                    
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val dashboardData = response.body()?.data
                         
-                        if (response.isSuccessful && response.body()?.success == true) {
-                            val dashboardData = response.body()?.data
-                            
-                            // Cache the data
-                            dashboardData?.let {
-                                cacheDashboard(it)
-                                Log.d(TAG, "Fresh data fetched and cached")
-                            }
-                            
-                            return@withContext Result.success(dashboardData)
+                        // Cache the data for offline use
+                        dashboardData?.let {
+                            cacheDashboard(it)
+                            Log.d(TAG, "Fresh data fetched and cached, today_classes: ${it.today_classes.size}")
                         }
-                    } catch (networkError: Exception) {
-                        Log.e(TAG, "Network error, falling back to cache", networkError)
+                        
+                        return@withContext Result.success(dashboardData)
+                    } else {
+                        Log.e(TAG, "API returned error: ${response.code()} ${response.message()}")
                     }
+                } catch (networkError: Exception) {
+                    Log.e(TAG, "Network error, falling back to cache", networkError)
                 }
                 
-                // Return cached data (not forcing refresh, or fetch failed)
+                // Fetch failed - return cached data as fallback
                 val cachedData = getCachedDashboard()
                 if (cachedData != null) {
-                    Log.d(TAG, "Returning cached dashboard data")
+                    Log.d(TAG, "Returning cached dashboard data as fallback")
                 } else {
                     Log.w(TAG, "No cached data available")
                 }
@@ -348,12 +353,14 @@ class StudentRepository(private val context: Context) {
                     val studentId = sessionManager.getUserId()
                     
                     // Convert fee items to entities
+                    // Use fee_total_amount (from student_fees table) if available, otherwise fall back to total_amount
                     val feeEntities = fees.map { fee ->
+                        val actualTotalAmount = fee.fee_total_amount ?: fee.total_amount
                         StudentFeeEntity(
                             fee_id = fee.fee_id,
                             student_id = fee.student_id,
                             fee_structure_id = fee.fee_structure_id,
-                            total_amount = fee.total_amount,
+                            total_amount = actualTotalAmount,
                             paid_amount = fee.paid_amount ?: 0.0,
                             remaining_amount = fee.remaining_amount,
                             payment_status = fee.payment_status,
@@ -398,4 +405,9 @@ class StudentRepository(private val context: Context) {
             database.studentFeeDao().clearAll()
         }
     }
+    suspend fun updateFeeAmountsLocally(studentId: Int, feeId: Int, totalAmount: Double, paidAmount: Double) {
+        val remainingAmount = totalAmount - paidAmount
+        database.studentFeeDao().updateFeeAmounts(studentId, feeId, totalAmount, remainingAmount)
+    }
+
 }

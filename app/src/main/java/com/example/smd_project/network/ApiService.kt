@@ -43,7 +43,7 @@ interface ApiService {
     suspend fun getStudentProfile(): Response<ApiResponse<Student>>
 
     @GET("student/dashboard")
-    suspend fun getStudentDashboard(): Response<ApiResponse<StudentDashboard>>
+    suspend fun getStudentDashboard(@Query("day") dayOfWeek: String? = null): Response<ApiResponse<StudentDashboard>>
 
     @GET("student/courses")
     suspend fun getStudentCourses(): Response<ApiResponse<List<Course>>>

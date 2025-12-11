@@ -16,7 +16,6 @@ class TranscriptCourseAdapter(private var courses: List<TranscriptCourse>) :
         val tvCourseName: TextView = itemView.findViewById(R.id.tv_course_name)
         val tvCourseCode: TextView = itemView.findViewById(R.id.tv_course_code)
         val tvCredits: TextView = itemView.findViewById(R.id.tv_course_credits)
-        val tvMarks: TextView = itemView.findViewById(R.id.tv_course_marks)
         val tvGrade: TextView = itemView.findViewById(R.id.tv_course_grade)
         val tvGradePoints: TextView = itemView.findViewById(R.id.tv_course_gp)
     }
@@ -37,7 +36,6 @@ class TranscriptCourseAdapter(private var courses: List<TranscriptCourse>) :
         holder.tvCredits.text = "Credits: ${course.credit_hours}"
 
         // Marks always 0 for now
-        holder.tvMarks.text = "Marks: ${course.marks}/100"
 
         // Grade handling
         holder.tvGrade.text = if (course.grade.isNullOrBlank()) {

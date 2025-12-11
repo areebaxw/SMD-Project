@@ -44,6 +44,7 @@ data class StudentFeeItem(
     val semester: Int,
     val academic_year: String,
     val total_amount: Double,
+    val fee_total_amount: Double?,  // The actual student fee total amount from student_fees table
     val paid_amount: Double?,
     val remaining_amount: Double,
     val payment_status: String,

@@ -185,4 +185,8 @@ interface StudentFeeDao {
     
     @Query("DELETE FROM student_fees")
     suspend fun clearAll()
+
+    @Query("UPDATE student_fees SET total_amount = :totalAmount, remaining_amount = :remainingAmount WHERE student_id = :studentId AND fee_id = :feeId")
+    suspend fun updateFeeAmounts(studentId: Int, feeId: Int, totalAmount: Double, remainingAmount: Double)
+
 }

@@ -82,6 +82,8 @@ class StudentFeesActivity : AppCompatActivity() {
         
         // Load fees and their payment histories
         observeFees()
+        loadFeesData()
+
     }
     
     private fun setupSwipeRefresh() {
@@ -134,15 +136,13 @@ class StudentFeesActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // 1. Fetch student dashboard to get student info
+                //  Fetch student dashboard to get student info
                 val dashboardResponse = apiService.getStudentDashboard()
                 val studentProgram = if (dashboardResponse.isSuccessful && dashboardResponse.body()?.success == true) {
                     dashboardResponse.body()?.data?.student?.program ?: "N/A"
                 } else "N/A"
 
-
-
-                // 2. Fetch enrolled courses
+                // Fetch enrolled courses
                 val coursesResponse = apiService.getStudentEnrolledCourses()
                 if (coursesResponse.isSuccessful && coursesResponse.body()?.success == true) {
                     val coursesList: List<StudentCourse> = coursesResponse.body()?.data ?: emptyList()
@@ -151,17 +151,16 @@ class StudentFeesActivity : AppCompatActivity() {
                         val totalCredits = coursesList.sumOf { it.credit_hours }
                         val calculatedTotalAmount = totalCredits * CREDIT_COST.toDouble()
 
-                        // 3. Update total amount in DB
-                        updateTotalAmountInDB(calculatedTotalAmount)
-
-                        // 4. Fetch existing fees
+                        //  Fetch existing fees from server
                         val feesResponse = apiService.getStudentFees()
                         val existingFees: List<StudentFeeItem> = if (feesResponse.isSuccessful && feesResponse.body()?.success == true) {
                             feesResponse.body()?.data ?: emptyList()
                         } else emptyList()
 
-                        // 5. Map fees to Fee model
+                        // Map server fees to local Fee model
                         val mappedFees = existingFees.map { fee ->
+                            val paidAmount = fee.paid_amount ?: 0.0
+                            val remainingAmount = calculatedTotalAmount - paidAmount
                             Fee(
                                 fee_id = fee.fee_id,
                                 student_id = fee.student_id,
@@ -169,11 +168,11 @@ class StudentFeesActivity : AppCompatActivity() {
                                 semester = fee.semester,
                                 academic_year = fee.academic_year ?: "",
                                 total_amount = calculatedTotalAmount,
-                                paid_amount = fee.paid_amount ?: 0.0,
-                                remaining_amount = calculatedTotalAmount - (fee.paid_amount ?: 0.0),
+                                paid_amount = paidAmount,
+                                remaining_amount = remainingAmount,
                                 payment_status = when {
-                                    (fee.paid_amount ?: 0.0) >= calculatedTotalAmount -> "Paid"
-                                    (fee.paid_amount ?: 0.0) > 0 -> "Partial"
+                                    paidAmount >= calculatedTotalAmount -> "Paid"
+                                    paidAmount > 0 -> "Partial"
                                     else -> "Pending"
                                 },
                                 due_date = fee.due_date
@@ -195,10 +194,25 @@ class StudentFeesActivity : AppCompatActivity() {
                             )
                         }
 
-                        // 6. Update fees RecyclerView
+                        //  Update total amount on server
+                        val totalUpdatedOnServer = updateTotalAmountInDB(calculatedTotalAmount)
+
+                        //  Update local Room DB with total_amount and remaining_amount
+                        if (totalUpdatedOnServer) {
+                            mappedFees.forEach { fee ->
+                                repository.updateFeeAmountsLocally(
+                                    studentId = fee.student_id,
+                                    feeId = fee.fee_id,
+                                    totalAmount = fee.total_amount,
+                                    paidAmount = fee.paid_amount
+                                )
+                            }
+                        }
+
+                        //  Update RecyclerView
                         feesAdapter.updateFees(mappedFees)
 
-                        // 7. Load all payment histories for all fees
+                        //  Load payment histories
                         loadAllPaymentHistories(mappedFees)
 
                     } else {
