@@ -7,17 +7,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.AnnouncementAdapter
+import com.example.smd_project.database.AppDatabase
 import com.example.smd_project.models.Announcement
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.repository.StudentRepository
+import com.example.smd_project.repository.TeacherRepository
 import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnnouncementListActivity : AppCompatActivity() {
     
     private lateinit var sessionManager: SessionManager
-    private lateinit var repository: StudentRepository
+    private lateinit var studentRepository: StudentRepository
+    private lateinit var teacherRepository: TeacherRepository
     private lateinit var rvAnnouncements: RecyclerView
     private lateinit var announcementAdapter: AnnouncementAdapter
     
@@ -26,7 +31,8 @@ class AnnouncementListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_announcement_list)
         
         sessionManager = SessionManager(this)
-        repository = StudentRepository(this)
+        studentRepository = StudentRepository(this)
+        teacherRepository = TeacherRepository(this)
         
         initViews()
         setupRecyclerView()
@@ -62,7 +68,7 @@ class AnnouncementListActivity : AppCompatActivity() {
         
         if (userType == "Student") {
             // Use repository for student announcements (with offline support via LiveData)
-            repository.getAnnouncements().observe(this) { announcementEntities ->
+            studentRepository.getAnnouncements().observe(this) { announcementEntities ->
                 val announcements = announcementEntities.map { entity ->
                     Announcement(
                         announcement_id = entity.announcement_id,
@@ -92,47 +98,113 @@ class AnnouncementListActivity : AppCompatActivity() {
             
             // Trigger refresh from network if online
             lifecycleScope.launch {
-                repository.refreshAnnouncements()
+                studentRepository.refreshAnnouncements()
             }
         } else {
-            // Teacher announcements - check network first
-            lifecycleScope.launch {
-                try {
-                    if (!NetworkUtils.isOnline(this@AnnouncementListActivity)) {
-                        Toast.makeText(
-                            this@AnnouncementListActivity,
-                            "No internet connection. Please try again when online.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@launch
-                    }
-                    
-                    val apiService = RetrofitClient.getApiService(sessionManager)
-                    val response = apiService.getTeacherAnnouncements()
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        val announcements = response.body()?.data ?: emptyList()
-                        if (announcements.isNotEmpty()) {
-                            announcementAdapter.updateAnnouncements(announcements)
-                        } else {
+            // Teacher announcements with offline support
+            loadTeacherAnnouncements()
+        }
+    }
+    
+    private fun loadTeacherAnnouncements() {
+        lifecycleScope.launch {
+            try {
+                val isOnline = NetworkUtils.isOnline(this@AnnouncementListActivity)
+                val result = teacherRepository.getAnnouncements(forceRefresh = isOnline)
+                
+                result.onSuccess { announcements ->
+                    if (announcements.isNotEmpty()) {
+                        announcementAdapter.updateAnnouncements(announcements)
+                        // Also cache to Room for offline access
+                        if (isOnline) {
+                            cacheTeacherAnnouncements(announcements)
+                        }
+                        if (!isOnline) {
                             Toast.makeText(
                                 this@AnnouncementListActivity,
-                                "No announcements available",
+                                "Showing cached data (offline)",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     } else {
-                        Toast.makeText(
-                            this@AnnouncementListActivity,
-                            "Failed to load announcements",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        // Try loading from Room cache
+                        loadOfflineTeacherAnnouncements()
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        this@AnnouncementListActivity,
-                        "Error loading announcements: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                }.onFailure {
+                    // Try loading from Room cache on failure
+                    loadOfflineTeacherAnnouncements()
+                }
+            } catch (e: Exception) {
+                loadOfflineTeacherAnnouncements()
+            }
+        }
+    }
+    
+    private suspend fun cacheTeacherAnnouncements(announcements: List<Announcement>) {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@AnnouncementListActivity)
+                val teacherId = sessionManager.getUserId()
+                
+                val entities = announcements.map { announcement ->
+                    com.example.smd_project.database.entities.TeacherAnnouncementEntity(
+                        announcement_id = announcement.announcement_id,
+                        teacher_id = teacherId,
+                        course_id = announcement.course_id,
+                        title = announcement.title ?: "",
+                        content = announcement.content ?: "",
+                        created_at = announcement.created_at ?: "",
+                        is_synced = true
+                    )
+                }
+                
+                database.teacherAnnouncementDao().deleteByTeacher(teacherId)
+                if (entities.isNotEmpty()) {
+                    database.teacherAnnouncementDao().insertAnnouncements(entities)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    
+    private suspend fun loadOfflineTeacherAnnouncements() {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@AnnouncementListActivity)
+                val teacherId = sessionManager.getUserId()
+                val cachedAnnouncements = database.teacherAnnouncementDao().getAnnouncementsSync(teacherId)
+                
+                if (cachedAnnouncements.isNotEmpty()) {
+                    val announcements = cachedAnnouncements.map { entity ->
+                        Announcement(
+                            announcement_id = entity.announcement_id,
+                            teacher_id = entity.teacher_id,
+                            course_id = entity.course_id,
+                            title = entity.title,
+                            content = entity.content,
+                            announcement_type = "General",
+                            is_active = 1,
+                            created_at = entity.created_at,
+                            teacher_name = null,
+                            course_name = null,
+                            course_code = null,
+                            updated_at = null
+                        )
+                    }
+                    
+                    withContext(Dispatchers.Main) {
+                        announcementAdapter.updateAnnouncements(announcements)
+                        Toast.makeText(this@AnnouncementListActivity, "Showing cached data (offline)", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@AnnouncementListActivity, "No cached announcements available", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@AnnouncementListActivity, "Error loading offline data", Toast.LENGTH_SHORT).show()
                 }
             }
         }

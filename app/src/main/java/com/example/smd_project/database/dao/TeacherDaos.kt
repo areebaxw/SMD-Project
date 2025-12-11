@@ -51,6 +51,9 @@ interface TeacherScheduleDao {
     @Query("SELECT * FROM teacher_schedule WHERE teacher_id = :teacherId ORDER BY CASE day_of_week WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2 WHEN 'Wednesday' THEN 3 WHEN 'Thursday' THEN 4 WHEN 'Friday' THEN 5 WHEN 'Saturday' THEN 6 WHEN 'Sunday' THEN 7 END, start_time")
     fun getSchedules(teacherId: Int): LiveData<List<TeacherScheduleEntity>>
     
+    @Query("SELECT * FROM teacher_schedule WHERE teacher_id = :teacherId ORDER BY CASE day_of_week WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2 WHEN 'Wednesday' THEN 3 WHEN 'Thursday' THEN 4 WHEN 'Friday' THEN 5 WHEN 'Saturday' THEN 6 WHEN 'Sunday' THEN 7 END, start_time")
+    suspend fun getSchedulesSync(teacherId: Int): List<TeacherScheduleEntity>
+    
     @Query("SELECT * FROM teacher_schedule WHERE teacher_id = :teacherId AND day_of_week = :day ORDER BY start_time")
     fun getTodaySchedule(teacherId: Int, day: String): LiveData<List<TeacherScheduleEntity>>
     

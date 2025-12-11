@@ -170,39 +170,124 @@ class MarkAttendance : AppCompatActivity() {
     }
     
     private fun loadCourses() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherCourses()
-                
-                if (response.isSuccessful && response.body()?.success == true) {
-                    courses = response.body()?.data ?: emptyList()
+                if (NetworkUtils.isOnline(this@MarkAttendance)) {
+                    // Online: fetch from API and cache
+                    val apiService = RetrofitClient.getApiService(sessionManager)
+                    val response = apiService.getTeacherCourses()
                     
-                    if (courses.isNotEmpty()) {
-                        // Populate spinner
-                        val courseNames = courses.map { it.course_name }
-                        val adapter = ArrayAdapter(
-                            this@MarkAttendance,
-                            R.layout.spinner_item_white,
-                            courseNames
-                        )
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                        spinnerCourse.adapter = adapter
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        courses = response.body()?.data ?: emptyList()
                         
-                        // Load students for first course
-                        selectedCourseId = courses[0].course_id
-                        loadStudents(courses[0].course_id)
+                        // Cache courses for offline use
+                        cacheCourses(courses)
+                        
+                        setupCoursesSpinner()
                     } else {
-                        Toast.makeText(this@MarkAttendance, "No courses found", Toast.LENGTH_SHORT).show()
+                        // Try offline fallback
+                        loadOfflineCourses()
                     }
                 } else {
-                    Toast.makeText(this@MarkAttendance, "Failed to load courses", Toast.LENGTH_SHORT).show()
+                    // Offline: load from cache
+                    loadOfflineCourses()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MarkAttendance, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                // On error, try offline fallback
+                loadOfflineCourses()
+            }
+        }
+    }
+    
+    private suspend fun cacheCourses(courseList: List<Course>) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val database = com.example.smd_project.database.AppDatabase.getDatabase(this@MarkAttendance)
+                val teacherId = sessionManager.getUserId()
+                
+                val entities = courseList.map { course ->
+                    com.example.smd_project.database.entities.TeacherCourseEntity(
+                        course_id = course.course_id,
+                        teacher_id = teacherId,
+                        course_code = course.course_code,
+                        course_name = course.course_name,
+                        credit_hours = course.credit_hours,
+                        semester = course.semester,
+                        section = null,
+                        enrolled_students = course.enrolled_students ?: 0
+                    )
+                }
+                
+                database.teacherCourseDao().deleteByTeacher(teacherId)
+                if (entities.isNotEmpty()) {
+                    database.teacherCourseDao().insertCourses(entities)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+    
+    private suspend fun loadOfflineCourses() {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val database = com.example.smd_project.database.AppDatabase.getDatabase(this@MarkAttendance)
+                val teacherId = sessionManager.getUserId()
+                val cachedCourses = database.teacherCourseDao().getCoursesSync(teacherId)
+                
+                if (cachedCourses.isNotEmpty()) {
+                    courses = cachedCourses.map { entity ->
+                        Course(
+                            course_id = entity.course_id,
+                            course_code = entity.course_code,
+                            course_name = entity.course_name,
+                            credit_hours = entity.credit_hours,
+                            semester = entity.semester,
+                            description = null,
+                            is_required = 0,
+                            is_active = 1,
+                            instructors = null,
+                            schedule = null,
+                            enrolled_students = entity.enrolled_students,
+                            grade = null,
+                            gpa = null,
+                            status = null
+                        )
+                    }
+                    
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        setupCoursesSpinner()
+                        Toast.makeText(this@MarkAttendance, "Showing cached courses (offline)", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        Toast.makeText(this@MarkAttendance, "No cached courses available", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    Toast.makeText(this@MarkAttendance, "Error loading offline courses", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    
+    private fun setupCoursesSpinner() {
+        if (courses.isNotEmpty()) {
+            val courseNames = courses.map { it.course_name }
+            val adapter = ArrayAdapter(
+                this@MarkAttendance,
+                R.layout.spinner_item_white,
+                courseNames
+            )
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerCourse.adapter = adapter
+            
+            // Load students for first course
+            selectedCourseId = courses[0].course_id
+            loadStudents(courses[0].course_id)
+        } else {
+            Toast.makeText(this@MarkAttendance, "No courses found", Toast.LENGTH_SHORT).show()
         }
     }
     

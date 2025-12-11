@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.EvaluationWithStudentsAdapter
+import com.example.smd_project.database.AppDatabase
 import com.example.smd_project.models.Course
 import com.example.smd_project.models.CreateEvaluationRequest
 import com.example.smd_project.models.EnterMarksRequest
@@ -23,9 +24,12 @@ import com.example.smd_project.models.MarksRecordItem
 import com.example.smd_project.models.Student
 import com.example.smd_project.models.TeacherActivity
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import com.example.smd_project.utils.ActivityManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EnterMarks : AppCompatActivity() {
     
@@ -524,53 +528,177 @@ class EnterMarks : AppCompatActivity() {
     }
     
     private fun loadCoursesAndEvaluationTypes() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
-                // Load courses
-                try {
-                    val coursesResponse = apiService.getTeacherCourses()
-                    if (coursesResponse.isSuccessful) {
-                        val body = coursesResponse.body()
-                        if (body?.success == true && !body.data.isNullOrEmpty()) {
-                            courses = body.data.filter { 
-                                it.course_id > 0 && it.course_name.isNotEmpty() 
-                            }
-                            
-                            if (courses.isNotEmpty()) {
-                                selectedCourseId = courses[0].course_id
-                                tvCourseName.text = courses[0].course_name
-                                loadStudents(courses[0].course_id)
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                
-                // Load evaluation types
-                try {
-                    val evalResponse = apiService.getEvaluationTypes()
-                    if (evalResponse.isSuccessful) {
-                        val body = evalResponse.body()
-                        if (body?.success == true && !body.data.isNullOrEmpty()) {
-                            evaluationTypes = body.data.filter { 
-                                it.evaluation_type_id > 0 && it.evaluation_type_name.isNotEmpty() 
-                            }
-                            
-                            if (evaluationTypes.isNotEmpty()) {
-                                selectedEvaluationTypeId = evaluationTypes[0].evaluation_type_id
-                                tvEvaluationType.text = evaluationTypes[0].evaluation_type_name
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                if (NetworkUtils.isOnline(this@EnterMarks)) {
+                    // Online: fetch from API and cache
+                    loadOnlineCoursesAndTypes()
+                } else {
+                    // Offline: load from cache
+                    loadOfflineCoursesAndTypes()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@EnterMarks, "Error loading data: ${e.message}", Toast.LENGTH_SHORT).show()
+                // On error, try offline fallback
+                loadOfflineCoursesAndTypes()
+            }
+        }
+    }
+    
+    private suspend fun loadOnlineCoursesAndTypes() {
+        val apiService = RetrofitClient.getApiService(sessionManager)
+        
+        // Load courses
+        try {
+            val coursesResponse = apiService.getTeacherCourses()
+            if (coursesResponse.isSuccessful) {
+                val body = coursesResponse.body()
+                if (body?.success == true && !body.data.isNullOrEmpty()) {
+                    courses = body.data.filter { 
+                        it.course_id > 0 && it.course_name.isNotEmpty() 
+                    }
+                    
+                    // Cache courses
+                    cacheCourses(courses)
+                    
+                    if (courses.isNotEmpty()) {
+                        selectedCourseId = courses[0].course_id
+                        tvCourseName.text = courses[0].course_name
+                        loadStudents(courses[0].course_id)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        
+        // Load evaluation types
+        try {
+            val evalResponse = apiService.getEvaluationTypes()
+            if (evalResponse.isSuccessful) {
+                val body = evalResponse.body()
+                if (body?.success == true && !body.data.isNullOrEmpty()) {
+                    evaluationTypes = body.data.filter { 
+                        it.evaluation_type_id > 0 && it.evaluation_type_name.isNotEmpty() 
+                    }
+                    
+                    // Cache evaluation types
+                    cacheEvaluationTypes(evaluationTypes)
+                    
+                    if (evaluationTypes.isNotEmpty()) {
+                        selectedEvaluationTypeId = evaluationTypes[0].evaluation_type_id
+                        tvEvaluationType.text = evaluationTypes[0].evaluation_type_name
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    
+    private suspend fun cacheCourses(courseList: List<Course>) {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@EnterMarks)
+                val teacherId = sessionManager.getUserId()
+                
+                val entities = courseList.map { course ->
+                    com.example.smd_project.database.entities.TeacherCourseEntity(
+                        course_id = course.course_id,
+                        teacher_id = teacherId,
+                        course_code = course.course_code,
+                        course_name = course.course_name,
+                        credit_hours = course.credit_hours,
+                        semester = course.semester,
+                        section = null,
+                        enrolled_students = course.enrolled_students ?: 0
+                    )
+                }
+                
+                database.teacherCourseDao().deleteByTeacher(teacherId)
+                if (entities.isNotEmpty()) {
+                    database.teacherCourseDao().insertCourses(entities)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }
+    
+    private suspend fun cacheEvaluationTypes(types: List<EvaluationType>) {
+        withContext(Dispatchers.IO) {
+            try {
+                // Store evaluation types in SharedPreferences as JSON
+                val prefs = getSharedPreferences("teacher_offline_cache", MODE_PRIVATE)
+                val json = com.google.gson.Gson().toJson(types)
+                prefs.edit().putString("cached_evaluation_types", json).apply()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    
+    private suspend fun loadOfflineCoursesAndTypes() {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@EnterMarks)
+                val teacherId = sessionManager.getUserId()
+                
+                // Load cached courses
+                val cachedCourses = database.teacherCourseDao().getCoursesSync(teacherId)
+                if (cachedCourses.isNotEmpty()) {
+                    courses = cachedCourses.map { entity ->
+                        Course(
+                            course_id = entity.course_id,
+                            course_code = entity.course_code,
+                            course_name = entity.course_name,
+                            credit_hours = entity.credit_hours,
+                            semester = entity.semester,
+                            description = null,
+                            is_required = 0,
+                            is_active = 1,
+                            instructors = null,
+                            schedule = null,
+                            enrolled_students = entity.enrolled_students,
+                            grade = null,
+                            gpa = null,
+                            status = null
+                        )
+                    }
+                    
+                    withContext(Dispatchers.Main) {
+                        if (courses.isNotEmpty()) {
+                            selectedCourseId = courses[0].course_id
+                            tvCourseName.text = courses[0].course_name
+                        }
+                    }
+                }
+                
+                // Load cached evaluation types
+                val prefs = getSharedPreferences("teacher_offline_cache", MODE_PRIVATE)
+                val json = prefs.getString("cached_evaluation_types", null)
+                if (json != null) {
+                    val type = object : com.google.gson.reflect.TypeToken<List<EvaluationType>>() {}.type
+                    evaluationTypes = com.google.gson.Gson().fromJson(json, type) ?: emptyList()
+                    
+                    withContext(Dispatchers.Main) {
+                        if (evaluationTypes.isNotEmpty()) {
+                            selectedEvaluationTypeId = evaluationTypes[0].evaluation_type_id
+                            tvEvaluationType.text = evaluationTypes[0].evaluation_type_name
+                        }
+                    }
+                }
+                
+                withContext(Dispatchers.Main) {
+                    if (courses.isNotEmpty() || evaluationTypes.isNotEmpty()) {
+                        Toast.makeText(this@EnterMarks, "Showing cached data (offline)", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@EnterMarks, "No cached data available", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@EnterMarks, "Error loading offline data", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

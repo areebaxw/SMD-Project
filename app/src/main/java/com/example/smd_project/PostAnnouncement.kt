@@ -13,13 +13,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.smd_project.database.AppDatabase
 import com.example.smd_project.models.PostAnnouncementRequest
 import com.example.smd_project.models.Course
 import com.example.smd_project.models.TeacherActivity
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import com.example.smd_project.utils.ActivityManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PostAnnouncement : AppCompatActivity() {
 
@@ -32,6 +36,7 @@ class PostAnnouncement : AppCompatActivity() {
 
     private var selectedCourseId: Int? = null
     private var selectedType: String? = null
+    private var courses: List<Course> = emptyList()
 
     private val announcementTypes = listOf("General", "Urgent", "Reminder") // Example types
 
@@ -73,20 +78,98 @@ class PostAnnouncement : AppCompatActivity() {
     }
 
     private fun loadCourses() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherCourses()
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val courses = response.body()?.data ?: emptyList()
-                    setupCourseSpinner(courses)
+                if (NetworkUtils.isOnline(this@PostAnnouncement)) {
+                    // Online: fetch from API and cache
+                    val apiService = RetrofitClient.getApiService(sessionManager)
+                    val response = apiService.getTeacherCourses()
+                    
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        courses = response.body()?.data ?: emptyList()
+                        cacheCourses(courses)
+                        setupCourseSpinner(courses)
+                    } else {
+                        loadOfflineCourses()
+                    }
                 } else {
-                    Toast.makeText(this@PostAnnouncement, "Failed to load courses", Toast.LENGTH_SHORT).show()
+                    loadOfflineCourses()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@PostAnnouncement, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                loadOfflineCourses()
+            }
+        }
+    }
+    
+    private suspend fun cacheCourses(courseList: List<Course>) {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@PostAnnouncement)
+                val teacherId = sessionManager.getUserId()
+                
+                val entities = courseList.map { course ->
+                    com.example.smd_project.database.entities.TeacherCourseEntity(
+                        course_id = course.course_id,
+                        teacher_id = teacherId,
+                        course_code = course.course_code,
+                        course_name = course.course_name,
+                        credit_hours = course.credit_hours,
+                        semester = course.semester,
+                        section = null,
+                        enrolled_students = course.enrolled_students ?: 0
+                    )
+                }
+                
+                database.teacherCourseDao().deleteByTeacher(teacherId)
+                if (entities.isNotEmpty()) {
+                    database.teacherCourseDao().insertCourses(entities)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }
+    
+    private suspend fun loadOfflineCourses() {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@PostAnnouncement)
+                val teacherId = sessionManager.getUserId()
+                val cachedCourses = database.teacherCourseDao().getCoursesSync(teacherId)
+                
+                if (cachedCourses.isNotEmpty()) {
+                    courses = cachedCourses.map { entity ->
+                        Course(
+                            course_id = entity.course_id,
+                            course_code = entity.course_code,
+                            course_name = entity.course_name,
+                            credit_hours = entity.credit_hours,
+                            semester = entity.semester,
+                            description = null,
+                            is_required = 0,
+                            is_active = 1,
+                            instructors = null,
+                            schedule = null,
+                            enrolled_students = entity.enrolled_students,
+                            grade = null,
+                            gpa = null,
+                            status = null
+                        )
+                    }
+                    
+                    withContext(Dispatchers.Main) {
+                        setupCourseSpinner(courses)
+                        Toast.makeText(this@PostAnnouncement, "Showing cached courses (offline)", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@PostAnnouncement, "No cached courses available", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@PostAnnouncement, "Error loading offline courses", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

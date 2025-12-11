@@ -10,12 +10,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.adapters.CourseAdapter
 import com.example.smd_project.models.Course
 import com.example.smd_project.network.RetrofitClient
+import com.example.smd_project.repository.TeacherRepository
+import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class CourseListTeacherActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
+    private lateinit var repository: TeacherRepository
     private lateinit var rvCourses: RecyclerView
     private lateinit var courseAdapter: CourseAdapter
 
@@ -24,6 +27,7 @@ class CourseListTeacherActivity : AppCompatActivity() {
         setContentView(R.layout.activity_course_list)
 
         sessionManager = SessionManager(this)
+        repository = TeacherRepository(this)
 
         initViews()
         setupRecyclerView()
@@ -50,14 +54,13 @@ class CourseListTeacherActivity : AppCompatActivity() {
     }
 
     private fun loadCourses() {
-        val apiService = RetrofitClient.getApiService(sessionManager)
-
         lifecycleScope.launch {
             try {
-                val response = apiService.getTeacherCourses()
-
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val courses = response.body()?.data ?: emptyList()
+                // Use repository for offline support
+                val isOnline = NetworkUtils.isOnline(this@CourseListTeacherActivity)
+                val result = repository.getCourses(forceRefresh = isOnline)
+                
+                result.onSuccess { courses ->
                     if (courses.isEmpty()) {
                         Toast.makeText(
                             this@CourseListTeacherActivity,
@@ -66,11 +69,18 @@ class CourseListTeacherActivity : AppCompatActivity() {
                         ).show()
                     } else {
                         courseAdapter.updateCourses(courses)
+                        if (!isOnline) {
+                            Toast.makeText(
+                                this@CourseListTeacherActivity,
+                                "Showing cached data (offline)",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
-                } else {
+                }.onFailure { error ->
                     Toast.makeText(
                         this@CourseListTeacherActivity,
-                        response.body()?.message ?: "Failed to load courses",
+                        "Error: ${error.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
