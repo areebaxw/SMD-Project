@@ -77,6 +77,27 @@ interface AttendanceDao {
     
     @Query("DELETE FROM attendance")
     suspend fun clearAll()
+    
+    @Query("DELETE FROM attendance WHERE student_id = :studentId")
+    suspend fun clearByStudent(studentId: Int)
+}
+
+@Dao
+interface AttendanceSummaryDao {
+    @Query("SELECT * FROM attendance_summary WHERE student_id = :studentId ORDER BY course_name ASC")
+    fun getSummaryByStudent(studentId: Int): LiveData<List<AttendanceSummaryEntity>>
+    
+    @Query("SELECT * FROM attendance_summary WHERE student_id = :studentId ORDER BY course_name ASC")
+    suspend fun getSummaryByStudentSync(studentId: Int): List<AttendanceSummaryEntity>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(summaries: List<AttendanceSummaryEntity>)
+    
+    @Query("DELETE FROM attendance_summary WHERE student_id = :studentId")
+    suspend fun clearByStudent(studentId: Int)
+    
+    @Query("DELETE FROM attendance_summary")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -90,12 +111,21 @@ interface MarkDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMarks(marks: List<MarkEntity>)
     
+    @Query("DELETE FROM marks WHERE student_id = :studentId")
+    suspend fun clearByStudent(studentId: Int)
+    
     @Query("DELETE FROM marks")
     suspend fun clearAll()
 }
 
 @Dao
 interface EvaluationDao {
+    @Query("SELECT * FROM evaluations ORDER BY created_at DESC")
+    fun getAllEvaluations(): LiveData<List<EvaluationEntity>>
+    
+    @Query("SELECT * FROM evaluations ORDER BY created_at DESC")
+    suspend fun getAllEvaluationsSync(): List<EvaluationEntity>
+    
     @Query("SELECT * FROM evaluations WHERE course_id IN (:courseIds) ORDER BY created_at DESC")
     fun getEvaluationsByCourses(courseIds: List<Int>): LiveData<List<EvaluationEntity>>
     
@@ -189,4 +219,28 @@ interface StudentFeeDao {
     @Query("UPDATE student_fees SET total_amount = :totalAmount, remaining_amount = :remainingAmount WHERE student_id = :studentId AND fee_id = :feeId")
     suspend fun updateFeeAmounts(studentId: Int, feeId: Int, totalAmount: Double, remainingAmount: Double)
 
+}
+
+@Dao
+interface PaymentHistoryDao {
+    @Query("SELECT * FROM payment_history WHERE fee_id = :feeId ORDER BY created_at DESC")
+    fun getPaymentHistoryByFee(feeId: Int): LiveData<List<PaymentHistoryEntity>>
+    
+    @Query("SELECT * FROM payment_history WHERE fee_id = :feeId ORDER BY created_at DESC")
+    suspend fun getPaymentHistoryByFeeSync(feeId: Int): List<PaymentHistoryEntity>
+    
+    @Query("SELECT * FROM payment_history WHERE student_id = :studentId ORDER BY created_at DESC")
+    fun getPaymentHistoryByStudent(studentId: Int): LiveData<List<PaymentHistoryEntity>>
+    
+    @Query("SELECT * FROM payment_history WHERE student_id = :studentId ORDER BY created_at DESC")
+    suspend fun getPaymentHistoryByStudentSync(studentId: Int): List<PaymentHistoryEntity>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPaymentHistory(history: List<PaymentHistoryEntity>)
+    
+    @Query("DELETE FROM payment_history WHERE fee_id = :feeId")
+    suspend fun clearByFee(feeId: Int)
+    
+    @Query("DELETE FROM payment_history")
+    suspend fun clearAll()
 }

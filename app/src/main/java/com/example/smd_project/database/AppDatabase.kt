@@ -13,12 +13,14 @@ import com.example.smd_project.database.entities.*
         CourseEntity::class,
         AnnouncementEntity::class,
         AttendanceEntity::class,
+        AttendanceSummaryEntity::class,
         MarkEntity::class,
         EvaluationEntity::class,
         NotificationEntity::class,
         ClassScheduleEntity::class,
         EnrollmentEntity::class,
         StudentFeeEntity::class,
+        PaymentHistoryEntity::class,
         // Teacher entities
         TeacherEntity::class,
         TeacherCourseEntity::class,
@@ -28,7 +30,7 @@ import com.example.smd_project.database.entities.*
         TeacherMarkRecordEntity::class,
         PendingSyncEntity::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,12 +39,14 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun courseDao(): CourseDao
     abstract fun announcementDao(): AnnouncementDao
     abstract fun attendanceDao(): AttendanceDao
+    abstract fun attendanceSummaryDao(): AttendanceSummaryDao
     abstract fun markDao(): MarkDao
     abstract fun evaluationDao(): EvaluationDao
     abstract fun notificationDao(): NotificationDao
     abstract fun classScheduleDao(): ClassScheduleDao
     abstract fun enrollmentDao(): EnrollmentDao
     abstract fun studentFeeDao(): StudentFeeDao
+    abstract fun paymentHistoryDao(): PaymentHistoryDao
     
     // Teacher DAOs
     abstract fun teacherDao(): TeacherDao

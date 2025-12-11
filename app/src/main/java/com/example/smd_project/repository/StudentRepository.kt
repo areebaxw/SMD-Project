@@ -220,6 +220,18 @@ class StudentRepository(private val context: Context) {
         return database.attendanceDao().getAttendanceByStudent(studentId)
     }
     
+    fun getAttendanceSummary(): LiveData<List<AttendanceSummaryEntity>> {
+        val studentId = sessionManager.getUserId()
+        return database.attendanceSummaryDao().getSummaryByStudent(studentId)
+    }
+    
+    suspend fun getAttendanceSummaryOffline(): List<AttendanceSummaryEntity> {
+        return withContext(Dispatchers.IO) {
+            val studentId = sessionManager.getUserId()
+            database.attendanceSummaryDao().getSummaryByStudentSync(studentId)
+        }
+    }
+    
     suspend fun refreshAttendance(): Result<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
@@ -229,7 +241,34 @@ class StudentRepository(private val context: Context) {
                 
                 val response = apiService.getStudentAttendance()
                 if (response.isSuccessful && response.body()?.success == true) {
-                    Log.d(TAG, "Attendance data refreshed from API")
+                    val attendanceList = response.body()?.data ?: emptyList()
+                    val studentId = sessionManager.getUserId()
+                    
+                    // Convert to AttendanceSummaryEntity and save to Room
+                    val summaryEntities = attendanceList.map { summary ->
+                        AttendanceSummaryEntity(
+                            id = summary.course_id * 10000 + studentId, // Unique ID per student-course
+                            student_id = studentId,
+                            course_id = summary.course_id,
+                            course_name = summary.course_name,
+                            course_code = summary.course_code,
+                            present_count = summary.present,
+                            absent_count = summary.absent,
+                            late_count = summary.late,
+                            excused_count = summary.excused,
+                            total_count = summary.total,
+                            percentage = summary.percentage,
+                            last_synced_at = System.currentTimeMillis()
+                        )
+                    }
+                    
+                    if (summaryEntities.isNotEmpty()) {
+                        // Clear old summaries for this student and insert new ones
+                        database.attendanceSummaryDao().clearByStudent(studentId)
+                        database.attendanceSummaryDao().insertAll(summaryEntities)
+                        Log.d(TAG, "Saved ${summaryEntities.size} attendance summaries to database")
+                    }
+                    
                     Result.success(true)
                 } else {
                     Result.failure(Exception("Failed to fetch attendance"))
@@ -390,6 +429,165 @@ class StudentRepository(private val context: Context) {
         }
     }
     
+    // ========== Payment History ==========
+    fun getPaymentHistory(feeId: Int): LiveData<List<PaymentHistoryEntity>> {
+        return database.paymentHistoryDao().getPaymentHistoryByFee(feeId)
+    }
+    
+    fun getPaymentHistoryByStudent(): LiveData<List<PaymentHistoryEntity>> {
+        val studentId = sessionManager.getUserId()
+        return database.paymentHistoryDao().getPaymentHistoryByStudent(studentId)
+    }
+    
+    suspend fun getPaymentHistoryOffline(feeId: Int): List<PaymentHistoryEntity> {
+        return withContext(Dispatchers.IO) {
+            database.paymentHistoryDao().getPaymentHistoryByFeeSync(feeId)
+        }
+    }
+    
+    suspend fun refreshPaymentHistory(feeId: Int): Result<List<PaymentHistoryItem>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (!NetworkUtils.isOnline(context)) {
+                    // Return offline data if available
+                    val cachedPayments = database.paymentHistoryDao().getPaymentHistoryByFeeSync(feeId)
+                    if (cachedPayments.isNotEmpty()) {
+                        val items = cachedPayments.map { entity ->
+                            PaymentHistoryItem(
+                                payment_id = entity.payment_id,
+                                student_id = entity.student_id,
+                                fee_id = entity.fee_id,
+                                amount_paid = entity.amount_paid,
+                                payment_method = entity.payment_method,
+                                remarks = entity.remarks,
+                                created_at = entity.created_at
+                            )
+                        }
+                        return@withContext Result.success(items)
+                    }
+                    return@withContext Result.failure(Exception("No internet connection and no cached data"))
+                }
+                
+                val response = apiService.getFeePaymentHistory(feeId)
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val payments = response.body()?.data ?: emptyList()
+                    
+                    // Save to database for offline use
+                    val entities = payments.map { payment ->
+                        PaymentHistoryEntity(
+                            payment_id = payment.payment_id,
+                            student_id = payment.student_id,
+                            fee_id = payment.fee_id,
+                            amount_paid = payment.amount_paid,
+                            payment_method = payment.payment_method,
+                            remarks = payment.remarks,
+                            created_at = payment.created_at,
+                            last_synced_at = System.currentTimeMillis()
+                        )
+                    }
+                    
+                    if (entities.isNotEmpty()) {
+                        // Clear old payments for this fee and insert new ones
+                        database.paymentHistoryDao().clearByFee(feeId)
+                        database.paymentHistoryDao().insertPaymentHistory(entities)
+                        Log.d(TAG, "Saved ${entities.size} payment history records for fee $feeId")
+                    }
+                    
+                    Result.success(payments)
+                } else {
+                    Result.failure(Exception("Failed to fetch payment history"))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error refreshing payment history", e)
+                // Try to return cached data on error
+                val cachedPayments = database.paymentHistoryDao().getPaymentHistoryByFeeSync(feeId)
+                if (cachedPayments.isNotEmpty()) {
+                    val items = cachedPayments.map { entity ->
+                        PaymentHistoryItem(
+                            payment_id = entity.payment_id,
+                            student_id = entity.student_id,
+                            fee_id = entity.fee_id,
+                            amount_paid = entity.amount_paid,
+                            payment_method = entity.payment_method,
+                            remarks = entity.remarks,
+                            created_at = entity.created_at
+                        )
+                    }
+                    Result.success(items)
+                } else {
+                    Result.failure(e)
+                }
+            }
+        }
+    }
+    
+    // ========== Evaluations ==========
+    fun getEvaluations(): LiveData<List<EvaluationEntity>> {
+        return database.evaluationDao().getAllEvaluations()
+    }
+    
+    suspend fun getEvaluationsOffline(): List<EvaluationEntity> {
+        return withContext(Dispatchers.IO) {
+            database.evaluationDao().getAllEvaluationsSync()
+        }
+    }
+    
+    suspend fun refreshEvaluations(): Result<Boolean> {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (!NetworkUtils.isOnline(context)) {
+                    return@withContext Result.success(false)
+                }
+                
+                val response = apiService.getStudentEvaluations()
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val evaluations = response.body()?.data ?: emptyList()
+                    val studentId = sessionManager.getUserId()
+                    
+                    // Convert to entities and save to Room
+                    // Each CourseEvaluation is a single evaluation with course info
+                    val entities = evaluations.map { eval ->
+                        EvaluationEntity(
+                            evaluation_id = eval.evaluation_id,
+                            course_id = eval.course_id,
+                            teacher_id = eval.teacher_id,
+                            evaluation_type_id = eval.evaluation_type_id,
+                            evaluation_number = eval.evaluation_number,
+                            title = eval.title,
+                            description = eval.description,
+                            total_marks = eval.total_marks,
+                            due_date = eval.due_date,
+                            academic_year = eval.academic_year,
+                            semester = eval.semester,
+                            created_at = eval.created_at,
+                            updated_at = eval.updated_at,
+                            weightage = null,
+                            type_name = eval.type_name,
+                            course_name = eval.course_name,
+                            course_code = eval.course_code,
+                            teacher_name = eval.teacher_name,
+                            obtained_marks = eval.obtained_marks,
+                            last_synced_at = System.currentTimeMillis()
+                        )
+                    }
+                    
+                    if (entities.isNotEmpty()) {
+                        database.evaluationDao().clearAll()
+                        database.evaluationDao().insertEvaluations(entities)
+                        Log.d(TAG, "Saved ${entities.size} evaluations to database")
+                    }
+                    
+                    Result.success(true)
+                } else {
+                    Result.failure(Exception("Failed to fetch evaluations"))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error refreshing evaluations", e)
+                Result.failure(e)
+            }
+        }
+    }
+    
     // ========== Clear Cache ==========
     suspend fun clearAllCache() {
         withContext(Dispatchers.IO) {
@@ -397,12 +595,14 @@ class StudentRepository(private val context: Context) {
             database.courseDao().clearAll()
             database.announcementDao().clearAll()
             database.attendanceDao().clearAll()
+            database.attendanceSummaryDao().clearAll()
             database.markDao().clearAll()
             database.evaluationDao().clearAll()
             database.notificationDao().clearAll()
             database.classScheduleDao().clearAll()
             database.enrollmentDao().clearAll()
             database.studentFeeDao().clearAll()
+            database.paymentHistoryDao().clearAll()
         }
     }
     suspend fun updateFeeAmountsLocally(studentId: Int, feeId: Int, totalAmount: Double, paidAmount: Double) {

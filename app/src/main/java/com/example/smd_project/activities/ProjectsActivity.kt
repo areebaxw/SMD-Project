@@ -14,11 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smd_project.R
 import com.example.smd_project.adapters.CourseSelectorAdapter
 import com.example.smd_project.adapters.StudentMarkDisplayAdapter
+import com.example.smd_project.database.AppDatabase
 import com.example.smd_project.models.Mark
 import com.example.smd_project.network.RetrofitClient
 import com.example.smd_project.utils.NetworkUtils
 import com.example.smd_project.utils.SessionManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProjectsActivity : AppCompatActivity() {
     
@@ -29,6 +32,7 @@ class ProjectsActivity : AppCompatActivity() {
     private lateinit var courseDropdownCard: View
     
     private var allMarks: List<Mark> = emptyList()
+    private var allCourses: List<Pair<String, String>> = emptyList() // course_code to course_name
     private var selectedCourseCode: String? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,31 +99,119 @@ class ProjectsActivity : AppCompatActivity() {
     }
     
     private fun loadMarksData() {
-        // Check network before making API call
-        if (!NetworkUtils.isOnline(this)) {
-            Toast.makeText(this, "No internet connection. Marks require online access.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        
-        val apiService = RetrofitClient.getApiService(sessionManager)
-        
         lifecycleScope.launch {
             try {
-                val response = apiService.getStudentMarks()
-                if (response.isSuccessful && response.body()?.success == true) {
-                    allMarks = response.body()?.data ?: emptyList()
-                    setupCourseFilter()
+                if (NetworkUtils.isOnline(this@ProjectsActivity)) {
+                    val apiService = RetrofitClient.getApiService(sessionManager)
+                    val response = apiService.getStudentMarks()
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        allMarks = response.body()?.data ?: emptyList()
+                        cacheMarks(allMarks)
+                        setupCourseFilter()
+                    } else {
+                        loadOfflineMarks()
+                    }
                 } else {
-                    Toast.makeText(this@ProjectsActivity, "Failed to load marks", Toast.LENGTH_SHORT).show()
+                    loadOfflineMarks()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@ProjectsActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                loadOfflineMarks()
+            }
+        }
+    }
+    
+    private suspend fun cacheMarks(marks: List<Mark>) {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@ProjectsActivity)
+                val studentId = sessionManager.getUserId()
+                var markId = studentId * 100000
+                val entities = marks.mapIndexed { index, mark ->
+                    com.example.smd_project.database.entities.MarkEntity(
+                        mark_id = markId + index,
+                        student_id = studentId,
+                        evaluation_id = index,
+                        obtained_marks = mark.obtained_marks,
+                        remarks = null,
+                        marked_by = 0,
+                        marked_at = "",
+                        updated_at = "",
+                        title = mark.title,
+                        total_marks = mark.total_marks,
+                        evaluation_number = mark.evaluation_number,
+                        type_name = mark.evaluation_type,
+                        course_name = mark.course_name,
+                        course_code = mark.course_code,
+                        percentage = mark.percentage,
+                        last_synced_at = System.currentTimeMillis()
+                    )
+                }
+                if (entities.isNotEmpty()) {
+                    database.markDao().clearByStudent(studentId)
+                    database.markDao().insertMarks(entities)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    
+    private suspend fun loadOfflineMarks() {
+        withContext(Dispatchers.IO) {
+            try {
+                val database = AppDatabase.getDatabase(this@ProjectsActivity)
+                val studentId = sessionManager.getUserId()
+                
+                // Also load enrolled courses for fallback
+                val enrollments = database.enrollmentDao().getEnrollmentsByStudentSync(studentId)
+                allCourses = enrollments.mapNotNull { enrollment ->
+                    val code = enrollment.course_code
+                    val name = enrollment.course_name
+                    if (code != null && name != null) Pair(code, name) else null
+                }.distinctBy { it.first }
+                
+                val cachedMarks = database.markDao().getMarksByStudentSync(studentId)
+                
+                // Process marks (may be empty, but we still have courses from enrollments)
+                if (cachedMarks.isNotEmpty() || allCourses.isNotEmpty()) {
+                    allMarks = cachedMarks.map { entity ->
+                        Mark(
+                            course_name = entity.course_name ?: "",
+                            course_code = entity.course_code ?: "",
+                            evaluation_type = entity.type_name,
+                            evaluation_number = entity.evaluation_number ?: 0,
+                            title = entity.title ?: "",
+                            total_marks = entity.total_marks ?: 0,
+                            obtained_marks = entity.obtained_marks,
+                            percentage = entity.percentage ?: 0.0
+                        )
+                    }
+                    withContext(Dispatchers.Main) {
+                        setupCourseFilter()
+                        Toast.makeText(this@ProjectsActivity, "Showing cached data (offline)", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@ProjectsActivity, "No cached data available", Toast.LENGTH_LONG).show()
+                    }
+                    return@withContext
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ProjectsActivity, "Error loading offline data", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
     
     private fun setupCourseFilter() {
-        val courses = allMarks.map { "${it.course_code} - ${it.course_name}" }.distinct()
+        // First try to get courses from marks
+        var courses = allMarks.map { "${it.course_code} - ${it.course_name}" }.distinct()
+        
+        // If no courses from marks, try from cached enrollments
+        if (courses.isEmpty() && allCourses.isNotEmpty()) {
+            courses = allCourses.map { "${it.first} - ${it.second}" }
+        }
         
         if (courses.isEmpty()) {
             currentCourseName.text = "No courses available"
