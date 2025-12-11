@@ -182,22 +182,29 @@ class MainActivity : AppCompatActivity() {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
+                    Log.e("BiometricAuth", "Authentication error: $errorCode - $errString")
                     Toast.makeText(applicationContext,
                         "Authentication error: $errString", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+                    Log.d("BiometricAuth", "Authentication succeeded!")
+                    val cryptoObject = result.cryptoObject
+                    Log.d("BiometricAuth", "Crypto object: ${cryptoObject != null}")
                     Toast.makeText(applicationContext,
                         "Authentication succeeded!", Toast.LENGTH_SHORT).show()
-                    
+
                     // Use saved credentials to login
                     val savedEmail = sessionManager.getSavedEmail()
                     val savedPassword = sessionManager.getSavedPassword()
-                    
+
+                    Log.d("BiometricAuth", "Saved email: ${savedEmail?.take(3)}..., password exists: ${savedPassword != null}")
+
                     if (savedEmail != null && savedPassword != null) {
                         login(savedEmail, savedPassword, enableBiometric = false)
                     } else {
+                        Log.e("BiometricAuth", "No saved credentials found")
                         Toast.makeText(applicationContext,
                             "No saved credentials found. Please login normally first.",
                             Toast.LENGTH_LONG).show()
@@ -206,6 +213,7 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
+                    Log.w("BiometricAuth", "Authentication failed - biometric not recognized")
                     Toast.makeText(applicationContext, "Authentication failed",
                         Toast.LENGTH_SHORT).show()
                 }
@@ -213,7 +221,10 @@ class MainActivity : AppCompatActivity() {
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Biometric Login")
-            .setSubtitle("Log in using your fingerprint or face")
+            .setSubtitle("Log in using your fingerprint, face, or device PIN/pattern")
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                                    BiometricManager.Authenticators.DEVICE_CREDENTIAL)
             .setNegativeButtonText("Use Password")
             .build()
         
@@ -223,20 +234,53 @@ class MainActivity : AppCompatActivity() {
     
     private fun checkBiometricAvailability() {
         val biometricManager = BiometricManager.from(this)
-        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
+
+        // Check different authenticator combinations
+        val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                            BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+
+        val strongResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+        val weakResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)
+        val deviceResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        val combinedResult = biometricManager.canAuthenticate(authenticators)
+
+        Log.d("BiometricAuth", "Strong: $strongResult, Weak: $weakResult, Device: $deviceResult, Combined: $combinedResult")
+
+        when (combinedResult) {
             BiometricManager.BIOMETRIC_SUCCESS -> {
                 Log.d("BiometricAuth", "App can authenticate using biometrics.")
                 // Only show biometric button if user has enabled it before
                 if (sessionManager.isBiometricEnabled()) {
                     btnBiometricLogin.visibility = android.view.View.VISIBLE
+                    Log.d("BiometricAuth", "Biometric login button shown")
+                } else {
+                    Log.d("BiometricAuth", "Biometric enabled but not set in session")
                 }
             }
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                 Log.e("BiometricAuth", "No biometric features available on this device.")
+                // Try with just device credential
+                if (deviceResult == BiometricManager.BIOMETRIC_SUCCESS) {
+                    Log.d("BiometricAuth", "Device credential authentication available.")
+                    if (sessionManager.isBiometricEnabled()) {
+                        btnBiometricLogin.visibility = android.view.View.VISIBLE
+                        Log.d("BiometricAuth", "Biometric login button shown (device credential)")
+                    }
+                }
+            }
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
                 Log.e("BiometricAuth", "Biometric features are currently unavailable.")
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 Log.e("BiometricAuth", "The user hasn't associated any biometric credentials with their account.")
+                // Check if device credential is available
+                if (deviceResult == BiometricManager.BIOMETRIC_SUCCESS) {
+                    Log.d("BiometricAuth", "Device credential available as fallback.")
+                    if (sessionManager.isBiometricEnabled()) {
+                        btnBiometricLogin.visibility = android.view.View.VISIBLE
+                        Log.d("BiometricAuth", "Biometric login button shown (device credential fallback)")
+                    }
+                }
             }
         }
     }
