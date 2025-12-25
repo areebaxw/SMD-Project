@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://campusino-backend-production.up.railway.app/api/"
+    private const val BASE_URL = "https://web-production-763f.up.railway.app/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor { message ->
         Log.d("DEBUG_HTTP", message)
